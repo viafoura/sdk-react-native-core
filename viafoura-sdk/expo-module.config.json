@@ -1,0 +1,14 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["ViafouraModule", "PreviewCommentsModule"]
+  },
+  "android": {
+    "modules": [
+      "expo.modules.viafourasdk.ViafouraModule",
+      "expo.modules.viafourasdk.PreviewCommentsModule",
+      "expo.modules.viafourasdk.ProfileModule",
+      "expo.modules.viafourasdk.NewCommentModule"
+    ]
+  }
+}
