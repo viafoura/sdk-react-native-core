@@ -42,12 +42,14 @@
   "dependencies": {},
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "@types/invariant": "^2.2.35",
     "expo-module-scripts": "^5.0.7",
     "expo": "^54.0.12",
     "react-native": "0.81.4"
   },
   "peerDependencies": {
     "expo": "*",
+    "expo-modules-core": "*",
     "react": "*",
     "react-native": "*"
   }

@@ -1,16 +1,16 @@
-import { requireNativeView } from 'expo';
+import { requireNativeViewManager } from 'expo-modules-core';
 import * as React from 'react';
-import { Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 
 import { ProfileViewProps } from './Viafoura.types';
 
-function ProfileFallbackView({ style }: ProfileViewProps) {
-  return <View style={style} />;
+function ProfileFallbackView(_props: ProfileViewProps) {
+  return null;
 }
 
 const NativeView: React.ComponentType<ProfileViewProps> =
   Platform.OS === 'android'
-    ? requireNativeView('Profile')
+    ? requireNativeViewManager('Profile')
     : ProfileFallbackView;
 
 export default function ProfileView(props: ProfileViewProps) {
