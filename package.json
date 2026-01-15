@@ -1,7 +1,7 @@
 {
   "name": "@viafoura/sdk-react-native",
   "version": "0.1.0",
-  "description": "My new module",
+  "description": "Viafoura React Native SDK",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
