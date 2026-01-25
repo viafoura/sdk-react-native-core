@@ -27,7 +27,7 @@ import com.viafourasdk.src.model.local.VFTheme
 import java.net.URL
 import java.util.UUID
 
-class NewCommentView(context: Context, private val appContext: AppContext) :
+class NewCommentView(context: Context, appContext: AppContext) :
   ExpoView(context, appContext), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
 
   // Props
@@ -150,4 +150,3 @@ class NewCommentView(context: Context, private val appContext: AppContext) :
     onHeightChanged(mapOf("newHeight" to height, "containerId" to containerId))
   }
 }
-

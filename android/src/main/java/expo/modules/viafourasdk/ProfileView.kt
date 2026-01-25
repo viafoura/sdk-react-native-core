@@ -24,7 +24,7 @@ import com.viafourasdk.src.model.local.VFProfilePresentationType
 import com.viafourasdk.src.model.local.VFTheme
 import java.util.UUID
 
-class ProfileView(context: Context, private val appContext: AppContext) :
+class ProfileView(context: Context, appContext: AppContext) :
   ExpoView(context, appContext), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
 
   // Props
@@ -70,8 +70,7 @@ class ProfileView(context: Context, private val appContext: AppContext) :
 
       val pres = when (presentationType) {
         "feed" -> VFProfilePresentationType.feed
-        "profile" -> VFProfilePresentationType.profile
-        else -> null
+        else -> VFProfilePresentationType.profile
       }
 
       val uuid = UUID.fromString(requireNotNull(userUUID))
@@ -131,4 +130,3 @@ class ProfileView(context: Context, private val appContext: AppContext) :
     height: Int
   ) { /* no-op for profile */ }
 }
-

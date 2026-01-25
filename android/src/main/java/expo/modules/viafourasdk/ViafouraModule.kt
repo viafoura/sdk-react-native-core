@@ -36,7 +36,7 @@ class ViafouraModule : Module() {
           promise.resolve(null)
         }
         override fun onError(err: NetworkError) {
-          promise.reject("E_VF_LOGIN", err.message ?: "Login failed")
+          promise.reject("E_VF_LOGIN", err.message ?: "Login failed", null)
         }
       })
     }
@@ -47,7 +47,7 @@ class ViafouraModule : Module() {
           promise.resolve(null)
         }
         override fun onError(err: NetworkError) {
-          promise.reject("E_VF_SIGNUP", err.message ?: "Signup failed")
+          promise.reject("E_VF_SIGNUP", err.message ?: "Signup failed", null)
         }
       })
     }
@@ -59,7 +59,7 @@ class ViafouraModule : Module() {
           promise.resolve(null)
         }
         override fun onError(err: NetworkError) {
-          promise.reject("E_VF_SOCIAL", err.message ?: "Social login failed")
+          promise.reject("E_VF_SOCIAL", err.message ?: "Social login failed", null)
         }
       })
     }
@@ -70,7 +70,7 @@ class ViafouraModule : Module() {
           promise.resolve(null)
         }
         override fun onError(err: NetworkError) {
-          promise.reject("E_VF_OPENID", err.message ?: "OpenID login failed")
+          promise.reject("E_VF_OPENID", err.message ?: "OpenID login failed", null)
         }
       })
     }
@@ -81,7 +81,7 @@ class ViafouraModule : Module() {
           promise.resolve(null)
         }
         override fun onError(err: NetworkError) {
-          promise.reject("E_VF_COOKIE", err.message ?: "Cookie login failed")
+          promise.reject("E_VF_COOKIE", err.message ?: "Cookie login failed", null)
         }
       })
     }
@@ -92,7 +92,7 @@ class ViafouraModule : Module() {
           promise.resolve(null)
         }
         override fun onError(err: NetworkError) {
-          promise.reject("E_VF_RESET", err.message ?: "Password reset failed")
+          promise.reject("E_VF_RESET", err.message ?: "Password reset failed", null)
         }
       })
     }
@@ -102,11 +102,11 @@ class ViafouraModule : Module() {
       val context = appContext.reactContext?.applicationContext
         ?: appContext.currentActivity?.applicationContext
       if (context == null) {
-        promise.reject("E_VF_INIT", "No application context available")
+        promise.reject("E_VF_INIT", "No application context available", null)
         return@AsyncFunction
       }
       if (siteUUID.isBlank() || siteDomain.isBlank()) {
-        promise.reject("E_VF_INIT", "Invalid Viafoura initialization parameters")
+        promise.reject("E_VF_INIT", "Invalid Viafoura initialization parameters", null)
         return@AsyncFunction
       }
       try {
@@ -114,7 +114,7 @@ class ViafouraModule : Module() {
         ViafouraSDK.initialize(context, siteUUID, siteDomain)
         promise.resolve(null)
       } catch (e: Exception) {
-        promise.reject("E_VF_INIT", e.message ?: "Viafoura initialization failed")
+        promise.reject("E_VF_INIT", e.message ?: "Viafoura initialization failed", e)
       }
     }
 

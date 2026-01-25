@@ -26,7 +26,7 @@ import com.viafourasdk.src.model.local.VFSettings
 import com.viafourasdk.src.model.local.VFTheme
 import java.net.URL
 
-class PreviewCommentsView(context: Context, private val appContext: AppContext) :
+class PreviewCommentsView(context: Context, appContext: AppContext) :
   ExpoView(context, appContext), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
 
   // Props
@@ -129,14 +129,16 @@ class PreviewCommentsView(context: Context, private val appContext: AppContext) 
   override fun onNewAction(actionType: VFActionType, action: VFActionData) {
     when (actionType) {
       VFActionType.writeNewCommentPressed -> {
-        val content = action.newCommentAction?.content?.toString()
-        val type = action.newCommentAction?.type?.toString()
-        onNewComment(mapOf("content" to content, "actionType" to type).filterValues { it != null })
+        val payload = mutableMapOf<String, Any>()
+        action.newCommentAction?.content?.toString()?.let { payload["content"] = it }
+        action.newCommentAction?.type?.toString()?.let { payload["actionType"] = it }
+        onNewComment(payload)
       }
       VFActionType.openProfilePressed -> {
-        val pres = action.openProfileAction?.presentationType?.toString()
-        val user = action.openProfileAction?.userUUID?.toString()
-        onOpenProfile(mapOf("presentationType" to pres, "userUUID" to user).filterValues { it != null })
+        val payload = mutableMapOf<String, Any>()
+        action.openProfileAction?.presentationType?.toString()?.let { payload["presentationType"] = it }
+        action.openProfileAction?.userUUID?.toString()?.let { payload["userUUID"] = it }
+        onOpenProfile(payload)
       }
       VFActionType.trendingArticlePressed -> {
         val url = action.trendingPressedAction?.articleMetadata?.url?.toString() ?: return
