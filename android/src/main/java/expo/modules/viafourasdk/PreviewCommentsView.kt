@@ -20,8 +20,6 @@ import com.viafourasdk.src.interfaces.VFLayoutInterface
 import com.viafourasdk.src.model.local.VFActionData
 import com.viafourasdk.src.model.local.VFActionType
 import com.viafourasdk.src.model.local.VFArticleMetadata
-import com.viafourasdk.src.model.local.VFColors
-import com.viafourasdk.src.model.local.VFDefaultColors
 import com.viafourasdk.src.model.local.VFSettings
 import com.viafourasdk.src.model.local.VFTheme
 import java.net.URL
@@ -38,6 +36,7 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
   var articleThumbnailUrl: String? = null
   var syndicationKey: String? = null
   var darkMode: Boolean = false
+  var colors: Map<String, Any?>? = null
 
   // Events
   private val onHeightChanged by EventDispatcher()
@@ -45,6 +44,7 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
   private val onOpenProfile by EventDispatcher()
   private val onNewComment by EventDispatcher()
   private val onArticlePressed by EventDispatcher()
+  private val onAction by EventDispatcher()
 
   // Internals
   private val container = FrameLayout(context).also {
@@ -79,11 +79,9 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
         articleSubtitle ?: "",
         URL(requireNotNull(articleThumbnailUrl))
       )
-      val colors = VFColors(
-        VFDefaultColors.getInstance().colorPrimaryDefault(null),
-        VFDefaultColors.getInstance().colorPrimaryLightDefault(null)
+      val settings = VFSettings(
+        resolveVFColors(colors, if (darkMode) VFTheme.dark else VFTheme.light)
       )
-      val settings = VFSettings(colors)
 
       val builder = VFPreviewCommentsFragmentBuilder(requireNotNull(containerId), meta, settings)
       syndicationKey?.let { builder.syndicationKey(it) }
@@ -127,29 +125,38 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
 
   // VFActionsInterface
   override fun onNewAction(actionType: VFActionType, action: VFActionData) {
+    val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
     when (actionType) {
       VFActionType.writeNewCommentPressed -> {
         val payload = mutableMapOf<String, Any>()
         action.newCommentAction?.content?.toString()?.let { payload["content"] = it }
         action.newCommentAction?.type?.toString()?.let { payload["actionType"] = it }
+        actionPayload.putAll(payload)
         onNewComment(payload)
       }
       VFActionType.openProfilePressed -> {
         val payload = mutableMapOf<String, Any>()
         action.openProfileAction?.presentationType?.toString()?.let { payload["presentationType"] = it }
         action.openProfileAction?.userUUID?.toString()?.let { payload["userUUID"] = it }
+        actionPayload.putAll(payload)
         onOpenProfile(payload)
       }
       VFActionType.trendingArticlePressed -> {
-        val url = action.trendingPressedAction?.articleMetadata?.url?.toString() ?: return
+        val url = action.trendingPressedAction?.articleMetadata?.url?.toString()
         val containerId = action.trendingPressedAction?.containerId ?: ""
-        onArticlePressed(mapOf("articleUrl" to url, "containerId" to containerId))
+        url?.let { actionPayload["articleUrl"] = it }
+        actionPayload["containerId"] = containerId
+        if (url != null) {
+          onArticlePressed(mapOf("articleUrl" to url, "containerId" to containerId))
+        }
       }
       VFActionType.authPressed -> {
+        actionPayload["requireLogin"] = true
         onAuthNeeded(mapOf("requireLogin" to true))
       }
       else -> {}
     }
+    onAction(actionPayload)
   }
 
   // VFLayoutInterface

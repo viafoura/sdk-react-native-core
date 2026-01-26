@@ -14,6 +14,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
   var articleSubtitle: String = ""
   var articleThumbnailUrl: String = ""
   var darkMode: Bool = false
+  var colors: [String: Any] = [:]
 
   // Events
   let onHeightChanged = EventDispatcher()
@@ -21,6 +22,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
   let onOpenProfile = EventDispatcher()
   let onNewComment = EventDispatcher()
   let onArticlePressed = EventDispatcher()
+  let onAction = EventDispatcher()
 
   // Internals
   let fontBold = UIFont.boldSystemFont(ofSize: 17)
@@ -39,10 +41,12 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
   }
 
   private func initializeSettings() {
-    let colors = VFColors(
-      colorPrimary: UIColor(red: 0.00, green: 0.45, blue: 0.91, alpha: 1.00),
-      colorPrimaryLight: UIColor(red: 0.90, green: 0.95, blue: 1.00, alpha: 1.00)
+    var colors = VFColors(
+      colorPrimary: resolveColor(key: "colorPrimary", fallbackKey: "primary", fallback: UIColor(red: 0.00, green: 0.45, blue: 0.91, alpha: 1.00)),
+      colorPrimaryLight: resolveColor(key: "colorPrimaryLight", fallbackKey: "primaryLight", fallback: UIColor(red: 0.90, green: 0.95, blue: 1.00, alpha: 1.00)),
+      colorAvatars: resolveAvatarColors() ?? Constants.AvatarColors.colors
     )
+    colors.setTheme(theme: darkMode ? .dark : .light)
     let fonts = VFFonts(fontBold: fontBold)
     settings = VFSettings(colors: colors, fonts: fonts)
 
@@ -68,13 +72,19 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
       guard let self else { return }
       switch type {
       case .writeNewCommentPressed(let actionType):
+        self.emitAction(type: "writeNewCommentPressed", payload: ["actionType": self.stringForActionType(actionType)])
         self.presentNewCommentViewController(actionType: actionType)
       case .trendingArticlePressed(let metadata, let containerId):
+        self.emitAction(type: "trendingArticlePressed", payload: ["containerId": containerId, "articleUrl": metadata.url.absoluteString])
         self.onArticlePressed(["containerId": containerId, "articleUrl": metadata.url.absoluteString])
       case .openProfilePressed(let userUUID, let presentationType):
         // Emit event and present profile for parity with Android
-        self.onOpenProfile(["userUUID": userUUID.uuidString, "presentationType": String(describing: presentationType)])
+        let presentation = self.stringForPresentationType(presentationType)
+        self.emitAction(type: "openProfilePressed", payload: ["userUUID": userUUID.uuidString, "presentationType": presentation])
+        self.onOpenProfile(["userUUID": userUUID.uuidString, "presentationType": presentation])
         self.presentProfileViewController(userUUID: userUUID, presentationType: presentationType)
+      case .seeMoreCommentsPressed:
+        self.emitAction(type: "seeMoreCommentsPressed")
       default:
         break
       }
@@ -107,7 +117,22 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
       switch type {
       case .trendingArticlePressed(let metadata, let containerId):
         profileVC.dismiss(animated: true)
+        self.emitAction(type: "trendingArticlePressed", payload: ["containerId": containerId, "articleUrl": metadata.url.absoluteString])
         self.onArticlePressed(["containerId": containerId, "articleUrl": metadata.url.absoluteString])
+      case .notificationPressed(let presentation):
+        var payload: [String: Any] = [:]
+        switch presentation {
+        case .profile(let userUUID):
+          payload["presentationType"] = "profile"
+          payload["userUUID"] = userUUID.uuidString
+        case .content(let containerUUID, let contentUUID, let containerId, let articleMetadata):
+          payload["presentationType"] = "content"
+          payload["containerUUID"] = containerUUID.uuidString
+          payload["contentUUID"] = contentUUID.uuidString
+          payload["containerId"] = containerId
+          payload["articleUrl"] = articleMetadata.url.absoluteString
+        }
+        self.emitAction(type: "notificationPressed", payload: payload)
       default: break
       }
     }
@@ -129,14 +154,70 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
     let callbacks: VFActionsCallbacks = { [weak self] type in
       guard let self else { return }
       switch type {
-      case .commentPosted:
-        self.onNewComment([:])
+      case .commentPosted(let contentUUID):
+        self.emitAction(type: "commentPosted", payload: ["content": contentUUID.uuidString])
+        self.onNewComment(["content": contentUUID.uuidString])
+      case .replyPosted(let contentUUID):
+        self.emitAction(type: "replyPosted", payload: ["content": contentUUID.uuidString])
       default: break
       }
     }
     newCommentVC.setActionCallbacks(callbacks: callbacks)
     newCommentVC.setTheme(theme: darkMode ? .dark : .light)
     parentVC.present(newCommentVC, animated: true)
+  }
+
+  private func emitAction(type: String, payload: [String: Any] = [:]) {
+    var event = payload
+    event["type"] = type
+    onAction(event)
+  }
+
+  private func resolveColor(key: String, fallbackKey: String, fallback: UIColor) -> UIColor {
+    let hex = (colors[key] as? String) ?? (colors[fallbackKey] as? String)
+    if let hex, let parsed = UIColor.vfColor(fromHex: hex) {
+      return parsed
+    }
+    return fallback
+  }
+
+  private func resolveAvatarColors() -> [UIColor]? {
+    let raw = colors["colorAvatars"] ?? colors["avatars"]
+    let list: [String]? = (raw as? [String]) ?? (raw as? [Any])?.compactMap { $0 as? String }
+    guard let list, list.count == Constants.AvatarColors.colors.count else {
+      return nil
+    }
+    var parsed: [UIColor] = []
+    parsed.reserveCapacity(list.count)
+    for hex in list {
+      guard let color = UIColor.vfColor(fromHex: hex) else { return nil }
+      parsed.append(color)
+    }
+    return parsed
+  }
+
+  private func stringForActionType(_ actionType: VFNewCommentActionType) -> String {
+    switch actionType {
+    case .create:
+      return "create"
+    case .edit:
+      return "edit"
+    case .reply:
+      return "reply"
+    @unknown default:
+      return "create"
+    }
+  }
+
+  private func stringForPresentationType(_ presentationType: VFProfilePresentationType) -> String {
+    switch presentationType {
+    case .profile:
+      return "profile"
+    case .feed:
+      return "feed"
+    @unknown default:
+      return "profile"
+    }
   }
 
   // MARK: VFLayoutDelegate
@@ -146,12 +227,33 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
 
   // MARK: VFLoginDelegate
   func startLogin() {
+    emitAction(type: "authPressed", payload: ["requireLogin": true])
     onAuthNeeded(["requireLogin": true])
   }
 
   // MARK: VFAdDelegate
   func getAdInterval(viewController: VFUIViewController) -> Int { 5 }
   func generateAd(viewController: VFUIViewController, adPosition: Int) -> VFAdView? { VFAdView() }
+}
+
+extension UIColor {
+  static func vfColor(fromHex hex: String) -> UIColor? {
+    var value = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+    if value.hasPrefix("#") {
+      value.removeFirst()
+    }
+    if value.count == 6 {
+      value = "FF" + value
+    }
+    guard value.count == 8, let hexNumber = UInt64(value, radix: 16) else {
+      return nil
+    }
+    let alpha = CGFloat((hexNumber & 0xFF000000) >> 24) / 255.0
+    let red = CGFloat((hexNumber & 0x00FF0000) >> 16) / 255.0
+    let green = CGFloat((hexNumber & 0x0000FF00) >> 8) / 255.0
+    let blue = CGFloat(hexNumber & 0x000000FF) / 255.0
+    return UIColor(red: red, green: green, blue: blue, alpha: alpha)
+  }
 }
 
 extension UIView {
@@ -187,9 +289,10 @@ public class PreviewCommentsModule: Module {
       Prop("articleThumbnailUrl") { (view: RNPreviewComments, v: String) in view.articleThumbnailUrl = v }
       Prop("syndicationKey") { (view: RNPreviewComments, v: String?) in view.syndicationKey = v ?? "" }
       Prop("darkMode") { (view: RNPreviewComments, v: Bool?) in view.darkMode = v ?? false }
+      Prop("colors") { (view: RNPreviewComments, v: [String: Any]?) in view.colors = v ?? [:] }
 
       // Events
-      Events("onHeightChanged", "onAuthNeeded", "onOpenProfile", "onNewComment", "onArticlePressed")
+      Events("onHeightChanged", "onAuthNeeded", "onOpenProfile", "onNewComment", "onArticlePressed", "onAction")
     }
   }
 }
