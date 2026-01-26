@@ -36,6 +36,15 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
   var articleThumbnailUrl: String? = null
   var syndicationKey: String? = null
   var darkMode: Boolean = false
+    set(value) {
+      field = value
+      applyThemeIfReady()
+    }
+  var theme: String? = null
+    set(value) {
+      field = value
+      applyThemeIfReady()
+    }
   var colors: Map<String, Any?>? = null
 
   // Events
@@ -73,6 +82,7 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
     val activity = currentActivity() ?: return
 
     try {
+      val resolvedTheme = resolveTheme()
       val meta = VFArticleMetadata(
         URL(requireNotNull(articleUrl)),
         requireNotNull(articleTitle),
@@ -80,7 +90,7 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
         URL(requireNotNull(articleThumbnailUrl))
       )
       val settings = VFSettings(
-        resolveVFColors(colors, if (darkMode) VFTheme.dark else VFTheme.light)
+        resolveVFColors(colors, resolvedTheme)
       )
 
       val builder = VFPreviewCommentsFragmentBuilder(requireNotNull(containerId), meta, settings)
@@ -89,7 +99,7 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
       frag.setActionCallback(this)
       frag.setLayoutCallback(this)
       frag.setCustomUICallback(this)
-      frag.setTheme(if (darkMode) VFTheme.dark else VFTheme.light)
+      frag.setTheme(resolvedTheme)
       authorId?.let { if (it.isNotEmpty()) frag.setAuthorIds(listOf(it)) }
 
       activity.supportFragmentManager
@@ -162,5 +172,17 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
   // VFLayoutInterface
   override fun containerHeightUpdated(fragment: VFFragment, containerId: String, height: Int) {
     onHeightChanged(mapOf("newHeight" to height, "containerId" to containerId))
+  }
+
+  private fun resolveTheme(): VFTheme {
+    return when (theme?.lowercase()) {
+      "dark" -> VFTheme.dark
+      "light" -> VFTheme.light
+      else -> if (darkMode) VFTheme.dark else VFTheme.light
+    }
+  }
+
+  private fun applyThemeIfReady() {
+    fragment?.setTheme(resolveTheme())
   }
 }

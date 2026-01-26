@@ -38,6 +38,15 @@ class NewCommentView(context: Context, appContext: AppContext) :
   var articleUrl: String? = null
   var articleThumbnailUrl: String? = null
   var darkMode: Boolean = false
+    set(value) {
+      field = value
+      applyThemeIfReady()
+    }
+  var theme: String? = null
+    set(value) {
+      field = value
+      applyThemeIfReady()
+    }
   var colors: Map<String, Any?>? = null
 
   // Events
@@ -72,6 +81,7 @@ class NewCommentView(context: Context, appContext: AppContext) :
     val activity = currentActivity() ?: return
 
     try {
+      val resolvedTheme = resolveTheme()
       val metadata = VFArticleMetadata(
         URL(requireNotNull(articleUrl)),
         requireNotNull(articleTitle),
@@ -79,7 +89,7 @@ class NewCommentView(context: Context, appContext: AppContext) :
         URL(requireNotNull(articleThumbnailUrl))
       )
       val settings = VFSettings(
-        resolveVFColors(colors, if (darkMode) VFTheme.dark else VFTheme.light)
+        resolveVFColors(colors, resolvedTheme)
       )
 
       val type = when (newCommentActionType) {
@@ -97,7 +107,7 @@ class NewCommentView(context: Context, appContext: AppContext) :
       val frag = builder.build()
       frag.setActionCallback(this)
       frag.setCustomUICallback(this)
-      frag.setTheme(if (darkMode) VFTheme.dark else VFTheme.light)
+      frag.setTheme(resolvedTheme)
 
       activity.supportFragmentManager
         .beginTransaction()
@@ -149,5 +159,17 @@ class NewCommentView(context: Context, appContext: AppContext) :
   // VFLayoutInterface
   override fun containerHeightUpdated(fragment: VFFragment, containerId: String, height: Int) {
     onHeightChanged(mapOf("newHeight" to height, "containerId" to containerId))
+  }
+
+  private fun resolveTheme(): VFTheme {
+    return when (theme?.lowercase()) {
+      "dark" -> VFTheme.dark
+      "light" -> VFTheme.light
+      else -> if (darkMode) VFTheme.dark else VFTheme.light
+    }
+  }
+
+  private fun applyThemeIfReady() {
+    fragment?.setTheme(resolveTheme())
   }
 }

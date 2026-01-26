@@ -115,6 +115,7 @@ export type PreviewCommentsViewProps = {
   articleThumbnailUrl: string;
   syndicationKey?: string;
   darkMode?: boolean;
+  theme?: 'light' | 'dark';
   colors?: ViafouraColors;
   onHeightChanged?: (event: { nativeEvent: PreviewCommentsHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: PreviewCommentsAuthNeededPayload }) => void;
@@ -133,6 +134,7 @@ export type ProfileViewProps = {
   userUUID: string;
   presentationType?: 'profile' | 'feed';
   darkMode?: boolean;
+  theme?: 'light' | 'dark';
   colors?: ViafouraColors;
   onAuthNeeded?: (event: { nativeEvent: ProfileAuthNeededPayload }) => void;
   onCloseProfile?: (event: { nativeEvent: Record<string, never> }) => void;
@@ -153,6 +155,7 @@ export type NewCommentViewProps = {
   articleUrl: string;
   articleThumbnailUrl: string;
   darkMode?: boolean;
+  theme?: 'light' | 'dark';
   colors?: ViafouraColors;
   onHeightChanged?: (event: { nativeEvent: NewCommentHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: NewCommentAuthNeededPayload }) => void;

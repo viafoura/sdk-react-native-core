@@ -13,7 +13,16 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
   var syndicationKey: String = ""
   var articleSubtitle: String = ""
   var articleThumbnailUrl: String = ""
-  var darkMode: Bool = false
+  var darkMode: Bool = false {
+    didSet {
+      applyThemeIfReady()
+    }
+  }
+  var theme: String? = nil {
+    didSet {
+      applyThemeIfReady()
+    }
+  }
   var colors: [String: Any] = [:]
 
   // Events
@@ -41,12 +50,13 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
   }
 
   private func initializeSettings() {
+    let resolvedTheme = resolveTheme()
     var colors = VFColors(
       colorPrimary: resolveColor(key: "colorPrimary", fallbackKey: "primary", fallback: UIColor(red: 0.00, green: 0.45, blue: 0.91, alpha: 1.00)),
       colorPrimaryLight: resolveColor(key: "colorPrimaryLight", fallbackKey: "primaryLight", fallback: UIColor(red: 0.90, green: 0.95, blue: 1.00, alpha: 1.00)),
       colorAvatars: resolveAvatarColors() ?? Constants.AvatarColors.colors
     )
-    colors.setTheme(theme: darkMode ? .dark : .light)
+    colors.setTheme(theme: resolvedTheme)
     let fonts = VFFonts(fontBold: fontBold)
     settings = VFSettings(colors: colors, fonts: fonts)
 
@@ -173,6 +183,21 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
     onAction(event)
   }
 
+  private func resolveTheme() -> VFTheme {
+    switch theme?.lowercased() {
+    case "dark":
+      return .dark
+    case "light":
+      return .light
+    default:
+      return darkMode ? .dark : .light
+    }
+  }
+
+  private func applyThemeIfReady() {
+    previewCommentsViewController?.setTheme(theme: resolveTheme())
+  }
+
   private func resolveColor(key: String, fallbackKey: String, fallback: UIColor) -> UIColor {
     let hex = (colors[key] as? String) ?? (colors[fallbackKey] as? String)
     if let hex, let parsed = UIColor.vfColor(fromHex: hex) {
@@ -289,6 +314,7 @@ public class PreviewCommentsModule: Module {
       Prop("articleThumbnailUrl") { (view: RNPreviewComments, v: String) in view.articleThumbnailUrl = v }
       Prop("syndicationKey") { (view: RNPreviewComments, v: String?) in view.syndicationKey = v ?? "" }
       Prop("darkMode") { (view: RNPreviewComments, v: Bool?) in view.darkMode = v ?? false }
+      Prop("theme") { (view: RNPreviewComments, v: String?) in view.theme = v }
       Prop("colors") { (view: RNPreviewComments, v: [String: Any]?) in view.colors = v ?? [:] }
 
       // Events

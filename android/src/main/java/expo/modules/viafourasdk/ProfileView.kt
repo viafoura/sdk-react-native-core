@@ -29,6 +29,15 @@ class ProfileView(context: Context, appContext: AppContext) :
   var userUUID: String? = null
   var presentationType: String? = null // "profile" | "feed"
   var darkMode: Boolean = false
+    set(value) {
+      field = value
+      applyThemeIfReady()
+    }
+  var theme: String? = null
+    set(value) {
+      field = value
+      applyThemeIfReady()
+    }
   var colors: Map<String, Any?>? = null
 
   // Events
@@ -62,8 +71,9 @@ class ProfileView(context: Context, appContext: AppContext) :
     val activity = currentActivity() ?: return
 
     try {
+      val resolvedTheme = resolveTheme()
       val settings = VFSettings(
-        resolveVFColors(colors, if (darkMode) VFTheme.dark else VFTheme.light)
+        resolveVFColors(colors, resolvedTheme)
       )
 
       val pres = when (presentationType) {
@@ -75,7 +85,7 @@ class ProfileView(context: Context, appContext: AppContext) :
       val frag = VFProfileFragmentBuilder(uuid, pres, settings).build()
       frag.setActionCallback(this)
       frag.setCustomUICallback(this)
-      frag.setTheme(if (darkMode) VFTheme.dark else VFTheme.light)
+      frag.setTheme(resolvedTheme)
 
       activity.supportFragmentManager
         .beginTransaction()
@@ -130,4 +140,16 @@ class ProfileView(context: Context, appContext: AppContext) :
     containerId: String,
     height: Int
   ) { /* no-op for profile */ }
+
+  private fun resolveTheme(): VFTheme {
+    return when (theme?.lowercase()) {
+      "dark" -> VFTheme.dark
+      "light" -> VFTheme.light
+      else -> if (darkMode) VFTheme.dark else VFTheme.light
+    }
+  }
+
+  private fun applyThemeIfReady() {
+    fragment?.setTheme(resolveTheme())
+  }
 }
