@@ -7,6 +7,10 @@ export const viafouraConfig = {
   articleTitle: 'Moving Staff to Cover the Coronavirus',
   articleThumbnailUrl:
     'https://www.datocms-assets.com/55856/1636753460-information-overload.jpg?crop=focalpoint&fit=crop&fm=webp&fp-x=0.86&fp-y=0.47&h=428&w=856',
+  colors: {
+    colorPrimary: '#1D5EFF',
+    colorPrimaryLight: '#E8F0FF',
+  },
 } as const;
 
 export const demoUserUUID = '00000000-0000-4000-8000-000000000000';

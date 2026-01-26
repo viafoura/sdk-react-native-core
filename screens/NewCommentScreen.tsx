@@ -22,6 +22,7 @@ export default function NewCommentScreen({ route, navigation }: NewCommentScreen
           articleUrl={viafouraConfig.articleUrl}
           articleTitle={viafouraConfig.articleTitle}
           articleThumbnailUrl={viafouraConfig.articleThumbnailUrl}
+          colors={{ ...viafouraConfig.colors }}
           onHeightChanged={(event) => {
             const next = event.nativeEvent?.newHeight;
             if (typeof next === 'number' && next > 0) setHeight(next);
@@ -31,6 +32,9 @@ export default function NewCommentScreen({ route, navigation }: NewCommentScreen
           }}
           onCloseNewComment={() => {
             navigation.goBack();
+          }}
+          onAction={(event) => {
+            console.log('Action callback', event.nativeEvent);
           }}
           style={styles.preview}
         />

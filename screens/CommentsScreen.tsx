@@ -53,39 +53,39 @@ export default function CommentsScreen({ initError, navigation }: CommentsScreen
             articleUrl={viafouraConfig.articleUrl}
             articleTitle={viafouraConfig.articleTitle}
             articleThumbnailUrl={viafouraConfig.articleThumbnailUrl}
+            colors={{ ...viafouraConfig.colors }}
             onHeightChanged={(event) => {
               const next = event.nativeEvent?.newHeight;
               if (typeof next === 'number' && next > 0) setHeight(next);
             }}
-          onAuthNeeded={() => {
-            navigation.navigate('Login', { reason: 'Sign in to comment.' });
-          }}
-          onNewComment={(event) => {
-            if (Platform.OS !== 'android') return;
-            const actionType = event.nativeEvent?.actionType;
-            const nextActionType =
-              actionType === 'edit' || actionType === 'reply'
-                ? actionType
-                  : 'create';
+            onAuthNeeded={() => {
+              navigation.navigate('Login', { reason: 'Sign in to comment.' });
+            }}
+            onNewComment={(event) => {
+              if (Platform.OS !== 'android') return;
+              const actionType = event.nativeEvent?.actionType;
+              const nextActionType =
+                actionType === 'edit' || actionType === 'reply' ? actionType : 'create';
               navigation.navigate('NewComment', {
                 actionType: nextActionType,
                 content: event.nativeEvent?.content,
               });
             }}
-          onOpenProfile={(event) => {
-            if (Platform.OS !== 'android') return;
-            const userUUID = event.nativeEvent?.userUUID;
-            if (!userUUID) return;
-            navigation.navigate('Profile', {
+            onOpenProfile={(event) => {
+              if (Platform.OS !== 'android') return;
+              const userUUID = event.nativeEvent?.userUUID;
+              if (!userUUID) return;
+              navigation.navigate('Profile', {
                 userUUID,
                 presentationType:
-                  event.nativeEvent?.presentationType === 'feed'
-                    ? 'feed'
-                    : 'profile',
+                  event.nativeEvent?.presentationType === 'feed' ? 'feed' : 'profile',
               });
             }}
             onArticlePressed={(event) => {
               console.log('Article pressed', event.nativeEvent);
+            }}
+            onAction={(event) => {
+              console.log('Action callback', event.nativeEvent);
             }}
             style={styles.preview}
           />
