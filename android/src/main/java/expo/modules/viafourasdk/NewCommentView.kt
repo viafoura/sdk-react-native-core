@@ -20,8 +20,6 @@ import com.viafourasdk.src.interfaces.VFLayoutInterface
 import com.viafourasdk.src.model.local.VFActionData
 import com.viafourasdk.src.model.local.VFActionType
 import com.viafourasdk.src.model.local.VFArticleMetadata
-import com.viafourasdk.src.model.local.VFColors
-import com.viafourasdk.src.model.local.VFDefaultColors
 import com.viafourasdk.src.model.local.VFSettings
 import com.viafourasdk.src.model.local.VFTheme
 import java.net.URL
@@ -40,11 +38,22 @@ class NewCommentView(context: Context, appContext: AppContext) :
   var articleUrl: String? = null
   var articleThumbnailUrl: String? = null
   var darkMode: Boolean = false
+    set(value) {
+      field = value
+      applyThemeIfReady()
+    }
+  var theme: String? = null
+    set(value) {
+      field = value
+      applyThemeIfReady()
+    }
+  var colors: Map<String, Any?>? = null
 
   // Events
   private val onAuthNeeded by EventDispatcher()
   private val onCloseNewComment by EventDispatcher()
   private val onHeightChanged by EventDispatcher()
+  private val onAction by EventDispatcher()
 
   // Internals
   private val container = FrameLayout(context).also {
@@ -72,17 +81,16 @@ class NewCommentView(context: Context, appContext: AppContext) :
     val activity = currentActivity() ?: return
 
     try {
+      val resolvedTheme = resolveTheme()
       val metadata = VFArticleMetadata(
         URL(requireNotNull(articleUrl)),
         requireNotNull(articleTitle),
         articleSubtitle ?: "",
         URL(requireNotNull(articleThumbnailUrl))
       )
-      val colors = VFColors(
-        VFDefaultColors.getInstance().colorPrimaryDefault(null),
-        VFDefaultColors.getInstance().colorPrimaryLightDefault(null)
+      val settings = VFSettings(
+        resolveVFColors(colors, resolvedTheme)
       )
-      val settings = VFSettings(colors)
 
       val type = when (newCommentActionType) {
         "edit" -> VFNewCommentAction.VFNewCommentActionType.edit
@@ -99,7 +107,7 @@ class NewCommentView(context: Context, appContext: AppContext) :
       val frag = builder.build()
       frag.setActionCallback(this)
       frag.setCustomUICallback(this)
-      frag.setTheme(if (darkMode) VFTheme.dark else VFTheme.light)
+      frag.setTheme(resolvedTheme)
 
       activity.supportFragmentManager
         .beginTransaction()
@@ -127,15 +135,18 @@ class NewCommentView(context: Context, appContext: AppContext) :
 
   // VFActionsInterface
   override fun onNewAction(actionType: VFActionType, action: VFActionData) {
+    val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
     when (actionType) {
       VFActionType.closeNewCommentPressed -> {
         onCloseNewComment(emptyMap<String, Any>())
       }
       VFActionType.authPressed -> {
+        actionPayload["requireLogin"] = true
         onAuthNeeded(mapOf("requireLogin" to true))
       }
       else -> {}
     }
+    onAction(actionPayload)
   }
 
   // VFCustomUIInterface
@@ -148,5 +159,17 @@ class NewCommentView(context: Context, appContext: AppContext) :
   // VFLayoutInterface
   override fun containerHeightUpdated(fragment: VFFragment, containerId: String, height: Int) {
     onHeightChanged(mapOf("newHeight" to height, "containerId" to containerId))
+  }
+
+  private fun resolveTheme(): VFTheme {
+    return when (theme?.lowercase()) {
+      "dark" -> VFTheme.dark
+      "light" -> VFTheme.light
+      else -> if (darkMode) VFTheme.dark else VFTheme.light
+    }
+  }
+
+  private fun applyThemeIfReady() {
+    fragment?.setTheme(resolveTheme())
   }
 }

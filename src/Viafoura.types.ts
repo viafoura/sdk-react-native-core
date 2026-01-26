@@ -14,7 +14,73 @@ export type PreviewCommentsEvents =
   | 'onAuthNeeded'
   | 'onOpenProfile'
   | 'onNewComment'
-  | 'onArticlePressed';
+  | 'onArticlePressed'
+  | 'onAction';
+
+export type ViafouraColors = {
+  colorPrimary?: string;
+  colorPrimaryLight?: string;
+  colorAvatars?: string[];
+};
+
+export type ActionCallbackType =
+  | 'writeNewCommentPressed'
+  | 'trendingArticlePressed'
+  | 'openProfilePressed'
+  | 'seeMoreCommentsPressed'
+  | 'notificationPressed'
+  | 'commentPosted'
+  | 'replyPosted'
+  | 'authPressed'
+  | 'closeNewCommentPressed'
+  | 'closeProfilePressed';
+
+export type ActionCallbackPayload =
+  | {
+      type: 'writeNewCommentPressed';
+      actionType?: 'create' | 'edit' | 'reply';
+      content?: string;
+    }
+  | {
+      type: 'trendingArticlePressed';
+      containerId?: string;
+      articleUrl?: string;
+    }
+  | {
+      type: 'openProfilePressed';
+      userUUID?: string;
+      presentationType?: 'profile' | 'feed';
+    }
+  | {
+      type: 'seeMoreCommentsPressed';
+    }
+  | {
+      type: 'notificationPressed';
+      presentationType?: 'profile' | 'content';
+      userUUID?: string;
+      containerUUID?: string;
+      contentUUID?: string;
+      containerId?: string;
+      articleUrl?: string;
+    }
+  | {
+      type: 'commentPosted';
+      content?: string;
+    }
+  | {
+      type: 'replyPosted';
+      content?: string;
+    }
+  | {
+      type: 'authPressed';
+      requireLogin?: boolean;
+    }
+  | {
+      type: 'closeNewCommentPressed';
+    }
+  | {
+      type: 'closeProfilePressed';
+    };
 
 export type PreviewCommentsHeightChangedPayload = {
   newHeight: number;
@@ -49,11 +115,14 @@ export type PreviewCommentsViewProps = {
   articleThumbnailUrl: string;
   syndicationKey?: string;
   darkMode?: boolean;
+  theme?: 'light' | 'dark';
+  colors?: ViafouraColors;
   onHeightChanged?: (event: { nativeEvent: PreviewCommentsHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: PreviewCommentsAuthNeededPayload }) => void;
   onOpenProfile?: (event: { nativeEvent: PreviewCommentsOpenProfilePayload }) => void;
   onNewComment?: (event: { nativeEvent: PreviewCommentsNewCommentPayload }) => void;
   onArticlePressed?: (event: { nativeEvent: PreviewCommentsArticlePressedPayload }) => void;
+  onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -65,8 +134,11 @@ export type ProfileViewProps = {
   userUUID: string;
   presentationType?: 'profile' | 'feed';
   darkMode?: boolean;
+  theme?: 'light' | 'dark';
+  colors?: ViafouraColors;
   onAuthNeeded?: (event: { nativeEvent: ProfileAuthNeededPayload }) => void;
   onCloseProfile?: (event: { nativeEvent: Record<string, never> }) => void;
+  onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -83,8 +155,11 @@ export type NewCommentViewProps = {
   articleUrl: string;
   articleThumbnailUrl: string;
   darkMode?: boolean;
+  theme?: 'light' | 'dark';
+  colors?: ViafouraColors;
   onHeightChanged?: (event: { nativeEvent: NewCommentHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: NewCommentAuthNeededPayload }) => void;
   onCloseNewComment?: (event: { nativeEvent: Record<string, never> }) => void;
+  onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
   style?: StyleProp<ViewStyle>;
 };

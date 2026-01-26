@@ -18,10 +18,11 @@ class NewCommentModule : Module() {
       Prop("articleUrl") { view: NewCommentView, v: String -> view.articleUrl = v }
       Prop("articleThumbnailUrl") { view: NewCommentView, v: String -> view.articleThumbnailUrl = v }
       Prop("darkMode") { view: NewCommentView, v: Boolean? -> view.darkMode = v ?: false }
+      Prop("theme") { view: NewCommentView, v: String? -> view.theme = v }
+      Prop("colors") { view: NewCommentView, v: Map<String, Any?>? -> view.colors = v }
 
       // Events
-      Events("onAuthNeeded", "onCloseNewComment", "onHeightChanged")
+      Events("onAuthNeeded", "onCloseNewComment", "onHeightChanged", "onAction")
     }
   }
 }
-

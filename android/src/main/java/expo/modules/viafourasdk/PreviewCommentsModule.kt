@@ -17,10 +17,11 @@ class PreviewCommentsModule : Module() {
       Prop("articleThumbnailUrl") { view: PreviewCommentsView, v: String -> view.articleThumbnailUrl = v }
       Prop("syndicationKey") { view: PreviewCommentsView, v: String? -> view.syndicationKey = v }
       Prop("darkMode") { view: PreviewCommentsView, v: Boolean? -> view.darkMode = v ?: false }
+      Prop("theme") { view: PreviewCommentsView, v: String? -> view.theme = v }
+      Prop("colors") { view: PreviewCommentsView, v: Map<String, Any?>? -> view.colors = v }
 
       // Events
-      Events("onHeightChanged", "onAuthNeeded", "onOpenProfile", "onNewComment", "onArticlePressed")
+      Events("onHeightChanged", "onAuthNeeded", "onOpenProfile", "onNewComment", "onArticlePressed", "onAction")
     }
   }
 }
-

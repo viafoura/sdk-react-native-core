@@ -17,8 +17,6 @@ import com.viafourasdk.src.interfaces.VFCustomUIInterface
 import com.viafourasdk.src.interfaces.VFLayoutInterface
 import com.viafourasdk.src.model.local.VFActionData
 import com.viafourasdk.src.model.local.VFActionType
-import com.viafourasdk.src.model.local.VFDefaultColors
-import com.viafourasdk.src.model.local.VFColors
 import com.viafourasdk.src.model.local.VFSettings
 import com.viafourasdk.src.model.local.VFProfilePresentationType
 import com.viafourasdk.src.model.local.VFTheme
@@ -31,10 +29,21 @@ class ProfileView(context: Context, appContext: AppContext) :
   var userUUID: String? = null
   var presentationType: String? = null // "profile" | "feed"
   var darkMode: Boolean = false
+    set(value) {
+      field = value
+      applyThemeIfReady()
+    }
+  var theme: String? = null
+    set(value) {
+      field = value
+      applyThemeIfReady()
+    }
+  var colors: Map<String, Any?>? = null
 
   // Events
   private val onAuthNeeded by EventDispatcher()
   private val onCloseProfile by EventDispatcher()
+  private val onAction by EventDispatcher()
 
   // Internals
   private val container = FrameLayout(context).also {
@@ -62,11 +71,10 @@ class ProfileView(context: Context, appContext: AppContext) :
     val activity = currentActivity() ?: return
 
     try {
-      val colors = VFColors(
-        VFDefaultColors.getInstance().colorPrimaryDefault(null),
-        VFDefaultColors.getInstance().colorPrimaryLightDefault(null)
+      val resolvedTheme = resolveTheme()
+      val settings = VFSettings(
+        resolveVFColors(colors, resolvedTheme)
       )
-      val settings = VFSettings(colors)
 
       val pres = when (presentationType) {
         "feed" -> VFProfilePresentationType.feed
@@ -77,7 +85,7 @@ class ProfileView(context: Context, appContext: AppContext) :
       val frag = VFProfileFragmentBuilder(uuid, pres, settings).build()
       frag.setActionCallback(this)
       frag.setCustomUICallback(this)
-      frag.setTheme(if (darkMode) VFTheme.dark else VFTheme.light)
+      frag.setTheme(resolvedTheme)
 
       activity.supportFragmentManager
         .beginTransaction()
@@ -105,15 +113,18 @@ class ProfileView(context: Context, appContext: AppContext) :
 
   // VFActionsInterface
   override fun onNewAction(actionType: VFActionType, action: VFActionData) {
+    val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
     when (actionType) {
       VFActionType.closeProfilePressed -> {
         onCloseProfile(emptyMap<String, Any>())
       }
       VFActionType.authPressed -> {
+        actionPayload["requireLogin"] = true
         onAuthNeeded(mapOf("requireLogin" to true))
       }
       else -> {}
     }
+    onAction(actionPayload)
   }
 
   // VFCustomUIInterface
@@ -129,4 +140,16 @@ class ProfileView(context: Context, appContext: AppContext) :
     containerId: String,
     height: Int
   ) { /* no-op for profile */ }
+
+  private fun resolveTheme(): VFTheme {
+    return when (theme?.lowercase()) {
+      "dark" -> VFTheme.dark
+      "light" -> VFTheme.light
+      else -> if (darkMode) VFTheme.dark else VFTheme.light
+    }
+  }
+
+  private fun applyThemeIfReady() {
+    fragment?.setTheme(resolveTheme())
+  }
 }
