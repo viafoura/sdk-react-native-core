@@ -50,13 +50,11 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
   }
 
   private func initializeSettings() {
-    let resolvedTheme = resolveTheme()
-    var colors = VFColors(
+    let colors = VFColors(
       colorPrimary: resolveColor(key: "colorPrimary", fallbackKey: "primary", fallback: UIColor(red: 0.00, green: 0.45, blue: 0.91, alpha: 1.00)),
       colorPrimaryLight: resolveColor(key: "colorPrimaryLight", fallbackKey: "primaryLight", fallback: UIColor(red: 0.90, green: 0.95, blue: 1.00, alpha: 1.00)),
       colorAvatars: resolveAvatarColors() ?? Constants.AvatarColors.colors
     )
-    colors.setTheme(theme: resolvedTheme)
     let fonts = VFFonts(fontBold: fontBold)
     settings = VFSettings(colors: colors, fonts: fonts)
 
@@ -109,7 +107,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
     addSubview(vc.view)
     vc.view.frame = bounds
     vc.didMove(toParent: parentVC)
-    vc.setTheme(theme: darkMode ? .dark : .light)
+    vc.setTheme(theme: resolveTheme())
     self.previewCommentsViewController = vc
   }
 
@@ -147,7 +145,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
       }
     }
     profileVC.setActionCallbacks(callbacks: callbacks)
-    profileVC.setTheme(theme: darkMode ? .dark : .light)
+    profileVC.setTheme(theme: resolveTheme())
     parentVC.present(profileVC, animated: true)
   }
 
@@ -173,7 +171,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
       }
     }
     newCommentVC.setActionCallbacks(callbacks: callbacks)
-    newCommentVC.setTheme(theme: darkMode ? .dark : .light)
+    newCommentVC.setTheme(theme: resolveTheme())
     parentVC.present(newCommentVC, animated: true)
   }
 
