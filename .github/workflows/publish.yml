@@ -24,6 +24,7 @@ jobs:
         id: check
         run: |
           VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           if npm view @viafoura/sdk-react-native@"$VERSION" version >/dev/null 2>&1; then
             echo "publish=false" >> "$GITHUB_OUTPUT"
             echo "Version $VERSION already published; skipping."
@@ -44,3 +45,10 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Trigger slack Notification on success
+        if: success() && steps.check.outputs.publish == 'true'
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"username": "MartinBot", "icon_url": "https://ca.slack-edge.com/T02QDGWD2-U036M3Y2WER-7ec6a2bb5711-192", "text":"New React Native Core SDK version released:  *${{ steps.check.outputs.version }}*\n ", }' https://hooks.slack.com/services/$SLACK_WEBHOOK
