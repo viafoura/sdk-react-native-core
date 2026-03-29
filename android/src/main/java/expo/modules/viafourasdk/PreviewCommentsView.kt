@@ -131,7 +131,13 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
     theme: com.viafourasdk.src.model.local.VFTheme?,
     customViewType: com.viafourasdk.src.model.local.VFCustomViewType?,
     view: android.view.View?
-  ) { /* no-op */ }
+  ) {
+    if (customViewType == null || view == null) return
+    val themeName = theme?.name?.lowercase()
+    val viewTypeName = customViewType.name
+    val style = CustomUIViewRegistry.getStyle(viewTypeName, themeName) ?: return
+    CustomUIViewRegistry.applyStyle(view, style)
+  }
 
   // VFActionsInterface
   override fun onNewAction(actionType: VFActionType, action: VFActionData) {
