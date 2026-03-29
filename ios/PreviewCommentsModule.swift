@@ -76,6 +76,9 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
       syndicationKey: syndicationKey.isEmpty ? nil : syndicationKey
     )
 
+    vc.setTheme(theme: resolveTheme())
+    vc.loadViewIfNeeded()
+
     let callbacks: VFActionsCallbacks = { [weak self] type in
       guard let self else { return }
       switch type {
@@ -108,7 +111,6 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
     addSubview(vc.view)
     vc.view.frame = bounds
     vc.didMove(toParent: parentVC)
-    vc.setTheme(theme: resolveTheme())
     self.previewCommentsViewController = vc
   }
 
@@ -140,14 +142,17 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
           payload["contentUUID"] = contentUUID.uuidString
           payload["containerId"] = containerId
           payload["articleUrl"] = articleMetadata.url.absoluteString
+        @unknown default:
+          break
         }
         self.emitAction(type: "notificationPressed", payload: payload)
       default: break
       }
     }
+    profileVC.setTheme(theme: resolveTheme())
+    profileVC.loadViewIfNeeded()
     profileVC.setActionCallbacks(callbacks: callbacks)
     profileVC.setCustomUIDelegate(customUIDelegate: self)
-    profileVC.setTheme(theme: resolveTheme())
     parentVC.present(profileVC, animated: true)
   }
 
@@ -172,9 +177,10 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
       default: break
       }
     }
+    newCommentVC.setTheme(theme: resolveTheme())
+    newCommentVC.loadViewIfNeeded()
     newCommentVC.setActionCallbacks(callbacks: callbacks)
     newCommentVC.setCustomUIDelegate(customUIDelegate: self)
-    newCommentVC.setTheme(theme: resolveTheme())
     parentVC.present(newCommentVC, animated: true)
   }
 
@@ -420,7 +426,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
       return ("bottomPickerTitle", label)
     case .bottomPickerTitleLabel(let label):
       return ("bottomPickerTitleLabel", label)
-    case .bottomPickerLabel(let label):
+    case .bottomPickerLabel(let label, _):
       return ("bottomPickerLabel", label)
     case .bottomPickerSeparator(let separatorView):
       return ("bottomPickerSeparator", separatorView)
@@ -462,6 +468,8 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
       return ("notificationBellText", label)
     case .notificationBellIcon(let icon):
       return ("notificationBellIcon", icon)
+    @unknown default:
+      return ("unknown", UIView())
     }
   }
 
