@@ -44,6 +44,6 @@ android {
 
 dependencies {
   // Viafoura Android SDK (published artifact)
-  implementation 'com.viafoura:android:2.0.55'
+  implementation 'com.viafoura:android:2.0.68'
   implementation 'androidx.fragment:fragment-ktx:1.7.1'
 }
