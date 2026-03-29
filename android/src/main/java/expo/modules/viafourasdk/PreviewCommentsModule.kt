@@ -21,7 +21,14 @@ class PreviewCommentsModule : Module() {
       Prop("colors") { view: PreviewCommentsView, v: Map<String, Any?>? -> view.colors = v }
 
       // Events
-      Events("onHeightChanged", "onAuthNeeded", "onOpenProfile", "onNewComment", "onArticlePressed", "onAction")
+      Events(
+        "onHeightChanged",
+        "onAuthNeeded",
+        "onOpenProfile",
+        "onNewComment",
+        "onArticlePressed",
+        "onAction"
+      )
     }
   }
 }
