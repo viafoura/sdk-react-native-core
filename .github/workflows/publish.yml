@@ -9,7 +9,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,6 +24,7 @@ jobs:
         id: check
         run: |
           VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           if npm view @viafoura/sdk-react-native@"$VERSION" version >/dev/null 2>&1; then
             echo "publish=false" >> "$GITHUB_OUTPUT"
             echo "Version $VERSION already published; skipping."
@@ -44,3 +45,18 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.publish == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.check.outputs.version }}
+          name: v${{ steps.check.outputs.version }}
+          generate_release_notes: true
+
+      - name: Trigger slack Notification on success
+        if: success() && steps.check.outputs.publish == 'true'
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"username": "MartinBot", "icon_url": "https://ca.slack-edge.com/T02QDGWD2-U036M3Y2WER-7ec6a2bb5711-192", "text":"New React Native Core SDK version released:  *${{ steps.check.outputs.version }}*\n ", }' https://hooks.slack.com/services/$SLACK_WEBHOOK
