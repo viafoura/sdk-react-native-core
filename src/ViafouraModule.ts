@@ -7,6 +7,7 @@ declare class ViafouraModule extends NativeModule<ViafouraModuleEvents> {
   login(email: string, password: string): Promise<void>;
   signup(name: string, email: string, password: string): Promise<void>;
   socialLogin(token: string, provider?: string): Promise<void>;
+  loginRadiusLogin(token: string, provider?: string): Promise<void>;
   openIdLogin(token: string): Promise<void>;
   cookieLogin(token: string): Promise<void>;
   resetPassword(email: string): Promise<void>;

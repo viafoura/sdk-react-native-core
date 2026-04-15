@@ -9,6 +9,7 @@ import java.net.URL
 import com.viafourasdk.src.ViafouraSDK
 import com.viafourasdk.src.model.network.authentication.cookieLogin.CookieLoginResponse
 import com.viafourasdk.src.model.network.authentication.login.LoginResponse
+import com.viafourasdk.src.model.network.authentication.loginradius.LoginRadiusLoginResponse
 import com.viafourasdk.src.model.network.authentication.openId.OpenIdLoginResponse
 import com.viafourasdk.src.model.network.authentication.signup.SignUpResponse
 import com.viafourasdk.src.model.network.authentication.socialLogin.SocialLoginResponse
@@ -60,6 +61,17 @@ class ViafouraModule : Module() {
         }
         override fun onError(err: NetworkError) {
           promise.reject("E_VF_SOCIAL", err.message ?: "Social login failed", null)
+        }
+      })
+    }
+
+    AsyncFunction("loginRadiusLogin") { token: String, provider: String?, promise: Promise ->
+      ViafouraSDK.auth().loginRadiusLogin(token, object : VFAuthService.LoginRadiusLoginCallback {
+        override fun onSuccess(loginResponse: LoginRadiusLoginResponse) {
+          promise.resolve(null)
+        }
+        override fun onError(err: NetworkError) {
+          promise.reject("E_VF_LOGINRADIUS", err.message ?: "LoginRadius login failed", null)
         }
       })
     }
