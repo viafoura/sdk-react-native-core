@@ -62,6 +62,28 @@ struct VFAuthAdapter {
     }
   }
 
+  func loginRadiusLogin(token: String, provider: String?, completion: @escaping (Result<Void, Error>) -> Void) {
+    let p: VFSocialLoginProvider
+    if let provider, !provider.isEmpty {
+      guard let parsed = VFSocialLoginProvider(rawValue: provider) else {
+        completion(.failure(VFAdapterError.invalidProvider))
+        return
+      }
+      p = parsed
+    } else {
+      p = .none
+    }
+
+    authService.loginRadiusLogin(token: token, provider: p) { result in
+      switch result {
+      case .success:
+        completion(.success(()))
+      case .failure(let error):
+        completion(.failure(error))
+      }
+    }
+  }
+
   func openIdLogin(token: String, completion: @escaping (Result<Void, Error>) -> Void) {
     authService.openIdLogin(token: token) { result in
       switch result {
@@ -219,6 +241,19 @@ public class ViafouraModule: Module {
           return
         }
         self.auth.socialLogin(token: token, provider: provider) { result in
+          switch result {
+          case .success:
+            continuation.resume()
+          case .failure(let error):
+            continuation.resume(throwing: error)
+          }
+        }
+      }
+    }
+
+    AsyncFunction("loginRadiusLogin") { (token: String, provider: String?) async throws in
+      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+        self.auth.loginRadiusLogin(token: token, provider: provider) { result in
           switch result {
           case .success:
             continuation.resume()
