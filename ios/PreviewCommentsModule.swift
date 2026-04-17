@@ -547,7 +547,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
   }
 
   // MARK: VFAdDelegate
-  func getAdInterval(viewController: VFUIViewController) -> Int { 5 }
+  func getAdInterval(viewController: VFUIViewController) -> Int { 0 }
   func generateAd(viewController: VFUIViewController, adPosition: Int) -> VFAdView? { VFAdView() }
 }
 
