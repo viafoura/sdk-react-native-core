@@ -47,7 +47,7 @@ class ViafouraModule : Module() {
         null
       }
 
-      return if (host.isNullOrBlank()) value else host
+      return (if (host.isNullOrBlank()) value else host).lowercase(Locale.ROOT)
     }
   }
 
@@ -161,16 +161,17 @@ class ViafouraModule : Module() {
         return@AsyncFunction
       }
       try {
-        enableLogging?.let { ViafouraSDK.isLoggingEnabled = it }
         synchronized(initLock) {
           val currentKey = initializedKey
           if (currentKey != null) {
             if (currentKey != initKey) {
               throw IllegalStateException("ViafouraSDK is already initialized with a different site")
             }
+            enableLogging?.let { ViafouraSDK.isLoggingEnabled = it }
             return@synchronized
           }
 
+          enableLogging?.let { ViafouraSDK.isLoggingEnabled = it }
           ViafouraSDK.initialize(context, siteUUID, siteDomain)
           initializedKey = initKey
         }

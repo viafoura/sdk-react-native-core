@@ -131,10 +131,6 @@ struct VFCoreAdapter {
       throw VFAdapterError.invalidInitialization
     }
 
-    if let enableLogging {
-      ViafouraSDK.setLoggingEnabled(enableLogging)
-    }
-
     Self.initLock.lock()
     defer { Self.initLock.unlock() }
 
@@ -142,9 +138,15 @@ struct VFCoreAdapter {
       guard initializedKey == key else {
         throw VFAdapterError.alreadyInitializedWithDifferentSite
       }
+      if let enableLogging {
+        ViafouraSDK.setLoggingEnabled(enableLogging)
+      }
       return
     }
 
+    if let enableLogging {
+      ViafouraSDK.setLoggingEnabled(enableLogging)
+    }
     ViafouraSDK.initialize(siteUUID: siteUUID, siteDomain: siteDomain)
     Self.initializedKey = key
   }
@@ -165,10 +167,10 @@ struct VFCoreAdapter {
 
   private static func normalizeSiteDomain(_ value: String) -> String {
     if let url = URL(string: value), let host = url.host, !host.isEmpty {
-      return host
+      return host.lowercased()
     }
 
-    return value
+    return value.lowercased()
   }
 }
 

@@ -30,3 +30,88 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  android-native:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.4
+          cache: npm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Package module
+        run: |
+          npm ci
+          npm run build
+          mkdir -p /tmp/viafoura-package
+          npm pack --pack-destination /tmp/viafoura-package
+
+      - name: Create Android smoke app
+        run: |
+          npx create-expo-app@latest /tmp/viafoura-native-smoke --template blank-typescript --yes
+          cd /tmp/viafoura-native-smoke
+          npm install /tmp/viafoura-package/*.tgz
+          npx expo prebuild --platform android --non-interactive
+
+      - name: Compile Android
+        working-directory: /tmp/viafoura-native-smoke/android
+        run: ./gradlew assembleDebug --no-daemon
+
+  ios-native:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.4
+          cache: npm
+
+      - name: Package module
+        run: |
+          npm ci
+          npm run build
+          mkdir -p /tmp/viafoura-package
+          npm pack --pack-destination /tmp/viafoura-package
+
+      - name: Create iOS smoke app
+        run: |
+          npx create-expo-app@latest /tmp/viafoura-native-smoke --template blank-typescript --yes
+          cd /tmp/viafoura-native-smoke
+          npm install /tmp/viafoura-package/*.tgz
+          npx expo prebuild --platform ios --non-interactive
+
+      - name: Install pods
+        working-directory: /tmp/viafoura-native-smoke/ios
+        run: pod install --repo-update
+
+      - name: Compile iOS
+        working-directory: /tmp/viafoura-native-smoke/ios
+        run: |
+          WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -print -quit)
+          SCHEME=$(xcodebuild -list -json -workspace "$WORKSPACE" | ruby -rjson -e 'data = JSON.parse(STDIN.read); puts data.dig("workspace", "schemes").first')
+
+          xcodebuild \
+            -workspace "$WORKSPACE" \
+            -scheme "$SCHEME" \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
