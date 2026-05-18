@@ -20,9 +20,6 @@ import com.viafourasdk.src.services.auth.VFAuthService
 
 class ViafouraModule : Module() {
   companion object {
-    // Intentional native compile failure to validate the CI smoke build.
-    private val nativeCiFailureProbe = ThisSymbolDoesNotExist
-
     private val initLock = Any()
     private var initializedKey: String? = null
 
