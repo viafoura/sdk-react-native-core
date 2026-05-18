@@ -1,3 +1,4 @@
+import Foundation
 import ExpoModulesCore
 
 // Optional Viafoura SDK import. Code is guarded to build without it.
@@ -7,6 +8,7 @@ import ViafouraSDK
 enum VFAdapterError: Error, LocalizedError {
   case invalidProvider
   case invalidInitialization
+  case alreadyInitializedWithDifferentSite
 
   var errorDescription: String? {
     switch self {
@@ -14,6 +16,8 @@ enum VFAdapterError: Error, LocalizedError {
       return "Invalid social login provider"
     case .invalidInitialization:
       return "Invalid Viafoura initialization parameters"
+    case .alreadyInitializedWithDifferentSite:
+      return "ViafouraSDK is already initialized with a different site"
     }
   }
 }
@@ -119,11 +123,52 @@ struct VFAuthAdapter {
 }
 
 struct VFCoreAdapter {
-  func initialize(siteUUID: String, siteDomain: String, enableLogging: Bool?) {
+  private static let initLock = NSLock()
+  private static var initializedKey: String?
+
+  func initialize(siteUUID: String, siteDomain: String, enableLogging: Bool?) throws {
+    guard let key = Self.initializationKey(siteUUID: siteUUID, siteDomain: siteDomain) else {
+      throw VFAdapterError.invalidInitialization
+    }
+
     if let enableLogging {
       ViafouraSDK.setLoggingEnabled(enableLogging)
     }
+
+    Self.initLock.lock()
+    defer { Self.initLock.unlock() }
+
+    if let initializedKey = Self.initializedKey {
+      guard initializedKey == key else {
+        throw VFAdapterError.alreadyInitializedWithDifferentSite
+      }
+      return
+    }
+
     ViafouraSDK.initialize(siteUUID: siteUUID, siteDomain: siteDomain)
+    Self.initializedKey = key
+  }
+
+  private static func initializationKey(siteUUID: String, siteDomain: String) -> String? {
+    let trimmedSiteUUID = siteUUID.trimmingCharacters(in: .whitespacesAndNewlines)
+    let trimmedSiteDomain = siteDomain.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    guard
+      let uuid = UUID(uuidString: trimmedSiteUUID),
+      !trimmedSiteDomain.isEmpty
+    else {
+      return nil
+    }
+
+    return "\(uuid.uuidString.lowercased())::\(normalizeSiteDomain(trimmedSiteDomain))"
+  }
+
+  private static func normalizeSiteDomain(_ value: String) -> String {
+    if let url = URL(string: value), let host = url.host, !host.isEmpty {
+      return host
+    }
+
+    return value
   }
 }
 
@@ -133,6 +178,7 @@ enum VFAdapterError: Error, LocalizedError {
   case sdkUnavailable
   case invalidProvider
   case invalidInitialization
+  case alreadyInitializedWithDifferentSite
 
   var errorDescription: String? {
     switch self {
@@ -142,6 +188,8 @@ enum VFAdapterError: Error, LocalizedError {
       return "Invalid social login provider"
     case .invalidInitialization:
       return "Invalid Viafoura initialization parameters"
+    case .alreadyInitializedWithDifferentSite:
+      return "ViafouraSDK is already initialized with a different site"
     }
   }
 }
@@ -175,7 +223,7 @@ struct VFAuthAdapter {
 }
 
 struct VFCoreAdapter {
-  func initialize(siteUUID: String, siteDomain: String, enableLogging: Bool?) {
+  func initialize(siteUUID: String, siteDomain: String, enableLogging: Bool?) throws {
     // no-op
   }
 }
@@ -308,7 +356,7 @@ public class ViafouraModule: Module {
       guard !siteUUID.isEmpty, !siteDomain.isEmpty else {
         throw VFAdapterError.invalidInitialization
       }
-      self.core.initialize(siteUUID: siteUUID, siteDomain: siteDomain, enableLogging: enableLogging)
+      try self.core.initialize(siteUUID: siteUUID, siteDomain: siteDomain, enableLogging: enableLogging)
     }
 
     // No additional native view here. PreviewComments is exposed via a separate module.
