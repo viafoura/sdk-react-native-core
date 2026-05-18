@@ -4,6 +4,8 @@ import expo.modules.kotlin.Promise
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import java.net.URL
+import java.util.Locale
+import java.util.UUID
 
 // Viafoura SDK imports. Ensure the SDK is added to the app.
 import com.viafourasdk.src.ViafouraSDK
@@ -17,6 +19,38 @@ import com.viafourasdk.src.model.network.error.NetworkError
 import com.viafourasdk.src.services.auth.VFAuthService
 
 class ViafouraModule : Module() {
+  companion object {
+    private val initLock = Any()
+    private var initializedKey: String? = null
+
+    private fun initializationKey(siteUUID: String, siteDomain: String): String? {
+      val trimmedSiteUUID = siteUUID.trim()
+      val trimmedSiteDomain = siteDomain.trim()
+
+      if (trimmedSiteDomain.isBlank()) {
+        return null
+      }
+
+      val normalizedUUID = try {
+        UUID.fromString(trimmedSiteUUID).toString().lowercase(Locale.ROOT)
+      } catch (e: IllegalArgumentException) {
+        return null
+      }
+
+      return "$normalizedUUID::${normalizeSiteDomain(trimmedSiteDomain)}"
+    }
+
+    private fun normalizeSiteDomain(value: String): String {
+      val host = try {
+        URL(value).host
+      } catch (e: Exception) {
+        null
+      }
+
+      return (if (host.isNullOrBlank()) value else host).lowercase(Locale.ROOT)
+    }
+  }
+
   // Each module class must implement the definition function. The definition consists of components
   // that describes the module's functionality and behavior.
   // See https://docs.expo.dev/modules/module-api for more details about available components.
@@ -121,9 +155,26 @@ class ViafouraModule : Module() {
         promise.reject("E_VF_INIT", "Invalid Viafoura initialization parameters", null)
         return@AsyncFunction
       }
+      val initKey = initializationKey(siteUUID, siteDomain)
+      if (initKey == null) {
+        promise.reject("E_VF_INIT", "Invalid Viafoura initialization parameters", null)
+        return@AsyncFunction
+      }
       try {
-        enableLogging?.let { ViafouraSDK.isLoggingEnabled = it }
-        ViafouraSDK.initialize(context, siteUUID, siteDomain)
+        synchronized(initLock) {
+          val currentKey = initializedKey
+          if (currentKey != null) {
+            if (currentKey != initKey) {
+              throw IllegalStateException("ViafouraSDK is already initialized with a different site")
+            }
+            enableLogging?.let { ViafouraSDK.isLoggingEnabled = it }
+            return@synchronized
+          }
+
+          enableLogging?.let { ViafouraSDK.isLoggingEnabled = it }
+          ViafouraSDK.initialize(context, siteUUID, siteDomain)
+          initializedKey = initKey
+        }
         promise.resolve(null)
       } catch (e: Exception) {
         promise.reject("E_VF_INIT", e.message ?: "Viafoura initialization failed", e)
