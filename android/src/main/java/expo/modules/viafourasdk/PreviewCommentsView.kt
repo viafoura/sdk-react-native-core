@@ -2,10 +2,10 @@ package expo.modules.viafourasdk
 
 import android.content.Context
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentContainerView
 import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.viewevent.EventDispatcher
 import expo.modules.kotlin.views.ExpoView
@@ -56,13 +56,32 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
   private val onAction by EventDispatcher()
 
   // Internals
-  private val container = FrameLayout(context).also {
+  // FragmentContainerView (not a plain FrameLayout) is required to host a fragment:
+  // replace()-ing into a plain FrameLayout can run the fragment lifecycle without ever
+  // attaching its view, leaving the host blank.
+  private val container = FragmentContainerView(context).also {
     it.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     it.id = ViewCompat.generateViewId()
     addView(it)
   }
 
   private var fragment: VFPreviewCommentsFragment? = null
+
+  // On the new architecture (Fabric), native child views added imperatively to an
+  // ExpoView are never measured/laid out by React's layout system, so the hosted
+  // fragment renders at 0x0 and appears blank. Force a manual measure+layout pass.
+  private val measureAndLayout = Runnable {
+    measure(
+      MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+      MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+    )
+    layout(left, top, right, bottom)
+  }
+
+  override fun requestLayout() {
+    super.requestLayout()
+    post(measureAndLayout)
+  }
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
@@ -102,12 +121,29 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
       frag.setTheme(resolvedTheme)
       authorId?.let { if (it.isNotEmpty()) frag.setAuthorIds(listOf(it)) }
 
+      // Add the fragment "headless" (no container view id). When a container id is
+      // supplied, the FragmentManager — running under the React/Fabric view host — resolves
+      // the wrong container and attaches the fragment's view to the React root surface
+      // instead of ours, leaving this view blank. Adding headless lets us own the view
+      // attachment and place it into our container explicitly.
       activity.supportFragmentManager
         .beginTransaction()
-        .replace(container.id, frag, container.id.toString())
-        .commit()
+        .add(frag, container.id.toString())
+        .commitNow()
 
       fragment = frag
+
+      val fragView = frag.view
+      if (fragView != null) {
+        (fragView.parent as? ViewGroup)?.removeView(fragView)
+        container.addView(
+          fragView,
+          ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+          )
+        )
+      }
     } catch (_: Exception) {
       // Swallow; invalid input
     }
