@@ -85,7 +85,11 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    ensureFragment()
+    // Defer to after any in-flight FragmentManager transaction. When this view is reached
+    // via navigation, react-native-screens is mid-transaction committing the screen push as
+    // we attach; committing synchronously here throws "FragmentManager is already executing
+    // transactions". Posting runs our transaction once the FM is idle.
+    post { ensureFragment() }
   }
 
   override fun onDetachedFromWindow() {
@@ -98,6 +102,7 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
 
   private fun ensureFragment() {
     if (fragment != null) return
+    if (!isAttachedToWindow) return
     val activity = currentActivity() ?: return
 
     try {
