@@ -181,26 +181,26 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
   }
 
   // VFActionsInterface
-  override fun onNewAction(actionType: VFActionType, action: VFActionData) {
+  override fun onNewAction(actionType: VFActionType, action: VFActionData?) {
     val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
     when (actionType) {
       VFActionType.writeNewCommentPressed -> {
         val payload = mutableMapOf<String, Any>()
-        action.newCommentAction?.content?.toString()?.let { payload["content"] = it }
-        action.newCommentAction?.type?.toString()?.let { payload["actionType"] = it }
+        action?.newCommentAction?.content?.toString()?.let { payload["content"] = it }
+        action?.newCommentAction?.type?.toString()?.let { payload["actionType"] = it }
         actionPayload.putAll(payload)
         onNewComment(payload)
       }
       VFActionType.openProfilePressed -> {
         val payload = mutableMapOf<String, Any>()
-        action.openProfileAction?.presentationType?.toString()?.let { payload["presentationType"] = it }
-        action.openProfileAction?.userUUID?.toString()?.let { payload["userUUID"] = it }
+        action?.openProfileAction?.presentationType?.toString()?.let { payload["presentationType"] = it }
+        action?.openProfileAction?.userUUID?.toString()?.let { payload["userUUID"] = it }
         actionPayload.putAll(payload)
         onOpenProfile(payload)
       }
       VFActionType.trendingArticlePressed -> {
-        val url = action.trendingPressedAction?.articleMetadata?.url?.toString()
-        val containerId = action.trendingPressedAction?.containerId ?: ""
+        val url = action?.trendingPressedAction?.articleMetadata?.url?.toString()
+        val containerId = action?.trendingPressedAction?.containerId ?: ""
         url?.let { actionPayload["articleUrl"] = it }
         actionPayload["containerId"] = containerId
         if (url != null) {

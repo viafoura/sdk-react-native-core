@@ -151,7 +151,7 @@ class ProfileView(context: Context, appContext: AppContext) :
   }
 
   // VFActionsInterface
-  override fun onNewAction(actionType: VFActionType, action: VFActionData) {
+  override fun onNewAction(actionType: VFActionType, action: VFActionData?) {
     val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
     when (actionType) {
       VFActionType.closeProfilePressed -> {
