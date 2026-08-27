@@ -74,17 +74,17 @@ jobs:
         run: ./gradlew assembleDebug --no-daemon
 
   ios-native:
-    runs-on: macos-15
+    runs-on: macos-26
     permissions:
       contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode (Swift 6.2+)
+      - name: Select Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: latest-stable
+          xcode-version: '26.6'
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -114,7 +114,12 @@ jobs:
         working-directory: /tmp/viafoura-native-smoke/ios
         run: |
           WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -print -quit)
-          SCHEME=$(xcodebuild -list -json -workspace "$WORKSPACE" | ruby -rjson -e 'data = JSON.parse(STDIN.read); puts data.dig("workspace", "schemes").first')
+          SCHEME=Viafoura
+
+          if ! xcodebuild -list -json -workspace "$WORKSPACE" | ruby -rjson -e 'exit JSON.parse(STDIN.read).dig("workspace", "schemes").include?(ARGV[0]) ? 0 : 1' "$SCHEME"; then
+            echo "::error::Scheme '$SCHEME' not found in $WORKSPACE; the module pod did not install."
+            exit 1
+          fi
 
           xcodebuild \
             -workspace "$WORKSPACE" \
