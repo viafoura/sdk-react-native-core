@@ -55,3 +55,7 @@ yarn-error.log
 
 # Expo
 .expo/*
+
+# Vendored Viafoura iOS SDK (fetched by scripts/fetch-ios-framework.js)
+ios/ViafouraSDK.xcframework/
+ios/.viafourasdk-version
