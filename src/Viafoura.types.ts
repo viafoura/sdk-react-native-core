@@ -105,6 +105,12 @@ export const IOSCustomUIViewType = {
   userCellBadgeView: 'userCellBadgeView',
   userCellSeparator: 'userCellSeparator',
   userCellFollowView: 'userCellFollowView',
+  conversationStarterBackgroundView: 'conversationStarterBackgroundView',
+  conversationStarterHeaderLabel: 'conversationStarterHeaderLabel',
+  conversationStarterTitleLabel: 'conversationStarterTitleLabel',
+  conversationStarterDescriptionLabel: 'conversationStarterDescriptionLabel',
+  conversationStarterFeaturedCommentLabel: 'conversationStarterFeaturedCommentLabel',
+  conversationStarterActionButton: 'conversationStarterActionButton',
   previewEmptyCommentsView: 'previewEmptyCommentsView',
   previewSeeMoreCommentsButton: 'previewSeeMoreCommentsButton',
   previewTitleLabel: 'previewTitleLabel',
@@ -243,6 +249,12 @@ export const AndroidCustomUIViewType = {
   profileFollowersText: 'profileFollowersText',
   profileBackgroundView: 'profileBackgroundView',
   profileFollowView: 'profileFollowView',
+  conversationStarterBackgroundView: 'conversationStarterBackgroundView',
+  conversationStarterHeaderLabel: 'conversationStarterHeaderLabel',
+  conversationStarterTitleLabel: 'conversationStarterTitleLabel',
+  conversationStarterDescriptionLabel: 'conversationStarterDescriptionLabel',
+  conversationStarterFeaturedCommentLabel: 'conversationStarterFeaturedCommentLabel',
+  conversationStarterActionButton: 'conversationStarterActionButton',
   previewEmptyCommentsView: 'previewEmptyCommentsView',
   previewTitleText: 'previewTitleText',
   previewCounterText: 'previewCounterText',
@@ -333,7 +345,9 @@ export type ActionCallbackType =
   | 'replyPosted'
   | 'authPressed'
   | 'closeNewCommentPressed'
-  | 'closeProfilePressed';
+  | 'closeProfilePressed'
+  | 'commentLiked'
+  | 'commentDisliked';
 
 export type ActionCallbackPayload =
   | {
@@ -380,6 +394,14 @@ export type ActionCallbackPayload =
     }
   | {
       type: 'closeProfilePressed';
+    }
+  | {
+      type: 'commentLiked';
+      content?: string;
+    }
+  | {
+      type: 'commentDisliked';
+      content?: string;
     };
 
 export type PreviewCommentsHeightChangedPayload = {
@@ -460,6 +482,33 @@ export type NewCommentViewProps = {
   onHeightChanged?: (event: { nativeEvent: NewCommentHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: NewCommentAuthNeededPayload }) => void;
   onCloseNewComment?: (event: { nativeEvent: Record<string, never> }) => void;
+  onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
+  style?: StyleProp<ViewStyle>;
+};
+
+export type ConversationStarterHeightChangedPayload = PreviewCommentsHeightChangedPayload;
+export type ConversationStarterAuthNeededPayload = PreviewCommentsAuthNeededPayload;
+export type ConversationStarterOpenProfilePayload = PreviewCommentsOpenProfilePayload;
+export type ConversationStarterNewCommentPayload = PreviewCommentsNewCommentPayload;
+
+export type ConversationStarterViewProps = {
+  containerId: string;
+  articleUrl: string;
+  articleTitle: string;
+  articleSubtitle?: string;
+  articleThumbnailUrl: string;
+  syndicationKey?: string;
+  title?: string;
+  description?: string;
+  minimumCommentCount?: number;
+  darkMode?: boolean;
+  theme?: VFCustomUITheme;
+  colors?: ViafouraColors;
+  onHeightChanged?: (event: { nativeEvent: ConversationStarterHeightChangedPayload }) => void;
+  onAuthNeeded?: (event: { nativeEvent: ConversationStarterAuthNeededPayload }) => void;
+  onOpenProfile?: (event: { nativeEvent: ConversationStarterOpenProfilePayload }) => void;
+  onNewComment?: (event: { nativeEvent: ConversationStarterNewCommentPayload }) => void;
+  onSeeMoreComments?: (event: { nativeEvent: Record<string, never> }) => void;
   onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
   style?: StyleProp<ViewStyle>;
 };

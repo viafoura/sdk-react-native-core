@@ -4,3 +4,4 @@ export { default as ViafouraCustomUI } from './ViafouraCustomUIModule';
 export { default as PreviewCommentsView } from './PreviewCommentsView';
 export { default as ProfileView } from './ProfileView';
 export { default as NewCommentView } from './NewCommentView';
+export { default as ConversationStarterView } from './ConversationStarterView';

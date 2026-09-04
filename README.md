@@ -37,4 +37,21 @@ import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 />
 ```
 
+The engagement starter (`ConversationStarterView`) works on both platforms and reports its
+own height:
+
+```tsx
+import { ConversationStarterView } from '@viafoura/sdk-react-native';
+
+<ConversationStarterView
+  containerId="YOUR_CONTAINER_ID"
+  articleUrl="https://example.com/article"
+  articleTitle="Title"
+  articleThumbnailUrl="https://example.com/thumb.jpg"
+  style={{ height }}
+  onHeightChanged={({ nativeEvent }) => setHeight(nativeEvent.newHeight)}
+  onSeeMoreComments={() => openComments()}
+/>
+```
+
 `ProfileView` and `NewCommentView` are Android-only. On iOS they render as empty views.
