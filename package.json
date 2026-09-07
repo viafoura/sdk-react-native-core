@@ -1,19 +1,24 @@
 {
   "name": "@viafoura/sdk-react-native",
-  "version": "0.1.14",
+  "version": "0.1.15",
+  "viafoura": {
+    "iosSdkVersion": "1.3.5"
+  },
   "description": "Viafoura React Native SDK",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
     "build": "expo-module build",
     "clean": "expo-module clean",
+    "fetch:ios-framework": "node scripts/fetch-ios-framework.js",
     "lint": "expo-module lint",
     "test": "expo-module test --passWithNoTests",
-    "prepare": "expo-module prepare",
+    "prepare": "expo-module prepare && npm run fetch:ios-framework",
     "prepublishOnly": "expo-module prepublishOnly",
     "expo-module": "expo-module",
     "open:ios": "xed ../../example/ios",
-    "open:android": "open -a \"Android Studio\" ../../example/android"
+    "open:android": "open -a \"Android Studio\" ../../example/android",
+    "prepack": "npm run fetch:ios-framework"
   },
   "keywords": [
     "react-native",

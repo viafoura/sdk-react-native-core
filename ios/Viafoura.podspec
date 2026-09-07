@@ -18,13 +18,12 @@ Pod::Spec.new do |s|
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'
-  # Add Viafoura iOS SDK (CocoaPods pod name is ViafouraCore, Swift module is ViafouraSDK)
-  s.dependency 'ViafouraCore', '1.3.4'
+  s.ios.vendored_frameworks = 'ViafouraSDK.xcframework'
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
   }
 
-  s.source_files = "**/*.{h,m,mm,swift,hpp,cpp}"
+  s.source_files = "*.{h,m,mm,swift,hpp,cpp}"
 end
