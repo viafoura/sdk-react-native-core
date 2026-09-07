@@ -8,7 +8,6 @@ export type ChangeEventPayload = {
   value: string;
 };
 
-
 export type PreviewCommentsEvents =
   | 'onHeightChanged'
   | 'onAuthNeeded'
@@ -27,15 +26,13 @@ export const CustomUIVisibility = {
   Visible: 'visible',
   Hidden: 'hidden',
 } as const;
-export type VFCustomUIVisibility =
-  (typeof CustomUIVisibility)[keyof typeof CustomUIVisibility];
+export type VFCustomUIVisibility = (typeof CustomUIVisibility)[keyof typeof CustomUIVisibility];
 
 export const CustomUITheme = {
   Light: 'light',
   Dark: 'dark',
 } as const;
-export type VFCustomUITheme =
-  (typeof CustomUITheme)[keyof typeof CustomUITheme];
+export type VFCustomUITheme = (typeof CustomUITheme)[keyof typeof CustomUITheme];
 
 export type VFCustomUIStyle = {
   visibility?: VFCustomUIVisibility;
@@ -184,7 +181,7 @@ export const IOSCustomUIViewType = {
   notificationBellIcon: 'notificationBellIcon',
 } as const;
 
-export type IOSCustomViewType = typeof IOSCustomUIViewType[keyof typeof IOSCustomUIViewType];
+export type IOSCustomViewType = (typeof IOSCustomUIViewType)[keyof typeof IOSCustomUIViewType];
 
 export const AndroidCustomUIViewType = {
   commentCellDislikeImage: 'commentCellDislikeImage',
@@ -326,14 +323,15 @@ export const AndroidCustomUIViewType = {
   reportThanksButton: 'reportThanksButton',
 } as const;
 
-export type AndroidCustomViewType = typeof AndroidCustomUIViewType[keyof typeof AndroidCustomUIViewType];
+export type AndroidCustomViewType =
+  (typeof AndroidCustomUIViewType)[keyof typeof AndroidCustomUIViewType];
 
 export const CustomUIViewType = {
   ...IOSCustomUIViewType,
   ...AndroidCustomUIViewType,
 } as const;
 
-export type VFCustomUIViewType = typeof CustomUIViewType[keyof typeof CustomUIViewType];
+export type VFCustomUIViewType = (typeof CustomUIViewType)[keyof typeof CustomUIViewType];
 
 export type ActionCallbackType =
   | 'writeNewCommentPressed'

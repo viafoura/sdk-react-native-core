@@ -9,9 +9,7 @@ function NewCommentFallbackView(_props: NewCommentViewProps) {
 }
 
 const NativeView: React.ComponentType<NewCommentViewProps> =
-  Platform.OS === 'android'
-    ? requireNativeViewManager('NewComment')
-    : NewCommentFallbackView;
+  Platform.OS === 'android' ? requireNativeViewManager('NewComment') : NewCommentFallbackView;
 
 export default function NewCommentView(props: NewCommentViewProps) {
   return <NativeView {...props} />;

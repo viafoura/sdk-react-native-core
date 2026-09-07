@@ -9,9 +9,7 @@ function ProfileFallbackView(_props: ProfileViewProps) {
 }
 
 const NativeView: React.ComponentType<ProfileViewProps> =
-  Platform.OS === 'android'
-    ? requireNativeViewManager('Profile')
-    : ProfileFallbackView;
+  Platform.OS === 'android' ? requireNativeViewManager('Profile') : ProfileFallbackView;
 
 export default function ProfileView(props: ProfileViewProps) {
   return <NativeView {...props} />;

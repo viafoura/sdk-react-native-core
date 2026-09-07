@@ -1,5 +1,5 @@
 export { default } from './ViafouraModule';
-export * from  './Viafoura.types';
+export * from './Viafoura.types';
 export { default as ViafouraCustomUI } from './ViafouraCustomUIModule';
 export { default as PreviewCommentsView } from './PreviewCommentsView';
 export { default as ProfileView } from './ProfileView';
