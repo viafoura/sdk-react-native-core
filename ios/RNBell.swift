@@ -67,6 +67,8 @@ class RNBell: UIView, VFLoginDelegate {
                     break
                 case .content(let containerUUID, let contentUUID, let containerId, let articleMetadata):
                     break
+                default:
+                    break
                 }
             default:
                 break

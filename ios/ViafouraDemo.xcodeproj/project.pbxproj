@@ -29,6 +29,9 @@
 		47F3B914298B4B46005DDFBA /* RCTAuthService.m in Sources */ = {isa = PBXBuildFile; fileRef = 47F3B913298B4B46005DDFBA /* RCTAuthService.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		97FADD133AC4D341212B6DD6 /* libPods-ViafouraDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EFCBC97BDC74A448C553AF6E /* libPods-ViafouraDemo.a */; };
+		A1B2C3D011000000000000E1 /* RNLiveQuestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D001000000000000E1 /* RNLiveQuestions.swift */; };
+		A1B2C3D012000000000000E1 /* RNLiveQuestionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D002000000000000E1 /* RNLiveQuestionsManager.swift */; };
+		A1B2C3D013000000000000E1 /* RNLiveQuestionsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D003000000000000E1 /* RNLiveQuestionsManager.m */; };
 		D6E26EED1C708B0058ECBAAB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DEAB86A4EB0D5D346F1082D7 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
@@ -90,6 +93,9 @@
 		72E9E49946448177E65D3823 /* Pods-ViafouraDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ViafouraDemo.debug.xcconfig"; path = "Target Support Files/Pods-ViafouraDemo/Pods-ViafouraDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = sdk/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-sdk-sdkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sdk-sdkTests.release.xcconfig"; path = "Target Support Files/Pods-sdk-sdkTests/Pods-sdk-sdkTests.release.xcconfig"; sourceTree = "<group>"; };
+		A1B2C3D001000000000000E1 /* RNLiveQuestions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNLiveQuestions.swift; sourceTree = "<group>"; };
+		A1B2C3D002000000000000E1 /* RNLiveQuestionsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNLiveQuestionsManager.swift; sourceTree = "<group>"; };
+		A1B2C3D003000000000000E1 /* RNLiveQuestionsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNLiveQuestionsManager.m; path = sdk/RNLiveQuestionsManager.m; sourceTree = "<group>"; };
 		DEAB86A4EB0D5D346F1082D7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = sdk/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		EFCBC97BDC74A448C553AF6E /* libPods-ViafouraDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ViafouraDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -140,6 +146,7 @@
 				47F3B8E7298B430B005DDFBA /* AuthService */,
 				47707D34298B2E2C00B28A2C /* EventEmitter */,
 				47CC8C232B50E11E006B757F /* Chat */,
+				A1B2C3D021000000000000E1 /* LiveQuestions */,
 				47707D29298B216E00B28A2C /* PreviewComments */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -257,6 +264,16 @@
 				00E356EE1AD99517003FC87E /* ViafouraDemoTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A1B2C3D021000000000000E1 /* LiveQuestions */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D003000000000000E1 /* RNLiveQuestionsManager.m */,
+				A1B2C3D001000000000000E1 /* RNLiveQuestions.swift */,
+				A1B2C3D002000000000000E1 /* RNLiveQuestionsManager.swift */,
+			);
+			name = LiveQuestions;
 			sourceTree = "<group>";
 		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
@@ -482,6 +499,9 @@
 				47707D2F298B218400B28A2C /* RNPreviewCommentsManager.swift in Sources */,
 				47F1B1942AB0F36300E1D791 /* RCTCommentsService.swift in Sources */,
 				47CC8C252B50E12B006B757F /* RNChat.swift in Sources */,
+				A1B2C3D011000000000000E1 /* RNLiveQuestions.swift in Sources */,
+				A1B2C3D012000000000000E1 /* RNLiveQuestionsManager.swift in Sources */,
+				A1B2C3D013000000000000E1 /* RNLiveQuestionsManager.m in Sources */,
 				47707D3A298B2E8D00B28A2C /* RTEEventEmitter.swift in Sources */,
 				477A11092BB60B6800DE0128 /* RNBellManager.m in Sources */,
 				47F1B1952AB0F36300E1D791 /* RCTCommentsService.m in Sources */,
@@ -693,6 +713,7 @@
 				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
 				USE_HERMES = true;
 			};
 			name = Debug;

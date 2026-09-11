@@ -125,6 +125,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate {
                     break
                 case .content(let containerUUID, let contentUUID, let containerId, let articleMetadata):
                     break
+                default:
+                    break
                 }
             default:
                 break
