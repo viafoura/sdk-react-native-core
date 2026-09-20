@@ -25,6 +25,7 @@ const LiveQuestionsScreen = () => {
       articleSubtitle={route.params.articleDesc}
       articleUrl={route.params.articleUrl}
       articleThumbnailUrl={route.params.articleThumbnailUrl}
+      title={route.params.title}
       sectionUUID={route.params.sectionUUID}
       darkMode={false}
       onOpenProfile={(event: any) => {

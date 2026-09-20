@@ -5,8 +5,6 @@ import android.content.res.Resources;
 import android.util.DisplayMetrics;
 import android.view.Choreographer;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -39,21 +37,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
-public class RNLiveQuestionsViewManager extends ViewGroupManager<FrameLayout> implements VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
+public class RNLiveQuestionsViewManager extends ViewGroupManager<RNLiveQuestionsHost> implements VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
 
     public static final String REACT_CLASS = "RNLiveQuestionsAndroid";
     public final int COMMAND_CREATE = 1;
     public final int COMMAND_DESTROY = 2;
     ReactApplicationContext reactContext;
-
-    int reactNativeViewId;
-    private int propHeight;
-    private String containerId;
-    private String authorId;
-    private String title;
-    private String sectionUUID;
-    private boolean darkMode;
-    private String articleUrl, articleTitle, articleDesc, articleThumbnailUrl;
 
     public RNLiveQuestionsViewManager(ReactApplicationContext reactContext) {
         this.reactContext = reactContext;
@@ -65,8 +54,8 @@ public class RNLiveQuestionsViewManager extends ViewGroupManager<FrameLayout> im
     }
 
     @Override
-    public FrameLayout createViewInstance(ThemedReactContext reactContext) {
-        return new FrameLayout(reactContext);
+    public RNLiveQuestionsHost createViewInstance(ThemedReactContext reactContext) {
+        return new RNLiveQuestionsHost(reactContext);
     }
 
     @Nullable
@@ -77,35 +66,44 @@ public class RNLiveQuestionsViewManager extends ViewGroupManager<FrameLayout> im
 
     @Override
     public void receiveCommand(
-            @NonNull FrameLayout root,
+            @NonNull RNLiveQuestionsHost root,
             String commandId,
             @Nullable ReadableArray args
     ) {
         super.receiveCommand(root, commandId, args);
-        reactNativeViewId = args.getInt(0);
+
+        if (args == null || args.size() == 0) {
+            return;
+        }
+
+        root.reactNativeViewId = args.getInt(0);
 
         switch (commandId) {
             case "create":
-                createFragment(root, reactNativeViewId);
+                createFragment(root);
+                break;
+            case "destroy":
+                destroyFragment(root);
                 break;
             default: {}
         }
     }
 
     @Override
-    public void onDropViewInstance(@NonNull FrameLayout view) {
+    public void onDropViewInstance(@NonNull RNLiveQuestionsHost view) {
         super.onDropViewInstance(view);
 
-        destroyFragment(reactNativeViewId);
+        view.stopLayoutCallback();
+        destroyFragment(view);
     }
 
-    public void destroyFragment(int reactNativeViewId) {
+    public void destroyFragment(RNLiveQuestionsHost view) {
         FragmentActivity activity = (FragmentActivity) reactContext.getCurrentActivity();
         if (activity == null) {
             return;
         }
 
-        Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag(String.valueOf(reactNativeViewId));
+        Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag(String.valueOf(view.reactNativeViewId));
 
         if(fragment != null){
             activity.getSupportFragmentManager()
@@ -122,26 +120,26 @@ public class RNLiveQuestionsViewManager extends ViewGroupManager<FrameLayout> im
                 .build();
     }
 
-    public void createFragment(FrameLayout root, int reactNativeViewId) {
-        ViewGroup parentView = (ViewGroup) root.findViewById(reactNativeViewId);
-        setupLayout(parentView);
+    public void createFragment(RNLiveQuestionsHost root) {
+        int reactNativeViewId = root.reactNativeViewId;
+        setupLayout(root);
 
         try {
-            VFArticleMetadata articleMetadata = new VFArticleMetadata(new URL(articleUrl), articleTitle, articleDesc, new URL(articleThumbnailUrl));
+            VFArticleMetadata articleMetadata = new VFArticleMetadata(new URL(root.articleUrl), root.articleTitle, root.articleDesc, new URL(root.articleThumbnailUrl));
             VFColors colors = new VFColors(VFDefaultColors.getInstance().colorPrimaryDefault(null), VFDefaultColors.getInstance().colorPrimaryLightDefault(null));
             VFSettings settings = new VFSettings(colors);
             FragmentActivity activity = (FragmentActivity) reactContext.getCurrentActivity();
 
-            VFLiveQuestionsFragmentBuilder builder = new VFLiveQuestionsFragmentBuilder(containerId, articleMetadata, settings)
+            VFLiveQuestionsFragmentBuilder builder = new VFLiveQuestionsFragmentBuilder(root.containerId, articleMetadata, settings)
                     .actionsInterface(this)
                     .customUIInterface(this);
 
-            if (title != null) {
-                builder.title(title);
+            if (root.title != null) {
+                builder.title(root.title);
             }
 
-            if (sectionUUID != null) {
-                builder.sectionUUID(sectionUUID);
+            if (root.sectionUUID != null) {
+                builder.sectionUUID(root.sectionUUID);
             }
 
             final VFLiveQuestionsFragment liveQuestionsFragment = builder.build();
@@ -154,7 +152,7 @@ public class RNLiveQuestionsViewManager extends ViewGroupManager<FrameLayout> im
             }
 
             liveQuestionsFragment.setLayoutCallback(this);
-            liveQuestionsFragment.setTheme(darkMode ? VFTheme.dark : VFTheme.light);
+            liveQuestionsFragment.setTheme(root.darkMode ? VFTheme.dark : VFTheme.light);
 
         } catch (MalformedURLException | IllegalArgumentException e) {
             e.printStackTrace();
@@ -163,30 +161,39 @@ public class RNLiveQuestionsViewManager extends ViewGroupManager<FrameLayout> im
     }
 
     @ReactPropGroup(names = {"width", "height"}, customType = "Style")
-    public void setStyle(FrameLayout view, int index, Integer value) {
+    public void setStyle(RNLiveQuestionsHost view, int index, Integer value) {
         if (index == 1) {
-            propHeight = value;
+            view.propHeight = value;
         }
     }
 
-    public void setupLayout(View view) {
-        Choreographer.getInstance().postFrameCallback(new Choreographer.FrameCallback() {
+    public void setupLayout(final RNLiveQuestionsHost view) {
+        view.stopLayoutCallback();
+
+        Choreographer.FrameCallback callback = new Choreographer.FrameCallback() {
             @Override
             public void doFrame(long frameTimeNanos) {
+                if (view.layoutCallback != this) {
+                    return;
+                }
+
                 manuallyLayoutChildren(view);
                 view.getViewTreeObserver().dispatchOnGlobalLayout();
                 Choreographer.getInstance().postFrameCallback(this);
             }
-        });
+        };
+
+        view.layoutCallback = callback;
+        Choreographer.getInstance().postFrameCallback(callback);
     }
 
     public static float convertDpToPixel(float dp, Context context){
         return dp * ((float) context.getResources().getDisplayMetrics().densityDpi / DisplayMetrics.DENSITY_DEFAULT);
     }
 
-    public void manuallyLayoutChildren(View view) {
+    public void manuallyLayoutChildren(RNLiveQuestionsHost view) {
         int width = Resources.getSystem().getDisplayMetrics().widthPixels;
-        int height = (int) convertDpToPixel(propHeight, reactContext);
+        int height = (int) convertDpToPixel(view.propHeight, reactContext);
 
         view.measure(
                 View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
@@ -201,48 +208,48 @@ public class RNLiveQuestionsViewManager extends ViewGroupManager<FrameLayout> im
     }
 
     @ReactProp(name = "authorId")
-    public void setAuthorId(FrameLayout view, String authorId) {
-        this.authorId = authorId;
+    public void setAuthorId(RNLiveQuestionsHost view, String authorId) {
+        view.authorId = authorId;
     }
 
     @ReactProp(name = "containerId")
-    public void setContainerId(FrameLayout view, String containerId) {
-        this.containerId = containerId;
+    public void setContainerId(RNLiveQuestionsHost view, String containerId) {
+        view.containerId = containerId;
     }
 
     @ReactProp(name = "title")
-    public void setTitle(FrameLayout view, String title) {
-        this.title = title;
+    public void setTitle(RNLiveQuestionsHost view, String title) {
+        view.title = title;
     }
 
     @ReactProp(name = "sectionUUID")
-    public void setSectionUUID(FrameLayout view, String sectionUUID) {
-        this.sectionUUID = sectionUUID;
+    public void setSectionUUID(RNLiveQuestionsHost view, String sectionUUID) {
+        view.sectionUUID = sectionUUID;
     }
 
     @ReactProp(name = "articleTitle")
-    public void setArticleTitle(FrameLayout view, String articleTitle) {
-        this.articleTitle = articleTitle;
+    public void setArticleTitle(RNLiveQuestionsHost view, String articleTitle) {
+        view.articleTitle = articleTitle;
     }
 
     @ReactProp(name = "articleSubtitle")
-    public void setArticleSubtitle(FrameLayout view, String articleSubtitle) {
-        this.articleDesc = articleSubtitle;
+    public void setArticleSubtitle(RNLiveQuestionsHost view, String articleSubtitle) {
+        view.articleDesc = articleSubtitle;
     }
 
     @ReactProp(name = "articleUrl")
-    public void setArticleUrl(FrameLayout view, String articleUrl) {
-        this.articleUrl = articleUrl;
+    public void setArticleUrl(RNLiveQuestionsHost view, String articleUrl) {
+        view.articleUrl = articleUrl;
     }
 
     @ReactProp(name = "articleThumbnailUrl")
-    public void setArticleThumbnailUrl(FrameLayout view, String articleThumbnailUrl) {
-        this.articleThumbnailUrl = articleThumbnailUrl;
+    public void setArticleThumbnailUrl(RNLiveQuestionsHost view, String articleThumbnailUrl) {
+        view.articleThumbnailUrl = articleThumbnailUrl;
     }
 
     @ReactProp(name = "darkMode")
-    public void setDarkMode(FrameLayout view, Boolean darkMode) {
-        this.darkMode = darkMode;
+    public void setDarkMode(RNLiveQuestionsHost view, Boolean darkMode) {
+        view.darkMode = darkMode;
     }
 
     @Override

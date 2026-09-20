@@ -37,7 +37,10 @@ const ArticleListScreen = () => {
       <Button
         title="Live Q&A"
         onPress={() =>
-          navigation.navigate(Screens.LiveQuestions, route.params.articles[1])
+          navigation.navigate(Screens.LiveQuestions, {
+            ...route.params.articles[1],
+            title: 'Live Q&A',
+          })
         }
       />
     </ScrollView>
