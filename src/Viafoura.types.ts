@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 export type ViafouraModuleEvents = {
@@ -14,7 +15,8 @@ export type PreviewCommentsEvents =
   | 'onOpenProfile'
   | 'onNewComment'
   | 'onArticlePressed'
-  | 'onAction';
+  | 'onAction'
+  | 'onAdSlotRequested';
 
 export type ViafouraColors = {
   colorPrimary?: string;
@@ -426,6 +428,15 @@ export type PreviewCommentsArticlePressedPayload = {
   containerId: string;
 };
 
+export type PreviewCommentsAdSlotRequestedPayload = {
+  position: number;
+  containerId: string;
+};
+
+export type ViafouraAdSlotRenderInfo = {
+  position: number;
+};
+
 export type PreviewCommentsViewProps = {
   containerId: string;
   authorId?: string;
@@ -443,6 +454,11 @@ export type PreviewCommentsViewProps = {
   onNewComment?: (event: { nativeEvent: PreviewCommentsNewCommentPayload }) => void;
   onArticlePressed?: (event: { nativeEvent: PreviewCommentsArticlePressedPayload }) => void;
   onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
+  adInterval?: number;
+  firstAdPosition?: number;
+  adHeight?: number;
+  renderAd?: (info: ViafouraAdSlotRenderInfo) => React.ReactNode;
+  onAdSlotRequested?: (event: { nativeEvent: PreviewCommentsAdSlotRequestedPayload }) => void;
   style?: StyleProp<ViewStyle>;
 };
 

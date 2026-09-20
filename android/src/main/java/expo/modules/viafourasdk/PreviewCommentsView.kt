@@ -1,7 +1,9 @@
 package expo.modules.viafourasdk
 
 import android.content.Context
+import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -15,6 +17,7 @@ import com.viafourasdk.src.fragments.base.VFFragment
 import com.viafourasdk.src.fragments.previewcomments.VFPreviewCommentsFragment
 import com.viafourasdk.src.fragments.previewcomments.VFPreviewCommentsFragmentBuilder
 import com.viafourasdk.src.interfaces.VFActionsInterface
+import com.viafourasdk.src.interfaces.VFAdInterface
 import com.viafourasdk.src.interfaces.VFCustomUIInterface
 import com.viafourasdk.src.interfaces.VFLayoutInterface
 import com.viafourasdk.src.model.local.VFActionData
@@ -25,7 +28,7 @@ import com.viafourasdk.src.model.local.VFTheme
 import java.net.URL
 
 class PreviewCommentsView(context: Context, appContext: AppContext) :
-  ExpoView(context, appContext), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
+  ExpoView(context, appContext), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface, VFAdInterface {
 
   // Props
   var containerId: String? = null
@@ -46,6 +49,8 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
       applyThemeIfReady()
     }
   var colors: Map<String, Any?>? = null
+  var adInterval: Int = 0
+  var firstAdPosition: Int = 2
 
   // Events
   private val onHeightChanged by EventDispatcher()
@@ -54,6 +59,7 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
   private val onNewComment by EventDispatcher()
   private val onArticlePressed by EventDispatcher()
   private val onAction by EventDispatcher()
+  private val onAdSlotRequested by EventDispatcher()
 
   // Internals
   // FragmentContainerView (not a plain FrameLayout) is required to host a fragment:
@@ -66,6 +72,10 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
   }
 
   private var fragment: VFPreviewCommentsFragment? = null
+
+  private val adContainers = mutableMapOf<Int, FrameLayout>()
+  private val adSlots = mutableMapOf<Int, AdSlotView>()
+  private val reactChildren = mutableListOf<View>()
 
   // On the new architecture (Fabric), native child views added imperatively to an
   // ExpoView are never measured/laid out by React's layout system, so the hosted
@@ -123,6 +133,7 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
       frag.setActionCallback(this)
       frag.setLayoutCallback(this)
       frag.setCustomUICallback(this)
+      frag.setAdInterface(this)
       frag.setTheme(resolvedTheme)
       authorId?.let { if (it.isNotEmpty()) frag.setAuthorIds(listOf(it)) }
 
@@ -219,6 +230,101 @@ class PreviewCommentsView(context: Context, appContext: AppContext) :
   // VFLayoutInterface
   override fun containerHeightUpdated(fragment: VFFragment, containerId: String, height: Int) {
     onHeightChanged(mapOf("newHeight" to height, "containerId" to containerId))
+  }
+
+  // VFAdInterface
+  override fun getAdInterval(fragment: VFFragment?): Int = adInterval
+
+  override fun getFirstAdPosition(fragment: VFFragment?): Int = firstAdPosition
+
+  override fun generateAd(fragment: VFFragment?, adPosition: Int): ViewGroup? {
+    if (adInterval <= 0) return null
+
+    adContainers[adPosition]?.let { return it }
+
+    val adContainer = FrameLayout(context).also {
+      it.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0)
+    }
+    adContainers[adPosition] = adContainer
+
+    val slot = adSlots[adPosition]
+    if (slot != null) {
+      attachSlot(slot, adContainer)
+    } else {
+      onAdSlotRequested(mapOf("position" to adPosition, "containerId" to (containerId ?: "")))
+    }
+
+    return adContainer
+  }
+
+  // Ad slots
+  val reactChildCount: Int
+    get() = reactChildren.size
+
+  fun reactChildAt(index: Int): View? = reactChildren.getOrNull(index)
+
+  fun addReactChild(child: View, index: Int) {
+    reactChildren.add(index.coerceIn(0, reactChildren.size), child)
+    if (child is AdSlotView) {
+      registerAdSlot(child)
+    }
+  }
+
+  fun removeReactChildAt(index: Int) {
+    reactChildren.getOrNull(index)?.let { removeReactChild(it) }
+  }
+
+  fun removeReactChild(child: View) {
+    reactChildren.remove(child)
+    if (child is AdSlotView) {
+      unregisterAdSlot(child)
+    }
+  }
+
+  private fun registerAdSlot(slot: AdSlotView) {
+    adSlots[slot.position] = slot
+    slot.onContentSizeChange = {
+      adContainers[slot.position]?.let { updateContainerHeight(slot, it) }
+    }
+    adContainers[slot.position]?.let { attachSlot(slot, it) }
+  }
+
+  private fun unregisterAdSlot(slot: AdSlotView) {
+    slot.onContentSizeChange = null
+    if (adSlots[slot.position] === slot) {
+      adSlots.remove(slot.position)
+    }
+    (slot.parent as? ViewGroup)?.removeView(slot)
+    adContainers[slot.position]?.let { container ->
+      val params = container.layoutParams ?: return@let
+      params.height = 0
+      container.layoutParams = params
+      container.requestLayout()
+    }
+  }
+
+  private fun attachSlot(slot: AdSlotView, adContainer: FrameLayout) {
+    if (slot.parent !== adContainer) {
+      (slot.parent as? ViewGroup)?.removeView(slot)
+      adContainer.addView(
+        slot,
+        FrameLayout.LayoutParams(
+          FrameLayout.LayoutParams.MATCH_PARENT,
+          FrameLayout.LayoutParams.MATCH_PARENT
+        )
+      )
+    }
+    updateContainerHeight(slot, adContainer)
+  }
+
+  private fun updateContainerHeight(slot: AdSlotView, adContainer: FrameLayout) {
+    val height = slot.contentHeightPx
+    val params = adContainer.layoutParams
+      ?: ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
+    if (params.height == height) return
+    params.height = height
+    adContainer.layoutParams = params
+    adContainer.requestLayout()
   }
 
   private fun resolveTheme(): VFTheme {

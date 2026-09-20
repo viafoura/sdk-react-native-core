@@ -1,5 +1,6 @@
 package expo.modules.viafourasdk
 
+import android.view.View
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
@@ -19,6 +20,8 @@ class PreviewCommentsModule : Module() {
       Prop("darkMode") { view: PreviewCommentsView, v: Boolean? -> view.darkMode = v ?: false }
       Prop("theme") { view: PreviewCommentsView, v: String? -> view.theme = v }
       Prop("colors") { view: PreviewCommentsView, v: Map<String, Any?>? -> view.colors = v }
+      Prop("adInterval") { view: PreviewCommentsView, v: Int? -> view.adInterval = v ?: 0 }
+      Prop("firstAdPosition") { view: PreviewCommentsView, v: Int? -> view.firstAdPosition = v ?: 2 }
 
       // Events
       Events(
@@ -27,8 +30,19 @@ class PreviewCommentsModule : Module() {
         "onOpenProfile",
         "onNewComment",
         "onArticlePressed",
-        "onAction"
+        "onAction",
+        "onAdSlotRequested"
       )
+
+      GroupView<PreviewCommentsView> {
+        AddChildView { parent: PreviewCommentsView, child: View, index: Int ->
+          parent.addReactChild(child, index)
+        }
+        GetChildCount { parent: PreviewCommentsView -> parent.reactChildCount }
+        GetChildViewAt { parent: PreviewCommentsView, index: Int -> parent.reactChildAt(index) }
+        RemoveChildViewAt { parent: PreviewCommentsView, index: Int -> parent.removeReactChildAt(index) }
+        RemoveChildView { parent: PreviewCommentsView, child: View -> parent.removeReactChild(child) }
+      }
     }
   }
 }
