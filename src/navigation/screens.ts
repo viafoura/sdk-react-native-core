@@ -3,6 +3,7 @@ export enum Screens {
   Article = 'Article',
   Chat = 'Chat',
   ForgotPassword = 'ForgotPassword',
+  LiveQuestions = 'LiveQuestions',
   Login = 'Login',
   NewComment = 'NewComment',
   Profile = 'Profile',

@@ -10,6 +10,7 @@ import com.sdk.auth.AuthService;
 import com.sdk.bell.RNBellViewManager;
 import com.sdk.chat.RNChatViewManager;
 import com.sdk.comments.CommentsService;
+import com.sdk.livequestions.RNLiveQuestionsViewManager;
 import com.sdk.newComment.RNNewCommentsViewManager;
 import com.sdk.previewComments.RNPreviewCommentsViewManager;
 import com.sdk.profile.RNProfileViewManager;
@@ -35,7 +36,8 @@ public class RNPackage implements ReactPackage {
                 new RNPreviewCommentsViewManager(reactApplicationContext),
                 new RNChatViewManager(reactApplicationContext),
                 new RNProfileViewManager(reactApplicationContext),
-                new RNNewCommentsViewManager(reactApplicationContext)
+                new RNNewCommentsViewManager(reactApplicationContext),
+                new RNLiveQuestionsViewManager(reactApplicationContext)
         );
     }
 }

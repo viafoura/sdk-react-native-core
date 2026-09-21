@@ -3,6 +3,7 @@ import React from 'react';
 import ArticleListScreen from './src/components/screens/ArticleListScreen';
 import ArticleScreen from './src/components/screens/ArticleScreen';
 import ChatScreen from './src/components/screens/ChatScreen';
+import LiveQuestionsScreen from './src/components/screens/LiveQuestionsScreen';
 import ProfileScreen from './src/components/screens/ProfileScreen';
 import NewCommentScreen from './src/components/screens/NewCommentScreen';
 import LoginScreen from './src/components/screens/LoginScreen';
@@ -51,6 +52,10 @@ const App = () => {
         />
         <Stack.Screen name={Screens.Chat} component={ChatScreen} />
         <Stack.Screen name={Screens.Article} component={ArticleScreen} />
+        <Stack.Screen
+          name={Screens.LiveQuestions}
+          component={LiveQuestionsScreen}
+        />
         <Stack.Screen name={Screens.NewComment} component={NewCommentScreen} />
         <Stack.Screen name={Screens.Profile} component={ProfileScreen} />
         <Stack.Screen name={Screens.Login} component={LoginScreen} />

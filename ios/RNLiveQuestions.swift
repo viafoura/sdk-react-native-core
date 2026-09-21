@@ -2,10 +2,10 @@ import AVFoundation
 import Foundation
 import ViafouraSDK
 
-class RNChat: UIView, VFLoginDelegate, VFLayoutDelegate {
+class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate {
     let fontBold = UIFont.boldSystemFont(ofSize: 17)
 
-    weak var liveChatViewController: VFLiveChatViewController?
+    weak var liveQuestionsViewController: VFLiveQuestionsViewController?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -19,6 +19,8 @@ class RNChat: UIView, VFLoginDelegate, VFLayoutDelegate {
     @objc var articleTitle = ""
     @objc var articleSubtitle = ""
     @objc var articleThumbnailUrl = ""
+    @objc var title: String?
+    @objc var sectionUUID: String?
     @objc var darkMode = false
 
     var settings: VFSettings?
@@ -27,11 +29,11 @@ class RNChat: UIView, VFLoginDelegate, VFLayoutDelegate {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        if liveChatViewController == nil {
+        if liveQuestionsViewController == nil {
             initializeSettings()
             embed()
         } else {
-            liveChatViewController?.view.frame = bounds
+            liveQuestionsViewController?.view.frame = bounds
         }
     }
 
@@ -60,12 +62,26 @@ class RNChat: UIView, VFLoginDelegate, VFLayoutDelegate {
             return
         }
 
-        let vc = VFLiveChatViewController.new(
-          containerId: containerId,
-          articleMetadata: articleMetadata,
-          loginDelegate: self,
-          settings: settings
-        )
+        let vc: VFLiveQuestionsViewController
+
+        if let sectionUUID = sectionUUID, let sectionUUID = UUID(uuidString: sectionUUID) {
+            vc = VFLiveQuestionsViewController.new(
+                containerId: containerId,
+                articleMetadata: articleMetadata,
+                loginDelegate: self,
+                settings: settings,
+                sectionUUID: sectionUUID,
+                title: title
+            )
+        } else {
+            vc = VFLiveQuestionsViewController.new(
+                containerId: containerId,
+                articleMetadata: articleMetadata,
+                loginDelegate: self,
+                settings: settings,
+                title: title
+            )
+        }
 
         let callbacks: VFActionsCallbacks = { [weak self] type in
             switch type {
@@ -78,36 +94,19 @@ class RNChat: UIView, VFLoginDelegate, VFLayoutDelegate {
         }
 
         vc.setActionCallbacks(callbacks: callbacks)
-        //vc.setLayoutDelegate(layoutDelegate: self)
+        vc.setLayoutDelegate(layoutDelegate: self)
 
         parentVC.addChild(vc)
         addSubview(vc.view)
         vc.view.frame = bounds
         vc.didMove(toParent: parentVC)
         vc.setTheme(theme: darkMode ? .dark : .light)
-        self.liveChatViewController = vc
+        self.liveQuestionsViewController = vc
     }
 
     func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType) {
         guard let parentViewController = parentViewController, let settings = settings else {
             return
-        }
-
-        let callbacks: VFActionsCallbacks = { [weak self] type in
-            switch type {
-            case .notificationPressed(let presentationType):
-                switch presentationType {
-                case .profile(let userUUID):
-                    self?.presentProfileViewController(userUUID: userUUID, presentationType: .feed)
-                    break
-                case .content(let containerUUID, let contentUUID, let containerId, let articleMetadata):
-                    break
-                default:
-                    break
-                }
-            default:
-                break
-            }
         }
 
         let profileViewController = VFProfileViewController.new(
@@ -117,7 +116,6 @@ class RNChat: UIView, VFLoginDelegate, VFLayoutDelegate {
           settings: settings
         )
 
-        profileViewController.setActionCallbacks(callbacks: callbacks)
         profileViewController.setTheme(theme: darkMode ? .dark : .light)
         parentViewController.present(profileViewController, animated: true)
     }
