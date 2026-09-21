@@ -8,7 +8,8 @@
       "ViafouraModule",
       "PreviewCommentsModule",
       "ViafouraCustomUIModule",
-      "ConversationStarterModule"
+      "ConversationStarterModule",
+      "AdSlotModule"
     ]
   },
   "android": {
@@ -18,7 +19,8 @@
       "expo.modules.viafourasdk.ProfileModule",
       "expo.modules.viafourasdk.NewCommentModule",
       "expo.modules.viafourasdk.ViafouraCustomUIModule",
-      "expo.modules.viafourasdk.ConversationStarterModule"
+      "expo.modules.viafourasdk.ConversationStarterModule",
+      "expo.modules.viafourasdk.AdSlotModule"
     ]
   }
 }

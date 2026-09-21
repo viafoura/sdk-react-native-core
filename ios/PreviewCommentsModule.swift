@@ -4,6 +4,63 @@ import UIKit
 #if canImport(ViafouraSDK)
 import ViafouraSDK
 
+final class AdSlotBinding {
+  let adView = VFAdView()
+
+  private(set) weak var slot: RNAdSlot?
+  private var edgeConstraints: [NSLayoutConstraint] = []
+  private var heightConstraint: NSLayoutConstraint?
+  private var appliedHeight: CGFloat = -1
+
+  func attach(slot: RNAdSlot) {
+    if self.slot === slot, slot.superview === adView {
+      updateHeight(slot.contentHeight)
+      return
+    }
+
+    detach()
+
+    slot.removeFromSuperview()
+    slot.translatesAutoresizingMaskIntoConstraints = false
+    adView.addSubview(slot)
+
+    edgeConstraints = [
+      slot.leadingAnchor.constraint(equalTo: adView.leadingAnchor),
+      slot.trailingAnchor.constraint(equalTo: adView.trailingAnchor),
+      slot.topAnchor.constraint(equalTo: adView.topAnchor),
+      slot.bottomAnchor.constraint(equalTo: adView.bottomAnchor)
+    ]
+    NSLayoutConstraint.activate(edgeConstraints)
+
+    let constraint = slot.heightAnchor.constraint(equalToConstant: 0)
+    constraint.isActive = true
+    heightConstraint = constraint
+    self.slot = slot
+
+    updateHeight(slot.contentHeight)
+  }
+
+  func detach() {
+    NSLayoutConstraint.deactivate(edgeConstraints)
+    edgeConstraints = []
+    heightConstraint?.isActive = false
+    heightConstraint = nil
+    slot?.removeFromSuperview()
+    slot = nil
+    appliedHeight = -1
+  }
+
+  func updateHeight(_ height: CGFloat) {
+    guard let heightConstraint, abs(height - appliedHeight) > 0.5 else { return }
+    appliedHeight = height
+    heightConstraint.constant = height
+    adView.setNeedsLayout()
+    DispatchQueue.main.async { @MainActor [adView] in
+      adView.notifySizeChanged()
+    }
+  }
+}
+
 class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate, VFCustomUIDelegate {
   // Props
   var containerId: String = ""
@@ -24,6 +81,8 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
     }
   }
   var colors: [String: Any] = [:]
+  var adInterval: Int = 0
+  var firstAdPosition: Int = 2
 
   // Events
   let onHeightChanged = EventDispatcher()
@@ -32,12 +91,15 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
   let onNewComment = EventDispatcher()
   let onArticlePressed = EventDispatcher()
   let onAction = EventDispatcher()
+  let onAdSlotRequested = EventDispatcher()
 
   // Internals
   let fontBold = UIFont.boldSystemFont(ofSize: 17)
   weak var previewCommentsViewController: VFPreviewCommentsViewController?
   var settings: VFSettings?
   var articleMetadata: VFArticleMetadata?
+  private var adBindings: [Int: AdSlotBinding] = [:]
+  private var adSlots: [Int: RNAdSlot] = [:]
 
   override func layoutSubviews() {
     super.layoutSubviews()
@@ -547,8 +609,81 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
   }
 
   // MARK: VFAdDelegate
-  func getAdInterval(viewController: VFUIViewController) -> Int { 0 }
-  func generateAd(viewController: VFUIViewController, adPosition: Int) -> VFAdView? { VFAdView() }
+  func getAdInterval(viewController: VFUIViewController) -> Int { adInterval }
+
+  func getFirstAdPosition(viewController: VFUIViewController) -> Int { firstAdPosition }
+
+  func generateAd(viewController: VFUIViewController, adPosition: Int) -> VFAdView? {
+    guard adInterval > 0 else { return nil }
+
+    if let existing = adBindings[adPosition] {
+      return existing.adView
+    }
+
+    let binding = AdSlotBinding()
+    adBindings[adPosition] = binding
+
+    if let slot = adSlots[adPosition] {
+      binding.attach(slot: slot)
+    } else {
+      onAdSlotRequested(["position": adPosition, "containerId": containerId])
+    }
+
+    return binding.adView
+  }
+
+  // MARK: Ad slots
+  private func registerAdSlot(_ slot: RNAdSlot) {
+    adSlots[slot.position] = slot
+    slot.onContentSizeChange = { [weak self, weak slot] in
+      guard let slot, let binding = self?.adBindings[slot.position] else { return }
+      binding.updateHeight(slot.contentHeight)
+    }
+    adBindings[slot.position]?.attach(slot: slot)
+  }
+
+  private func unregisterAdSlot(_ slot: RNAdSlot) {
+    slot.onContentSizeChange = nil
+    if adSlots[slot.position] === slot {
+      adSlots.removeValue(forKey: slot.position)
+    }
+    if adBindings[slot.position]?.slot === slot {
+      adBindings[slot.position]?.detach()
+    }
+    slot.removeFromSuperview()
+  }
+
+#if RCT_NEW_ARCH_ENABLED
+  public override func mountChildComponentView(_ childComponentView: UIView, index: Int) {
+    if let slot = childComponentView as? RNAdSlot {
+      registerAdSlot(slot)
+      return
+    }
+    super.mountChildComponentView(childComponentView, index: index)
+  }
+
+  public override func unmountChildComponentView(_ childComponentView: UIView, index: Int) {
+    if let slot = childComponentView as? RNAdSlot {
+      unregisterAdSlot(slot)
+      return
+    }
+    super.unmountChildComponentView(childComponentView, index: index)
+  }
+#else
+  override func didAddSubview(_ subview: UIView) {
+    super.didAddSubview(subview)
+    if let slot = subview as? RNAdSlot {
+      registerAdSlot(slot)
+    }
+  }
+
+  override func willRemoveSubview(_ subview: UIView) {
+    super.willRemoveSubview(subview)
+    if let slot = subview as? RNAdSlot {
+      unregisterAdSlot(slot)
+    }
+  }
+#endif
 }
 
 extension UIColor {
@@ -606,6 +741,8 @@ public class PreviewCommentsModule: Module {
       Prop("darkMode") { (view: RNPreviewComments, v: Bool?) in view.darkMode = v ?? false }
       Prop("theme") { (view: RNPreviewComments, v: String?) in view.theme = v }
       Prop("colors") { (view: RNPreviewComments, v: [String: Any]?) in view.colors = v ?? [:] }
+      Prop("adInterval") { (view: RNPreviewComments, v: Int?) in view.adInterval = v ?? 0 }
+      Prop("firstAdPosition") { (view: RNPreviewComments, v: Int?) in view.firstAdPosition = v ?? 2 }
 
       // Events
       Events(
@@ -614,7 +751,8 @@ public class PreviewCommentsModule: Module {
         "onOpenProfile",
         "onNewComment",
         "onArticlePressed",
-        "onAction"
+        "onAction",
+        "onAdSlotRequested"
       )
     }
   }
