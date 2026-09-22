@@ -1662,7 +1662,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - Viafoura (0.1.16):
+  - Viafoura (0.1.17):
     - React-Core
   - Yoga (0.0.0)
 
@@ -1951,7 +1951,7 @@ SPEC CHECKSUMS:
   ReactCommon: ef34cd62c224adf5f330016e238261fc36961008
   ReactNativeDependencies: 71ce9c28beb282aa720ea7b46980fff9669f428a
   RNScreens: eba831f92a65fda13b81939e5a7011a2c4668f1b
-  Viafoura: 3c57e643e16c4d25423a0d6ca15e9399785e92cc
+  Viafoura: 46ca7e115abd8586f05ffccf6275919dc3d23eab
   Yoga: 728df40394d49f3f471688747cf558158b3a3bd1
 
 PODFILE CHECKSUM: a5aeecee5f0345c6d31b701574aaf55a84320a8a

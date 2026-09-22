@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Button, View, TextInput } from 'react-native';
-import { doPasswordReset } from '../../native/auth';
+import Viafoura from '@viafoura/sdk-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
@@ -60,7 +60,7 @@ const ForgotPasswordScreen = () => {
           style={styles.button}
           title="Forgot password"
           onPress={() => {
-            doPasswordReset(email)
+            Viafoura.resetPassword(email)
               .then(() => {
                 navigation.goBack();
               })

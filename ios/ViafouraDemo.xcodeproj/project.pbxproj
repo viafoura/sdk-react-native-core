@@ -11,27 +11,8 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		474C4F3D298BE9E400F3374F /* VFInitializerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474C4F3C298BE9E400F3374F /* VFInitializerService.swift */; };
-		47707D2E298B218400B28A2C /* RNPreviewComments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47707D2B298B218300B28A2C /* RNPreviewComments.swift */; };
-		47707D2F298B218400B28A2C /* RNPreviewCommentsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47707D2C298B218400B28A2C /* RNPreviewCommentsManager.swift */; };
-		47707D30298B218400B28A2C /* RNPreviewCommentsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 47707D2D298B218400B28A2C /* RNPreviewCommentsManager.m */; };
-		47707D38298B2E6C00B28A2C /* RTEEventEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = 47707D37298B2E6C00B28A2C /* RTEEventEmitter.m */; };
-		47707D3A298B2E8D00B28A2C /* RTEEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47707D39298B2E8D00B28A2C /* RTEEventEmitter.swift */; };
-		477A11092BB60B6800DE0128 /* RNBellManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 477A11082BB60B6800DE0128 /* RNBellManager.m */; };
-		477A110B2BB60BA100DE0128 /* RNBellManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477A110A2BB60BA100DE0128 /* RNBellManager.swift */; };
-		477A112D2BBDFFD700DE0128 /* RNBell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477A112C2BBDFFD700DE0128 /* RNBell.swift */; };
-		47CC8C252B50E12B006B757F /* RNChat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47CC8C242B50E12B006B757F /* RNChat.swift */; };
-		47CC8C272B50E160006B757F /* RNChatManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47CC8C262B50E160006B757F /* RNChatManager.swift */; };
-		47CC8C292B50E217006B757F /* RNChatManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 47CC8C282B50E217006B757F /* RNChatManager.m */; };
-		47F1B1942AB0F36300E1D791 /* RCTCommentsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F1B1922AB0F36300E1D791 /* RCTCommentsService.swift */; };
-		47F1B1952AB0F36300E1D791 /* RCTCommentsService.m in Sources */ = {isa = PBXBuildFile; fileRef = 47F1B1932AB0F36300E1D791 /* RCTCommentsService.m */; };
-		47F3B8E9298B4375005DDFBA /* RCTAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47F3B8E8298B4375005DDFBA /* RCTAuthService.swift */; };
-		47F3B914298B4B46005DDFBA /* RCTAuthService.m in Sources */ = {isa = PBXBuildFile; fileRef = 47F3B913298B4B46005DDFBA /* RCTAuthService.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		97FADD133AC4D341212B6DD6 /* libPods-ViafouraDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EFCBC97BDC74A448C553AF6E /* libPods-ViafouraDemo.a */; };
-		A1B2C3D011000000000000E1 /* RNLiveQuestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D001000000000000E1 /* RNLiveQuestions.swift */; };
-		A1B2C3D012000000000000E1 /* RNLiveQuestionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D002000000000000E1 /* RNLiveQuestionsManager.swift */; };
-		A1B2C3D013000000000000E1 /* RNLiveQuestionsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D003000000000000E1 /* RNLiveQuestionsManager.m */; };
 		D6E26EED1C708B0058ECBAAB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DEAB86A4EB0D5D346F1082D7 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
@@ -70,32 +51,11 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = sdk/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = sdk/main.m; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-sdk.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sdk.debug.xcconfig"; path = "Target Support Files/Pods-sdk/Pods-sdk.debug.xcconfig"; sourceTree = "<group>"; };
-		4715A8502AE2D7CF001A5DFF /* ViafouraSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ViafouraSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		474C4F3C298BE9E400F3374F /* VFInitializerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = VFInitializerService.swift; path = sdk/VFInitializerService.swift; sourceTree = "<group>"; };
-		47707D2A298B218200B28A2C /* ViafouraDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ViafouraDemo-Bridging-Header.h"; sourceTree = "<group>"; };
-		47707D2B298B218300B28A2C /* RNPreviewComments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RNPreviewComments.swift; path = sdk/RNPreviewComments.swift; sourceTree = "<group>"; };
-		47707D2C298B218400B28A2C /* RNPreviewCommentsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RNPreviewCommentsManager.swift; path = sdk/RNPreviewCommentsManager.swift; sourceTree = "<group>"; };
-		47707D2D298B218400B28A2C /* RNPreviewCommentsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNPreviewCommentsManager.m; path = sdk/RNPreviewCommentsManager.m; sourceTree = "<group>"; };
-		47707D37298B2E6C00B28A2C /* RTEEventEmitter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = RTEEventEmitter.m; path = sdk/RTEEventEmitter.m; sourceTree = "<group>"; };
-		47707D39298B2E8D00B28A2C /* RTEEventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RTEEventEmitter.swift; path = sdk/RTEEventEmitter.swift; sourceTree = "<group>"; };
-		477A11082BB60B6800DE0128 /* RNBellManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNBellManager.m; sourceTree = "<group>"; };
-		477A110A2BB60BA100DE0128 /* RNBellManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNBellManager.swift; sourceTree = "<group>"; };
-		477A112C2BBDFFD700DE0128 /* RNBell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNBell.swift; sourceTree = "<group>"; };
-		47CC8C242B50E12B006B757F /* RNChat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNChat.swift; sourceTree = "<group>"; };
-		47CC8C262B50E160006B757F /* RNChatManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNChatManager.swift; sourceTree = "<group>"; };
-		47CC8C282B50E217006B757F /* RNChatManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNChatManager.m; path = sdk/RNChatManager.m; sourceTree = "<group>"; };
-		47F1B1922AB0F36300E1D791 /* RCTCommentsService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RCTCommentsService.swift; path = sdk/RCTCommentsService.swift; sourceTree = "<group>"; };
-		47F1B1932AB0F36300E1D791 /* RCTCommentsService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCTCommentsService.m; path = sdk/RCTCommentsService.m; sourceTree = "<group>"; };
-		47F3B8E8298B4375005DDFBA /* RCTAuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RCTAuthService.swift; path = sdk/RCTAuthService.swift; sourceTree = "<group>"; };
-		47F3B913298B4B46005DDFBA /* RCTAuthService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCTAuthService.m; path = sdk/RCTAuthService.m; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-sdk.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sdk.release.xcconfig"; path = "Target Support Files/Pods-sdk/Pods-sdk.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-sdk-sdkTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sdk-sdkTests.debug.xcconfig"; path = "Target Support Files/Pods-sdk-sdkTests/Pods-sdk-sdkTests.debug.xcconfig"; sourceTree = "<group>"; };
 		72E9E49946448177E65D3823 /* Pods-ViafouraDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ViafouraDemo.debug.xcconfig"; path = "Target Support Files/Pods-ViafouraDemo/Pods-ViafouraDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = sdk/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-sdk-sdkTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-sdk-sdkTests.release.xcconfig"; path = "Target Support Files/Pods-sdk-sdkTests/Pods-sdk-sdkTests.release.xcconfig"; sourceTree = "<group>"; };
-		A1B2C3D001000000000000E1 /* RNLiveQuestions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNLiveQuestions.swift; sourceTree = "<group>"; };
-		A1B2C3D002000000000000E1 /* RNLiveQuestionsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RNLiveQuestionsManager.swift; sourceTree = "<group>"; };
-		A1B2C3D003000000000000E1 /* RNLiveQuestionsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNLiveQuestionsManager.m; path = sdk/RNLiveQuestionsManager.m; sourceTree = "<group>"; };
 		DEAB86A4EB0D5D346F1082D7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = sdk/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		EFCBC97BDC74A448C553AF6E /* libPods-ViafouraDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ViafouraDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -150,7 +110,6 @@
 				47707D29298B216E00B28A2C /* PreviewComments */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
-				47707D2A298B218200B28A2C /* ViafouraDemo-Bridging-Header.h */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
@@ -163,7 +122,6 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4715A8502AE2D7CF001A5DFF /* ViafouraSDK.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				EFCBC97BDC74A448C553AF6E /* libPods-ViafouraDemo.a */,
 			);
@@ -173,9 +131,6 @@
 		47707D29298B216E00B28A2C /* PreviewComments */ = {
 			isa = PBXGroup;
 			children = (
-				47707D2B298B218300B28A2C /* RNPreviewComments.swift */,
-				47707D2D298B218400B28A2C /* RNPreviewCommentsManager.m */,
-				47707D2C298B218400B28A2C /* RNPreviewCommentsManager.swift */,
 			);
 			name = PreviewComments;
 			sourceTree = "<group>";
@@ -183,8 +138,6 @@
 		47707D34298B2E2C00B28A2C /* EventEmitter */ = {
 			isa = PBXGroup;
 			children = (
-				47707D37298B2E6C00B28A2C /* RTEEventEmitter.m */,
-				47707D39298B2E8D00B28A2C /* RTEEventEmitter.swift */,
 			);
 			name = EventEmitter;
 			sourceTree = "<group>";
@@ -192,9 +145,6 @@
 		477A11062BB60B1B00DE0128 /* Bell */ = {
 			isa = PBXGroup;
 			children = (
-				477A11082BB60B6800DE0128 /* RNBellManager.m */,
-				477A110A2BB60BA100DE0128 /* RNBellManager.swift */,
-				477A112C2BBDFFD700DE0128 /* RNBell.swift */,
 			);
 			name = Bell;
 			sourceTree = "<group>";
@@ -202,9 +152,6 @@
 		47CC8C232B50E11E006B757F /* Chat */ = {
 			isa = PBXGroup;
 			children = (
-				47CC8C282B50E217006B757F /* RNChatManager.m */,
-				47CC8C242B50E12B006B757F /* RNChat.swift */,
-				47CC8C262B50E160006B757F /* RNChatManager.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -212,8 +159,6 @@
 		47F1B1912AB0F31D00E1D791 /* CommentService */ = {
 			isa = PBXGroup;
 			children = (
-				47F1B1932AB0F36300E1D791 /* RCTCommentsService.m */,
-				47F1B1922AB0F36300E1D791 /* RCTCommentsService.swift */,
 			);
 			name = CommentService;
 			sourceTree = "<group>";
@@ -221,8 +166,6 @@
 		47F3B8E7298B430B005DDFBA /* AuthService */ = {
 			isa = PBXGroup;
 			children = (
-				47F3B913298B4B46005DDFBA /* RCTAuthService.m */,
-				47F3B8E8298B4375005DDFBA /* RCTAuthService.swift */,
 			);
 			name = AuthService;
 			sourceTree = "<group>";
@@ -230,7 +173,6 @@
 		47F3B934298BE988005DDFBA /* Initializer */ = {
 			isa = PBXGroup;
 			children = (
-				474C4F3C298BE9E400F3374F /* VFInitializerService.swift */,
 			);
 			name = Initializer;
 			sourceTree = "<group>";
@@ -269,9 +211,6 @@
 		A1B2C3D021000000000000E1 /* LiveQuestions */ = {
 			isa = PBXGroup;
 			children = (
-				A1B2C3D003000000000000E1 /* RNLiveQuestionsManager.m */,
-				A1B2C3D001000000000000E1 /* RNLiveQuestions.swift */,
-				A1B2C3D002000000000000E1 /* RNLiveQuestionsManager.swift */,
 			);
 			name = LiveQuestions;
 			sourceTree = "<group>";
@@ -496,27 +435,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				47707D2F298B218400B28A2C /* RNPreviewCommentsManager.swift in Sources */,
-				47F1B1942AB0F36300E1D791 /* RCTCommentsService.swift in Sources */,
-				47CC8C252B50E12B006B757F /* RNChat.swift in Sources */,
-				A1B2C3D011000000000000E1 /* RNLiveQuestions.swift in Sources */,
-				A1B2C3D012000000000000E1 /* RNLiveQuestionsManager.swift in Sources */,
-				A1B2C3D013000000000000E1 /* RNLiveQuestionsManager.m in Sources */,
-				47707D3A298B2E8D00B28A2C /* RTEEventEmitter.swift in Sources */,
-				477A11092BB60B6800DE0128 /* RNBellManager.m in Sources */,
-				47F1B1952AB0F36300E1D791 /* RCTCommentsService.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
-				47CC8C292B50E217006B757F /* RNChatManager.m in Sources */,
-				47F3B914298B4B46005DDFBA /* RCTAuthService.m in Sources */,
-				47707D30298B218400B28A2C /* RNPreviewCommentsManager.m in Sources */,
-				477A112D2BBDFFD700DE0128 /* RNBell.swift in Sources */,
-				477A110B2BB60BA100DE0128 /* RNBellManager.swift in Sources */,
-				47707D38298B2E6C00B28A2C /* RTEEventEmitter.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				47707D2E298B218400B28A2C /* RNPreviewComments.swift in Sources */,
-				47CC8C272B50E160006B757F /* RNChatManager.swift in Sources */,
-				474C4F3D298BE9E400F3374F /* VFInitializerService.swift in Sources */,
-				47F3B8E9298B4375005DDFBA /* RCTAuthService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -603,7 +523,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = ViafouraDemo;
-				SWIFT_OBJC_BRIDGING_HEADER = "ViafouraDemo-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -630,7 +549,6 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = ViafouraDemo;
-				SWIFT_OBJC_BRIDGING_HEADER = "ViafouraDemo-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
