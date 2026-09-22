@@ -68,6 +68,7 @@ same `ViafouraSDK.xcframework`, and CocoaPods refuses to install both:
 | `Viafoura` (auth, initialize) | yes | yes |
 | `PreviewCommentsView` | yes | yes |
 | `ConversationStarterView` | yes | yes |
+| `LiveQuestionsView` | yes | yes |
 | `ViafouraAdSlot` | yes | yes |
 | `ViafouraCustomUI` | yes | yes |
 | `ProfileView` | renders empty | yes |
@@ -144,6 +145,48 @@ import { ConversationStarterView } from '@viafoura/sdk-react-native';
 ```
 
 `ProfileView` and `NewCommentView` are Android-only. On iOS they render as empty views.
+
+## Live Q&A
+
+`LiveQuestionsView` renders a live question-and-answer session for a container. It
+works on both platforms and reports its own height.
+
+```tsx
+import { LiveQuestionsView } from '@viafoura/sdk-react-native';
+
+<LiveQuestionsView
+  containerId="YOUR_CONTAINER_ID"
+  articleUrl="https://example.com/article"
+  articleTitle="Title"
+  articleThumbnailUrl="https://example.com/thumb.jpg"
+  title="Live Q&A"
+  style={{ height }}
+  onHeightChanged={({ nativeEvent }) => setHeight(nativeEvent.newHeight)}
+  onAuthNeeded={() => navigateToLogin()}
+  onOpenProfile={({ nativeEvent }) => openProfile(nativeEvent.userUUID)}
+/>
+```
+
+| Prop | Default | Meaning |
+| --- | --- | --- |
+| `containerId` | — | Required. The container the session belongs to. |
+| `articleUrl`, `articleTitle`, `articleThumbnailUrl` | — | Required article metadata. |
+| `articleSubtitle` | `''` | Optional article metadata. |
+| `authorId` | — | Optional author identifier. |
+| `title` | SDK default | Heading shown above the session. |
+| `sectionUUID` | — | Scopes the session to a section. Must be a UUID. |
+| `focusedContentUUID` | — | Opens with this question focused. Must be a UUID. |
+| `limit` | `10` | Questions fetched per page. |
+| `replyLimit` | `2` | Replies fetched per question. |
+| `darkMode` / `theme` | `light` | `theme` wins when both are set. |
+| `colors` | SDK defaults | Same shape as the other views. |
+
+Events: `onHeightChanged`, `onAuthNeeded`, `onOpenProfile`, and `onAction` for the
+full action stream.
+
+Props are read when the session is created, so changing `containerId`,
+`sectionUUID`, `limit` or `replyLimit` later has no effect until the view
+remounts. `darkMode` and `theme` do apply live.
 
 ## Ads
 
