@@ -1,7 +1,6 @@
 export enum Screens {
   ArticleList = 'ArticleList',
   Article = 'Article',
-  PackageDemo = 'PackageDemo',
   Chat = 'Chat',
   ForgotPassword = 'ForgotPassword',
   LiveQuestions = 'LiveQuestions',

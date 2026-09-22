@@ -2,7 +2,6 @@ import React from 'react';
 
 import ArticleListScreen from './src/components/screens/ArticleListScreen';
 import ArticleScreen from './src/components/screens/ArticleScreen';
-import PackageDemoScreen from './src/components/screens/PackageDemoScreen';
 import ChatScreen from './src/components/screens/ChatScreen';
 import LiveQuestionsScreen from './src/components/screens/LiveQuestionsScreen';
 import ProfileScreen from './src/components/screens/ProfileScreen';
@@ -51,7 +50,6 @@ const App = () => {
           }}
           component={ArticleListScreen}
         />
-        <Stack.Screen name={Screens.PackageDemo} component={PackageDemoScreen} />
         <Stack.Screen name={Screens.Chat} component={ChatScreen} />
         <Stack.Screen name={Screens.Article} component={ArticleScreen} />
         <Stack.Screen
