@@ -72,6 +72,11 @@ class NewCommentView(context: Context) :
       MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
     )
     layout(left, top, right, bottom)
+    container.measure(
+      MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+      MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+    )
+    container.layout(0, 0, width, height)
   }
 
   override fun requestLayout() {
