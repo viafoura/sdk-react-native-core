@@ -1,16 +1,10 @@
 import React from 'react';
-import { ScrollView, Platform } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useState } from 'react';
 
-import RNPreviewCommentsiOSComponent from '../../native/ios/RNPreviewCommentsiOS.js';
-import RNPreviewCommentsAndroidComponent from '../../native/android/RNPreviewCommentsAndroid.js';
+import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
-
-const PreviewComments = Platform.select({
-  ios: RNPreviewCommentsiOSComponent,
-  android: RNPreviewCommentsAndroidComponent,
-});
 
 const ArticleScreen = () => {
   const navigation = useNavigation();
@@ -19,7 +13,7 @@ const ArticleScreen = () => {
 
   return (
     <ScrollView style={{ height: commentsHeight }}>
-      <PreviewComments
+      <PreviewCommentsView
         style={{ height: commentsHeight }}
         containerId={route.params.containerId}
         authorId={route.params.authorId}
@@ -29,33 +23,30 @@ const ArticleScreen = () => {
         articleUrl={route.params.articleUrl}
         articleThumbnailUrl={route.params.articleThumbnailUrl}
         darkMode={false}
-        onHeightChanged={(event) => {
-          if (event.containerId === route.params.containerId) {
-            setCommentsHeight(event.newHeight);
+        onHeightChanged={({ nativeEvent }) => {
+          if (nativeEvent.containerId === route.params.containerId) {
+            setCommentsHeight(nativeEvent.newHeight);
           }
         }}
-        onOpenProfile={(event: any) => {
-          var object = {
-            userUUID: event.userUUID,
-            presentationType: event.presentationType ?? 'profile',
-          };
-          navigation.navigate(Screens.Profile, object);
+        onOpenProfile={({ nativeEvent }) => {
+          navigation.navigate(Screens.Profile, {
+            userUUID: nativeEvent.userUUID,
+            presentationType: nativeEvent.presentationType ?? 'profile',
+          });
         }}
-        onArticlePressed={(event: any) => {
-          // Get article data from 'event'
+        onArticlePressed={() => {
           navigation.push(Screens.Article, route.params);
         }}
-        onNewComment={(event: any) => {
-          var object = {
+        onNewComment={({ nativeEvent }) => {
+          navigation.navigate(Screens.NewComment, {
             containerId: route.params.containerId,
             articleTitle: route.params.articleTitle,
             articleDesc: route.params.articleDesc,
             articleUrl: route.params.articleUrl,
             articleThumbnailUrl: route.params.articleThumbnailUrl,
-            newCommentActionType: event.actionType,
-            content: event.content,
-          };
-          navigation.navigate(Screens.NewComment, object);
+            newCommentActionType: nativeEvent.actionType,
+            content: nativeEvent.content,
+          });
         }}
         onAuthNeeded={() => {
           navigation.navigate(Screens.Login);

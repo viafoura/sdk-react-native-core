@@ -1,6 +1,5 @@
 #import "AppDelegate.h"
 #import <React/RCTBundleURLProvider.h>
-#import <ViafouraDemo-Swift.h>
 #import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
 
 @implementation AppDelegate
@@ -12,9 +11,6 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
-  
-  VFInitializerService * vfInitializerService = [VFInitializerService shared];
-  [vfInitializerService initialize];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import RNNewCommentAndroidComponent from '../../native/android/RNNewCommentAndroid.js';
+import { NewCommentView } from '@viafoura/sdk-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
 import { StyleSheet } from 'react-native';
@@ -13,7 +13,7 @@ const NewCommentScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
   return (
-    <RNNewCommentAndroidComponent
+    <NewCommentView
       style={styles.container}
       containerId={route.params?.containerId}
       articleTitle={route.params?.articleTitle}

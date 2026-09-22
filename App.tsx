@@ -2,7 +2,6 @@ import React from 'react';
 
 import ArticleListScreen from './src/components/screens/ArticleListScreen';
 import ArticleScreen from './src/components/screens/ArticleScreen';
-import ChatScreen from './src/components/screens/ChatScreen';
 import LiveQuestionsScreen from './src/components/screens/LiveQuestionsScreen';
 import ProfileScreen from './src/components/screens/ProfileScreen';
 import NewCommentScreen from './src/components/screens/NewCommentScreen';
@@ -13,10 +12,20 @@ import ForgotPasswordScreen from './src/components/screens/ForgotPasswordScreen'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Screens } from './src/navigation/screens';
+import Viafoura from '@viafoura/sdk-react-native';
 
 const Stack = createNativeStackNavigator();
 
+const SITE_UUID = '00000000-0000-4000-8000-c8cddfd7b365';
+const SITE_DOMAIN = 'viafoura-mobile-demo.vercel.app';
+
 const App = () => {
+  React.useEffect(() => {
+    Viafoura.initialize(SITE_UUID, SITE_DOMAIN, true).catch((error) => {
+      console.log(error);
+    });
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -50,7 +59,6 @@ const App = () => {
           }}
           component={ArticleListScreen}
         />
-        <Stack.Screen name={Screens.Chat} component={ChatScreen} />
         <Stack.Screen name={Screens.Article} component={ArticleScreen} />
         <Stack.Screen
           name={Screens.LiveQuestions}

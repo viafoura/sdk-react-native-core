@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Button, View, Text, TextInput } from 'react-native';
-import { doLogin } from '../../native/auth';
+import Viafoura from '@viafoura/sdk-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
 
@@ -70,7 +70,7 @@ const LoginScreen = () => {
           style={styles.button}
           title="Log-in"
           onPress={async () => {
-            doLogin(email, password)
+            Viafoura.login(email, password)
               .then(() => {
                 navigation.goBack();
               })

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { StyleSheet, Button, View, TextInput } from 'react-native';
-import { doSignup } from '../../native/auth';
+import Viafoura from '@viafoura/sdk-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const styles = StyleSheet.create({
@@ -80,7 +80,7 @@ const SignUpScreen = () => {
           style={{ padding: 12 }}
           title="Sign up"
           onPress={() => {
-            doSignup(name, email, password)
+            Viafoura.signup(name, email, password)
               .then(() => {
                 navigation.goBack();
                 navigation.goBack();

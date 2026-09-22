@@ -1,15 +1,9 @@
 import React from 'react';
-import { Platform, useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 
-import RNLiveQuestionsiOSComponent from '../../native/ios/RNLiveQuestionsiOS.js';
-import RNLiveQuestionsAndroidComponent from '../../native/android/RNLiveQuestionsAndroid.js';
+import { LiveQuestionsView } from '@viafoura/sdk-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
-
-const LiveQuestions: any = Platform.select({
-  ios: RNLiveQuestionsiOSComponent,
-  android: RNLiveQuestionsAndroidComponent,
-});
 
 const LiveQuestionsScreen = () => {
   const navigation = useNavigation();
@@ -17,7 +11,7 @@ const LiveQuestionsScreen = () => {
   let height = useWindowDimensions().height - 100;
 
   return (
-    <LiveQuestions
+    <LiveQuestionsView
       style={{ height: height }}
       containerId={route.params.containerId}
       authorId={route.params.authorId}
@@ -28,12 +22,11 @@ const LiveQuestionsScreen = () => {
       title={route.params.title}
       sectionUUID={route.params.sectionUUID}
       darkMode={false}
-      onOpenProfile={(event: any) => {
-        var object = {
-          userUUID: event.userUUID,
-          presentationType: event.presentationType ?? 'profile',
-        };
-        navigation.navigate(Screens.Profile, object);
+      onOpenProfile={({ nativeEvent }) => {
+        navigation.navigate(Screens.Profile, {
+          userUUID: nativeEvent.userUUID,
+          presentationType: nativeEvent.presentationType ?? 'profile',
+        });
       }}
       onAuthNeeded={() => {
         navigation.navigate(Screens.Login);

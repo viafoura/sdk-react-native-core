@@ -1,5 +1,5 @@
 import React from 'react';
-import RNProfileAndroidComponent from '../../native/android/RNProfileAndroid.js';
+import { ProfileView } from '@viafoura/sdk-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
 import { StyleSheet } from 'react-native';
@@ -13,7 +13,7 @@ const ProfileScreen = () => {
   const route = useRoute();
 
   return (
-    <RNProfileAndroidComponent
+    <ProfileView
       style={styles.container}
       userUUID={route.params?.userUUID}
       presentationType={route.params?.presentationType}
