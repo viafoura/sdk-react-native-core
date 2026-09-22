@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* sdkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* sdkTests.m */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
+		B1C2D3E4000000000000F002 /* SwiftSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4000000000000F001 /* SwiftSupport.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -47,6 +48,7 @@
 		13B07F961A680F5B00A75B9A /* ViafouraDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ViafouraDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = sdk/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = sdk/AppDelegate.mm; sourceTree = "<group>"; };
+		B1C2D3E4000000000000F001 /* SwiftSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SwiftSupport.swift; path = sdk/SwiftSupport.swift; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = sdk/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = sdk/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = sdk/main.m; sourceTree = "<group>"; };
@@ -100,16 +102,9 @@
 		13B07FAE1A68108700A75B9A /* ViafouraDemo */ = {
 			isa = PBXGroup;
 			children = (
-				477A11062BB60B1B00DE0128 /* Bell */,
-				47F1B1912AB0F31D00E1D791 /* CommentService */,
-				47F3B934298BE988005DDFBA /* Initializer */,
-				47F3B8E7298B430B005DDFBA /* AuthService */,
-				47707D34298B2E2C00B28A2C /* EventEmitter */,
-				47CC8C232B50E11E006B757F /* Chat */,
-				A1B2C3D021000000000000E1 /* LiveQuestions */,
-				47707D29298B216E00B28A2C /* PreviewComments */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
+				B1C2D3E4000000000000F001 /* SwiftSupport.swift */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
@@ -126,55 +121,6 @@
 				EFCBC97BDC74A448C553AF6E /* libPods-ViafouraDemo.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		47707D29298B216E00B28A2C /* PreviewComments */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = PreviewComments;
-			sourceTree = "<group>";
-		};
-		47707D34298B2E2C00B28A2C /* EventEmitter */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = EventEmitter;
-			sourceTree = "<group>";
-		};
-		477A11062BB60B1B00DE0128 /* Bell */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Bell;
-			sourceTree = "<group>";
-		};
-		47CC8C232B50E11E006B757F /* Chat */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Chat;
-			sourceTree = "<group>";
-		};
-		47F1B1912AB0F31D00E1D791 /* CommentService */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = CommentService;
-			sourceTree = "<group>";
-		};
-		47F3B8E7298B430B005DDFBA /* AuthService */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = AuthService;
-			sourceTree = "<group>";
-		};
-		47F3B934298BE988005DDFBA /* Initializer */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Initializer;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -206,13 +152,6 @@
 				00E356EE1AD99517003FC87E /* ViafouraDemoTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		A1B2C3D021000000000000E1 /* LiveQuestions */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = LiveQuestions;
 			sourceTree = "<group>";
 		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
@@ -436,6 +375,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				B1C2D3E4000000000000F002 /* SwiftSupport.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

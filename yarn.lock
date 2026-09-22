@@ -2954,13 +2954,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@viafoura/sdk-react-native@npm:0.1.17":
-  version: 0.1.17
-  resolution: "@viafoura/sdk-react-native@npm:0.1.17"
+"@viafoura/sdk-react-native@npm:0.1.18":
+  version: 0.1.18
+  resolution: "@viafoura/sdk-react-native@npm:0.1.18"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 08faed01b81be98d64d78ae2987a3d339015a94a7b40169ca819ed9c188445695c829b90ec92f1236871acc54073c00ce20c2049b3aed821ccb1b19f1fd9af02
+  checksum: e9c3820db37335fecff45e387e29cb2878180a45bc62369909d57389f808b349982beb5ec3b9ffda4af07ccdc93f8ea296b3f020442f3da998d4d1bba102ce90
   languageName: node
   linkType: hard
 
@@ -7961,7 +7961,7 @@ __metadata:
     "@types/jest": ^29.5.14
     "@types/react": ^19.1.0
     "@types/react-test-renderer": ^19.1.0
-    "@viafoura/sdk-react-native": 0.1.17
+    "@viafoura/sdk-react-native": 0.1.18
     babel-jest: ^29.7.0
     eslint: ^9.28.0
     jest: ^29.7.0
