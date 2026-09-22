@@ -17,7 +17,6 @@ end
 target 'ViafouraDemo' do
   config = use_native_modules!
 
-  pod 'ViafouraCore', '1.3.8'
 
   use_react_native!(
     :path => config[:reactNativePath],
