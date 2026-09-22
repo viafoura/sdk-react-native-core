@@ -2,7 +2,7 @@ const path = require('path');
 const { getDefaultConfig } = require('expo/metro-config');
 
 const projectRoot = __dirname;
-const workspaceRoot = path.resolve(projectRoot, '..', 'sdk-react-native-core', 'viafoura-sdk');
+const workspaceRoot = path.resolve(projectRoot, '..', 'sdk-react-native-core');
 
 const config = getDefaultConfig(projectRoot);
 
