@@ -1,4 +1,4 @@
-package expo.modules.viafourasdk
+package com.viafoura.reactnative
 
 import android.graphics.Color
 import android.os.Handler

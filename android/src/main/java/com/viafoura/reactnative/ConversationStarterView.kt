@@ -1,13 +1,12 @@
-package expo.modules.viafourasdk
+package com.viafoura.reactnative
 
 import android.content.Context
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.views.view.ReactViewGroup
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
-import expo.modules.kotlin.AppContext
-import expo.modules.kotlin.viewevent.EventDispatcher
-import expo.modules.kotlin.views.ExpoView
 
 // Viafoura SDK imports
 import com.viafourasdk.src.fragments.base.VFFragment
@@ -23,8 +22,8 @@ import com.viafourasdk.src.model.local.VFSettings
 import com.viafourasdk.src.model.local.VFTheme
 import java.net.URL
 
-class ConversationStarterView(context: Context, appContext: AppContext) :
-  ExpoView(context, appContext), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
+class ConversationStarterView(context: Context) :
+  ReactViewGroup(context), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
 
   // Props
   var containerId: String? = null
@@ -49,12 +48,12 @@ class ConversationStarterView(context: Context, appContext: AppContext) :
   var colors: Map<String, Any?>? = null
 
   // Events
-  private val onHeightChanged by EventDispatcher()
-  private val onAuthNeeded by EventDispatcher()
-  private val onOpenProfile by EventDispatcher()
-  private val onNewComment by EventDispatcher()
-  private val onSeeMoreComments by EventDispatcher()
-  private val onAction by EventDispatcher()
+  private val onHeightChanged by viafouraEvent()
+  private val onAuthNeeded by viafouraEvent()
+  private val onOpenProfile by viafouraEvent()
+  private val onNewComment by viafouraEvent()
+  private val onSeeMoreComments by viafouraEvent()
+  private val onAction by viafouraEvent()
 
   // Internals
   // FragmentContainerView (not a plain FrameLayout) is required to host a fragment:
@@ -69,7 +68,7 @@ class ConversationStarterView(context: Context, appContext: AppContext) :
   private var fragment: VFConversationStarterFragment? = null
 
   // On the new architecture (Fabric), native child views added imperatively to an
-  // ExpoView are never measured/laid out by React's layout system, so the hosted
+  // interop views are never measured/laid out by React's layout system, so the hosted
   // fragment renders at 0x0 and appears blank. Force a manual measure+layout pass.
   private val measureAndLayout = Runnable {
     measure(
@@ -99,7 +98,7 @@ class ConversationStarterView(context: Context, appContext: AppContext) :
   }
 
   private fun currentActivity(): FragmentActivity? =
-    appContext.currentActivity as? FragmentActivity
+    reactActivity() as? FragmentActivity
 
   private fun ensureFragment() {
     if (fragment != null) return

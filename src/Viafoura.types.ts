@@ -526,3 +526,39 @@ export type ConversationStarterViewProps = {
   onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
   style?: StyleProp<ViewStyle>;
 };
+
+export type LiveQuestionsHeightChangedPayload = {
+  newHeight: number;
+  containerId: string;
+};
+
+export type LiveQuestionsAuthNeededPayload = {
+  requireLogin: boolean;
+};
+
+export type LiveQuestionsOpenProfilePayload = {
+  userUUID: string;
+  presentationType?: string;
+};
+
+export type LiveQuestionsViewProps = {
+  containerId: string;
+  authorId?: string;
+  articleUrl: string;
+  articleTitle: string;
+  articleSubtitle?: string;
+  articleThumbnailUrl: string;
+  title?: string;
+  sectionUUID?: string;
+  focusedContentUUID?: string;
+  limit?: number;
+  replyLimit?: number;
+  darkMode?: boolean;
+  theme?: VFCustomUITheme;
+  colors?: ViafouraColors;
+  onHeightChanged?: (event: { nativeEvent: LiveQuestionsHeightChangedPayload }) => void;
+  onAuthNeeded?: (event: { nativeEvent: LiveQuestionsAuthNeededPayload }) => void;
+  onOpenProfile?: (event: { nativeEvent: LiveQuestionsOpenProfilePayload }) => void;
+  onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
+  style?: StyleProp<ViewStyle>;
+};

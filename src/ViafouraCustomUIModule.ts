@@ -1,14 +1,24 @@
-import { NativeModule, requireNativeModule } from 'expo-modules-core';
+import { NativeModules } from 'react-native';
 
 import { VFCustomUIStyle, VFCustomUIViewType, VFCustomUITheme } from './Viafoura.types';
 
-declare class ViafouraCustomUIModule extends NativeModule {
+export interface ViafouraCustomUINativeModule {
   setCustomUIStyle(
     viewType: VFCustomUIViewType,
     style: VFCustomUIStyle,
-    theme?: VFCustomUITheme,
+    theme?: VFCustomUITheme
   ): void;
   clearCustomUIStyle(viewType: VFCustomUIViewType, theme?: VFCustomUITheme): void;
 }
 
-export default requireNativeModule<ViafouraCustomUIModule>('ViafouraCustomUI');
+const ViafouraCustomUIModule: ViafouraCustomUINativeModule =
+  NativeModules.ViafouraCustomUI ??
+  new Proxy({} as ViafouraCustomUINativeModule, {
+    get() {
+      throw new Error(
+        `The package '@viafoura/sdk-react-native' doesn't seem to be linked.`
+      );
+    },
+  });
+
+export default ViafouraCustomUIModule;

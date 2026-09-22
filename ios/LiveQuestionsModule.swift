@@ -4,17 +4,19 @@ import UIKit
 #if canImport(ViafouraSDK)
 import ViafouraSDK
 
-class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDelegate {
+class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDelegate {
   // Props
   @objc var containerId: String = ""
+  @objc var authorId: String = ""
   @objc var articleUrl: String = ""
   @objc var articleTitle: String = ""
   @objc var articleSubtitle: String = ""
   @objc var articleThumbnailUrl: String = ""
-  @objc var syndicationKey: String = ""
-  @objc var starterTitle: String = ""
-  @objc var starterDescription: String = ""
-  @objc var minimumCommentCount: NSNumber?
+  @objc var liveQuestionsTitle: String = ""
+  @objc var sectionUUID: String = ""
+  @objc var focusedContentUUID: String = ""
+  @objc var limit: NSNumber?
+  @objc var replyLimit: NSNumber?
   @objc var darkMode: Bool = false {
     didSet {
       applyThemeIfReady()
@@ -31,22 +33,21 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
   @objc var onHeightChanged: RCTDirectEventBlock?
   @objc var onAuthNeeded: RCTDirectEventBlock?
   @objc var onOpenProfile: RCTDirectEventBlock?
-  @objc var onNewComment: RCTDirectEventBlock?
-  @objc var onSeeMoreComments: RCTDirectEventBlock?
   @objc var onAction: RCTDirectEventBlock?
+
   // Internals
   private let fontBold = UIFont.boldSystemFont(ofSize: 17)
-  private weak var conversationStarterViewController: VFConversationStarterViewController?
+  private weak var liveQuestionsViewController: VFLiveQuestionsViewController?
   private var settings: VFSettings?
   private var articleMetadata: VFArticleMetadata?
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    if conversationStarterViewController == nil {
+    if liveQuestionsViewController == nil {
       initializeSettings()
       embed()
     } else {
-      conversationStarterViewController?.view.frame = bounds
+      liveQuestionsViewController?.view.frame = bounds
     }
   }
 
@@ -68,16 +69,36 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
   private func embed() {
     guard let parentVC = parentViewController, let settings, let articleMetadata else { return }
 
-    let vc = VFConversationStarterViewController.new(
-      containerId: containerId,
-      articleMetadata: articleMetadata,
-      loginDelegate: self,
-      settings: settings,
-      title: starterTitle.isEmpty ? nil : starterTitle,
-      description: starterDescription.isEmpty ? nil : starterDescription,
-      minimumCommentCount: minimumCommentCount?.intValue ?? VFConversationStarterDefaults.minimumCommentCount,
-      syndicationKey: syndicationKey.isEmpty ? nil : syndicationKey
-    )
+    let resolvedTitle = liveQuestionsTitle.isEmpty ? nil : liveQuestionsTitle
+    let resolvedFocused = focusedContentUUID.isEmpty ? nil : UUID(uuidString: focusedContentUUID)
+    let resolvedLimit = limit?.intValue ?? 10
+    let resolvedReplyLimit = replyLimit?.intValue ?? 2
+
+    let vc: VFLiveQuestionsViewController
+    if !sectionUUID.isEmpty, let section = UUID(uuidString: sectionUUID) {
+      vc = VFLiveQuestionsViewController.new(
+        containerId: containerId,
+        articleMetadata: articleMetadata,
+        loginDelegate: self,
+        settings: settings,
+        sectionUUID: section,
+        limit: resolvedLimit,
+        replyLimit: resolvedReplyLimit,
+        title: resolvedTitle,
+        focusedContentUUID: resolvedFocused
+      )
+    } else {
+      vc = VFLiveQuestionsViewController.new(
+        containerId: containerId,
+        articleMetadata: articleMetadata,
+        loginDelegate: self,
+        settings: settings,
+        limit: resolvedLimit,
+        replyLimit: resolvedReplyLimit,
+        title: resolvedTitle,
+        focusedContentUUID: resolvedFocused
+      )
+    }
 
     vc.setTheme(theme: resolveTheme())
     vc.loadViewIfNeeded()
@@ -85,22 +106,11 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
     let callbacks: VFActionsCallbacks = { [weak self] type in
       guard let self else { return }
       switch type {
-      case .seeMoreCommentsPressed:
-        self.emitAction(type: "seeMoreCommentsPressed")
-        self.onSeeMoreComments?([String: Any]())
-      case .writeNewCommentPressed(let actionType):
-        self.emitAction(type: "writeNewCommentPressed", payload: ["actionType": self.stringForActionType(actionType)])
-        self.onNewComment?(["actionType": self.stringForActionType(actionType)])
-        self.presentNewCommentViewController(actionType: actionType)
       case .openProfilePressed(let userUUID, let presentationType):
         let presentation = self.stringForPresentationType(presentationType)
         self.emitAction(type: "openProfilePressed", payload: ["userUUID": userUUID.uuidString, "presentationType": presentation])
         self.onOpenProfile?(["userUUID": userUUID.uuidString, "presentationType": presentation])
         self.presentProfileViewController(userUUID: userUUID, presentationType: presentationType)
-      case .commentLiked(let contentUUID):
-        self.emitAction(type: "commentLiked", payload: ["content": contentUUID.uuidString])
-      case .commentDisliked(let contentUUID):
-        self.emitAction(type: "commentDisliked", payload: ["content": contentUUID.uuidString])
       case .authPressed:
         self.emitAction(type: "authPressed", payload: ["requireLogin": true])
         self.onAuthNeeded?(["requireLogin": true])
@@ -117,39 +127,7 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
     addSubview(vc.view)
     vc.view.frame = bounds
     vc.didMove(toParent: parentVC)
-    self.conversationStarterViewController = vc
-  }
-
-  private func presentNewCommentViewController(actionType: VFNewCommentActionType) {
-    guard let parentVC = parentViewController, let settings, let articleMetadata else { return }
-
-    let newCommentVC = VFNewCommentViewController.new(
-      newCommentActionType: actionType,
-      containerId: containerId,
-      articleMetadata: articleMetadata,
-      loginDelegate: self,
-      settings: settings,
-      syndicationKey: syndicationKey.isEmpty ? nil : syndicationKey
-    )
-
-    let callbacks: VFActionsCallbacks = { [weak self] type in
-      guard let self else { return }
-      switch type {
-      case .commentPosted(let contentUUID):
-        self.emitAction(type: "commentPosted", payload: ["content": contentUUID.uuidString])
-      case .replyPosted(let contentUUID):
-        self.emitAction(type: "replyPosted", payload: ["content": contentUUID.uuidString])
-        self.conversationStarterViewController?.reload()
-      default:
-        break
-      }
-    }
-
-    newCommentVC.setTheme(theme: resolveTheme())
-    newCommentVC.loadViewIfNeeded()
-    newCommentVC.setActionCallbacks(callbacks: callbacks)
-    newCommentVC.setCustomUIDelegate(customUIDelegate: self)
-    parentVC.present(newCommentVC, animated: true)
+    self.liveQuestionsViewController = vc
   }
 
   private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType) {
@@ -176,31 +154,8 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
 
   // MARK: VFCustomUIDelegate
   func customizeView(theme: VFTheme, view: VFCustomizableView) {
-    guard let resolved = resolveCustomView(view) else { return }
-    let themeKey = (theme == .dark) ? "dark" : "light"
-    guard let style = CustomUIViewRegistry.shared.style(viewType: resolved.type, theme: themeKey) else {
-      return
-    }
-    CustomUIViewRegistry.shared.applyStyle(view: resolved.view, style: style)
-  }
-
-  private func resolveCustomView(_ customView: VFCustomizableView) -> (type: String, view: UIView)? {
-    switch customView {
-    case .conversationStarterBackgroundView(let view):
-      return ("conversationStarterBackgroundView", view)
-    case .conversationStarterHeaderLabel(let label):
-      return ("conversationStarterHeaderLabel", label)
-    case .conversationStarterTitleLabel(let label):
-      return ("conversationStarterTitleLabel", label)
-    case .conversationStarterDescriptionLabel(let label):
-      return ("conversationStarterDescriptionLabel", label)
-    case .conversationStarterFeaturedCommentLabel(let label):
-      return ("conversationStarterFeaturedCommentLabel", label)
-    case .conversationStarterActionButton(let button):
-      return ("conversationStarterActionButton", button)
-    default:
-      return nil
-    }
+    // Live Q&A exposes no customizable views yet; the delegate is wired so styles
+    // registered through ViafouraCustomUI apply as soon as the SDK adds them.
   }
 
   private func resolveTheme() -> VFTheme {
@@ -215,7 +170,7 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
   }
 
   private func applyThemeIfReady() {
-    conversationStarterViewController?.setTheme(theme: resolveTheme())
+    liveQuestionsViewController?.setTheme(theme: resolveTheme())
   }
 
   private func resolveColor(key: String, fallbackKey: String, fallback: UIColor) -> UIColor {
@@ -239,19 +194,6 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
       parsed.append(color)
     }
     return parsed
-  }
-
-  private func stringForActionType(_ actionType: VFNewCommentActionType) -> String {
-    switch actionType {
-    case .create:
-      return "create"
-    case .edit:
-      return "edit"
-    case .reply:
-      return "reply"
-    @unknown default:
-      return "create"
-    }
   }
 
   private func stringForPresentationType(_ presentationType: VFProfilePresentationType) -> String {
@@ -279,6 +221,6 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
 
 #else
 
-class RNConversationStarter: UIView {}
+class RNLiveQuestions: UIView {}
 
 #endif

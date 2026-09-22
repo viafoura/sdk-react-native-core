@@ -1,20 +1,15 @@
-package expo.modules.viafourasdk
+package com.viafoura.reactnative
 
 import android.content.Context
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
-import expo.modules.kotlin.AppContext
-import expo.modules.kotlin.viewevent.EventDispatcher
-import expo.modules.kotlin.views.ExpoView
+import com.facebook.react.views.view.ReactViewGroup
 
-// Viafoura SDK imports
 import com.viafourasdk.src.fragments.base.VFFragment
-import com.viafourasdk.src.fragments.newcomment.VFNewCommentFragment
-import com.viafourasdk.src.fragments.newcomment.VFNewCommentFragmentBuilder
-import com.viafourasdk.src.model.local.VFNewCommentAction
+import com.viafourasdk.src.fragments.livequestions.VFLiveQuestionsFragment
+import com.viafourasdk.src.fragments.livequestions.VFLiveQuestionsFragmentBuilder
 import com.viafourasdk.src.interfaces.VFActionsInterface
 import com.viafourasdk.src.interfaces.VFCustomUIInterface
 import com.viafourasdk.src.interfaces.VFLayoutInterface
@@ -24,20 +19,22 @@ import com.viafourasdk.src.model.local.VFArticleMetadata
 import com.viafourasdk.src.model.local.VFSettings
 import com.viafourasdk.src.model.local.VFTheme
 import java.net.URL
-import java.util.UUID
 
-class NewCommentView(context: Context, appContext: AppContext) :
-  ExpoView(context, appContext), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
+class LiveQuestionsView(context: Context) :
+  ReactViewGroup(context), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
 
   // Props
-  var newCommentActionType: String = "create" // create | edit | reply
-  var content: String? = null
   var containerId: String? = null
-  var syndicationKey: String? = null
+  var authorId: String? = null
+  var articleUrl: String? = null
   var articleTitle: String? = null
   var articleSubtitle: String? = null
-  var articleUrl: String? = null
   var articleThumbnailUrl: String? = null
+  var liveQuestionsTitle: String? = null
+  var sectionUUID: String? = null
+  var focusedContentUUID: String? = null
+  var limit: Int? = null
+  var replyLimit: Int? = null
   var darkMode: Boolean = false
     set(value) {
       field = value
@@ -51,22 +48,19 @@ class NewCommentView(context: Context, appContext: AppContext) :
   var colors: Map<String, Any?>? = null
 
   // Events
-  private val onAuthNeeded by EventDispatcher()
-  private val onCloseNewComment by EventDispatcher()
-  private val onHeightChanged by EventDispatcher()
-  private val onAction by EventDispatcher()
+  private val onHeightChanged by viafouraEvent()
+  private val onAuthNeeded by viafouraEvent()
+  private val onOpenProfile by viafouraEvent()
+  private val onAction by viafouraEvent()
 
-  // Internals
   private val container = FragmentContainerView(context).also {
     it.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     it.id = ViewCompat.generateViewId()
     addView(it)
   }
-  private var fragment: VFNewCommentFragment? = null
 
-  // On the new architecture (Fabric), native child views added imperatively to an
-  // ExpoView are never measured/laid out by React's layout system, so the hosted
-  // fragment renders at 0x0 and appears blank. Force a manual measure+layout pass.
+  private var fragment: VFLiveQuestionsFragment? = null
+
   private val measureAndLayout = Runnable {
     measure(
       MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
@@ -82,10 +76,6 @@ class NewCommentView(context: Context, appContext: AppContext) :
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    // Defer to after any in-flight FragmentManager transaction. When this view is reached
-    // via navigation, react-native-screens is mid-transaction committing the screen push as
-    // we attach; committing synchronously here throws "FragmentManager is already executing
-    // transactions". Posting runs our transaction once the FM is idle.
     post { ensureFragment() }
   }
 
@@ -95,7 +85,7 @@ class NewCommentView(context: Context, appContext: AppContext) :
   }
 
   private fun currentActivity(): FragmentActivity? =
-    appContext.currentActivity as? FragmentActivity
+    reactActivity() as? FragmentActivity
 
   private fun ensureFragment() {
     if (fragment != null) return
@@ -104,7 +94,7 @@ class NewCommentView(context: Context, appContext: AppContext) :
 
     try {
       val resolvedTheme = resolveTheme()
-      val metadata = VFArticleMetadata(
+      val meta = VFArticleMetadata(
         URL(requireNotNull(articleUrl)),
         requireNotNull(articleTitle),
         articleSubtitle ?: "",
@@ -114,34 +104,24 @@ class NewCommentView(context: Context, appContext: AppContext) :
         resolveVFColors(colors, resolvedTheme)
       )
 
-      val type = when (newCommentActionType) {
-        "edit" -> VFNewCommentAction.VFNewCommentActionType.edit
-        "reply" -> VFNewCommentAction.VFNewCommentActionType.reply
-        else -> VFNewCommentAction.VFNewCommentActionType.create
-      }
-      val action = VFNewCommentAction(type)
-      content?.let { c ->
-        if (c.isNotEmpty()) action.content = UUID.fromString(c)
-      }
-
-      val builder = VFNewCommentFragmentBuilder(action, requireNotNull(containerId), metadata, settings)
-      syndicationKey?.let { builder.syndicationKey(it) }
+      val builder = VFLiveQuestionsFragmentBuilder(requireNotNull(containerId), meta, settings)
+        .actionsInterface(this)
+        .customUIInterface(this)
+      liveQuestionsTitle?.let { if (it.isNotEmpty()) builder.title(it) }
+      sectionUUID?.let { if (it.isNotEmpty()) builder.sectionUUID(it) }
+      focusedContentUUID?.let { if (it.isNotEmpty()) builder.focusedContentUUID(it) }
+      limit?.let { builder.limit(it) }
+      replyLimit?.let { builder.replyLimit(it) }
       val frag = builder.build()
-      frag.setActionCallback(this)
-      frag.setCustomUICallback(this)
-      frag.setTheme(resolvedTheme)
+      frag.setLayoutCallback(this)
 
-      // Add the fragment "headless" (no container view id). When a container id is
-      // supplied, the FragmentManager — running under the React/Fabric view host — resolves
-      // the wrong container and attaches the fragment's view to the React root surface
-      // instead of ours, leaving this view blank. Adding headless lets us own the view
-      // attachment and place it into our container explicitly.
       activity.supportFragmentManager
         .beginTransaction()
         .add(frag, container.id.toString())
         .commitNow()
 
       fragment = frag
+      frag.setTheme(resolvedTheme)
 
       val fragView = frag.view
       if (fragView != null) {
@@ -162,7 +142,7 @@ class NewCommentView(context: Context, appContext: AppContext) :
   private fun destroyFragment() {
     val activity = currentActivity() ?: return
     val tag = container.id.toString()
-    val frag: Fragment? = activity.supportFragmentManager.findFragmentByTag(tag)
+    val frag = activity.supportFragmentManager.findFragmentByTag(tag)
     if (frag != null) {
       activity.supportFragmentManager
         .beginTransaction()
@@ -172,12 +152,26 @@ class NewCommentView(context: Context, appContext: AppContext) :
     fragment = null
   }
 
-  // VFActionsInterface
+  override fun customizeView(
+    theme: com.viafourasdk.src.model.local.VFTheme?,
+    customViewType: com.viafourasdk.src.model.local.VFCustomViewType?,
+    view: android.view.View?
+  ) {
+    if (customViewType == null || view == null) return
+    val themeName = theme?.name?.lowercase()
+    val style = CustomUIViewRegistry.getStyle(customViewType.name, themeName) ?: return
+    CustomUIViewRegistry.applyStyle(view, style)
+  }
+
   override fun onNewAction(actionType: VFActionType, action: VFActionData?) {
     val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
     when (actionType) {
-      VFActionType.closeNewCommentPressed -> {
-        onCloseNewComment(emptyMap<String, Any>())
+      VFActionType.openProfilePressed -> {
+        val payload = mutableMapOf<String, Any>()
+        action?.openProfileAction?.presentationType?.toString()?.let { payload["presentationType"] = it }
+        action?.openProfileAction?.userUUID?.toString()?.let { payload["userUUID"] = it }
+        actionPayload.putAll(payload)
+        onOpenProfile(payload)
       }
       VFActionType.authPressed -> {
         actionPayload["requireLogin"] = true
@@ -188,20 +182,6 @@ class NewCommentView(context: Context, appContext: AppContext) :
     onAction(actionPayload)
   }
 
-  // VFCustomUIInterface
-  override fun customizeView(
-    theme: com.viafourasdk.src.model.local.VFTheme?,
-    customViewType: com.viafourasdk.src.model.local.VFCustomViewType?,
-    view: android.view.View?
-  ) {
-    if (customViewType == null || view == null) return
-    val themeName = theme?.name?.lowercase()
-    val viewTypeName = customViewType.name
-    val style = CustomUIViewRegistry.getStyle(viewTypeName, themeName) ?: return
-    CustomUIViewRegistry.applyStyle(view, style)
-  }
-
-  // VFLayoutInterface
   override fun containerHeightUpdated(fragment: VFFragment, containerId: String, height: Int) {
     onHeightChanged(mapOf("newHeight" to height, "containerId" to containerId))
   }

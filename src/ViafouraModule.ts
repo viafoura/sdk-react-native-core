@@ -1,8 +1,12 @@
-import { NativeModule, requireNativeModule } from 'expo-modules-core';
+import { NativeModules, Platform } from 'react-native';
 
-import { ViafouraModuleEvents } from './Viafoura.types';
+const LINKING_ERROR =
+  `The package '@viafoura/sdk-react-native' doesn't seem to be linked. Make sure:\n\n` +
+  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
+  '- You rebuilt the app after installing the package\n' +
+  '- You are not using Expo Go\n';
 
-declare class ViafouraModule extends NativeModule<ViafouraModuleEvents> {
+export interface ViafouraNativeModule {
   logout(): Promise<void>;
   login(email: string, password: string): Promise<void>;
   signup(name: string, email: string, password: string): Promise<void>;
@@ -11,7 +15,19 @@ declare class ViafouraModule extends NativeModule<ViafouraModuleEvents> {
   openIdLogin(token: string): Promise<void>;
   cookieLogin(token: string): Promise<void>;
   resetPassword(email: string): Promise<void>;
-  initialize(siteUUID: string, siteDomain: string, enableLogging?: boolean): Promise<void>;
+  initialize(
+    siteUUID: string,
+    siteDomain: string,
+    enableLogging?: boolean
+  ): Promise<void>;
 }
 
-export default requireNativeModule<ViafouraModule>('Viafoura');
+const ViafouraModule: ViafouraNativeModule =
+  NativeModules.Viafoura ??
+  new Proxy({} as ViafouraNativeModule, {
+    get() {
+      throw new Error(LINKING_ERROR);
+    },
+  });
+
+export default ViafouraModule;

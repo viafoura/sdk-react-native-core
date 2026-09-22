@@ -1,4 +1,4 @@
-import { requireNativeViewManager } from 'expo-modules-core';
+import { requireNativeComponent } from 'react-native';
 import * as React from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 
@@ -10,6 +10,6 @@ export type ViafouraAdSlotProps = {
 };
 
 const NativeAdSlotView: React.ComponentType<ViafouraAdSlotProps> =
-  requireNativeViewManager('ViafouraAdSlot');
+  requireNativeComponent('ViafouraAdSlot');
 
 export default NativeAdSlotView;

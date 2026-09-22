@@ -8,6 +8,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  NODE_VERSION: 20.19.4
+  RN_VERSION: 0.81.5
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,10 +39,16 @@ jobs:
       - name: Build
         run: npm run build
 
+  # The package is a classic React Native module, so it has to autolink in a bare
+  # React Native app and in an Expo prebuild app. Both are smoke tested.
   android-native:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [expo, bare]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,7 +56,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.4
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Setup Java
@@ -62,21 +72,55 @@ jobs:
           mkdir -p /tmp/viafoura-package
           npm pack --pack-destination /tmp/viafoura-package
 
-      - name: Create Android smoke app
+      - name: Create ${{ matrix.app }} smoke app
         run: |
-          npx create-expo-app@latest /tmp/viafoura-native-smoke --template blank-typescript --yes
-          cd /tmp/viafoura-native-smoke
-          npm install /tmp/viafoura-package/*.tgz
-          npx expo prebuild --platform android --non-interactive
+          set -euo pipefail
+          if [ "${{ matrix.app }}" = "expo" ]; then
+            npx create-expo-app@latest /tmp/smoke --template blank-typescript --yes
+            cd /tmp/smoke
+            npm install /tmp/viafoura-package/*.tgz
+            npx expo prebuild --platform android --non-interactive
+          else
+            npx @react-native-community/cli@latest init ViafouraSmoke \
+              --directory /tmp/smoke --version "$RN_VERSION" --skip-install --skip-git-init
+            cd /tmp/smoke
+            npm install
+            npm install /tmp/viafoura-package/*.tgz
+          fi
+
+      - name: Verify autolinking picked up the module
+        working-directory: /tmp/smoke
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.app }}" = "expo" ]; then
+            CONFIG=$(node node_modules/expo/bin/autolinking react-native-config --platform android --json)
+          else
+            CONFIG=$(node node_modules/@react-native-community/cli/build/bin.js config --platform android)
+          fi
+          echo "$CONFIG" | node -e '
+            let s = "";
+            process.stdin.on("data", (d) => (s += d)).on("end", () => {
+              const deps = JSON.parse(s).dependencies || {};
+              if (!deps["@viafoura/sdk-react-native"]) {
+                console.error("::error::@viafoura/sdk-react-native was not autolinked");
+                process.exit(1);
+              }
+              console.log("autolinked OK");
+            });
+          '
 
       - name: Compile Android
-        working-directory: /tmp/viafoura-native-smoke/android
+        working-directory: /tmp/smoke/android
         run: ./gradlew assembleDebug --no-daemon
 
   ios-native:
     runs-on: macos-26
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [expo, bare]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -89,7 +133,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20.19.4
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Package module
@@ -99,20 +143,43 @@ jobs:
           mkdir -p /tmp/viafoura-package
           npm pack --pack-destination /tmp/viafoura-package
 
-      - name: Create iOS smoke app
+      - name: Create ${{ matrix.app }} smoke app
         run: |
-          npx create-expo-app@latest /tmp/viafoura-native-smoke --template blank-typescript --yes
-          cd /tmp/viafoura-native-smoke
-          npm install /tmp/viafoura-package/*.tgz
-          npx expo prebuild --platform ios --non-interactive
+          set -euo pipefail
+          if [ "${{ matrix.app }}" = "expo" ]; then
+            npx create-expo-app@latest /tmp/smoke --template blank-typescript --yes
+            cd /tmp/smoke
+            npm install /tmp/viafoura-package/*.tgz
+            npx expo prebuild --platform ios --non-interactive
+          else
+            npx @react-native-community/cli@latest init ViafouraSmoke \
+              --directory /tmp/smoke --version "$RN_VERSION" --skip-install --skip-git-init
+            cd /tmp/smoke
+            npm install
+            npm install /tmp/viafoura-package/*.tgz
+          fi
 
       - name: Install pods
-        working-directory: /tmp/viafoura-native-smoke/ios
-        run: pod install --repo-update
+        working-directory: /tmp/smoke/ios
+        # RCT_USE_RN_DEP makes CocoaPods use React Native's prebuilt dependency
+        # artifacts. Built from source, fmt 11.0.2 (pinned by RCT-Folly) fails to
+        # compile under Xcode 26. Expo prebuild already defaults to the artifacts.
+        run: RCT_USE_RN_DEP=1 pod install --repo-update
+
+      - name: Verify the module pod installed
+        working-directory: /tmp/smoke/ios
+        run: |
+          set -euo pipefail
+          if ! grep -qE '^  - Viafoura \(' Podfile.lock; then
+            echo "::error::Viafoura pod is missing from Podfile.lock; autolinking failed."
+            exit 1
+          fi
+          echo "Viafoura pod installed"
 
       - name: Compile iOS
-        working-directory: /tmp/viafoura-native-smoke/ios
+        working-directory: /tmp/smoke/ios
         run: |
+          set -euo pipefail
           WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -print -quit)
           SCHEME=Viafoura
 

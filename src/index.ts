@@ -7,3 +7,4 @@ export type { ViafouraAdSlotProps } from './AdSlotView';
 export { default as ProfileView } from './ProfileView';
 export { default as NewCommentView } from './NewCommentView';
 export { default as ConversationStarterView } from './ConversationStarterView';
+export { default as LiveQuestionsView } from './LiveQuestionsView';
