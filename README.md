@@ -1,20 +1,109 @@
 # @viafoura/sdk-react-native
 
-Basic install and usage.
+The Viafoura SDK for React Native. Ships the native iOS and Android SDKs, so there
+are no native files to copy into your app.
 
-# Install
+## Requirements
+
+| | |
+| --- | --- |
+| React Native | 0.81+ (verified on 0.81.5) |
+| Architecture | New architecture (Fabric) and the legacy bridge |
+| iOS | 13.0+, Xcode 16+ |
+| Android | minSdk 24, compileSdk 35 |
+
+Expo Go is not supported: the package contains native code, so it needs a
+development build.
+
+## Install
+
+This is a standard React Native module. It autolinks in **bare React Native apps**
+and in **Expo apps that run prebuild** — there is one package and one integration
+path for both.
 
 ```
 npm install @viafoura/sdk-react-native
 ```
 
-iOS:
+### Bare React Native
 
 ```
-npx pod-install
+cd ios && RCT_USE_RN_DEP=1 pod install
 ```
 
-# Usage
+`RCT_USE_RN_DEP=1` makes CocoaPods use React Native's prebuilt dependency
+artifacts. Without it, CocoaPods compiles `fmt` 11.0.2 (pinned by `RCT-Folly`)
+from source, which fails under Xcode 26. You can put it in your `Podfile`
+instead so nobody has to remember it:
+
+```ruby
+ENV['RCT_USE_RN_DEP'] ||= '1'
+```
+
+Android needs nothing beyond `npm install` — Gradle autolinking registers
+`ViafouraPackage` for you.
+
+### Expo
+
+```
+npx expo prebuild
+```
+
+Prebuild already uses the prebuilt dependency artifacts, so no extra flag is
+needed. No config plugin is required, and nothing goes in `app.json`.
+
+### Removing a direct ViafouraCore dependency
+
+If your `Podfile` has `pod 'ViafouraCore'`, delete it. This package vendors the
+same `ViafouraSDK.xcframework`, and CocoaPods refuses to install both:
+
+```
+[!] The '<YourApp>' target has frameworks with conflicting names: viafourasdk.xcframework.
+```
+
+## Platform support
+
+| Export | iOS | Android |
+| --- | --- | --- |
+| `Viafoura` (auth, initialize) | yes | yes |
+| `PreviewCommentsView` | yes | yes |
+| `ConversationStarterView` | yes | yes |
+| `ViafouraAdSlot` | yes | yes |
+| `ViafouraCustomUI` | yes | yes |
+| `ProfileView` | renders empty | yes |
+| `NewCommentView` | renders empty | yes |
+
+## Auth API
+
+All methods return a promise and reject with an `Error` on failure.
+
+```ts
+import Viafoura from '@viafoura/sdk-react-native';
+
+await Viafoura.initialize(siteUUID, siteDomain, enableLogging?);
+await Viafoura.login(email, password);
+await Viafoura.signup(name, email, password);
+await Viafoura.socialLogin(token, provider?);
+await Viafoura.loginRadiusLogin(token, provider?);
+await Viafoura.openIdLogin(token);
+await Viafoura.cookieLogin(token);
+await Viafoura.resetPassword(email);
+await Viafoura.logout();
+```
+
+`initialize` is idempotent for the same site. Calling it again with a different
+`siteUUID`/`siteDomain` rejects.
+
+## Custom UI
+
+```ts
+import { ViafouraCustomUI } from '@viafoura/sdk-react-native';
+
+ViafouraCustomUI.setCustomUIStyle(viewType, { visibility, backgroundColor }, theme?);
+ViafouraCustomUI.clearCustomUIStyle(viewType, theme?);
+```
+
+## Usage
 
 Initialize the SDK once at app startup (e.g., in `App.tsx` or a bootstrap module):
 

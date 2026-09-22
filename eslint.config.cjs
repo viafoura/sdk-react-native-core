@@ -1,21 +1,21 @@
-const js = require("@eslint/js");
-const { FlatCompat } = require("@eslint/eslintrc");
-const eslintPluginNode = require("eslint-plugin-node");
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
+const js = require('@eslint/js');
+const tseslint = require('typescript-eslint');
 
 module.exports = [
-  ...compat.extends("universe/native", "universe/web"),
+  { ignores: ['build/**', 'node_modules/**', 'ios/**', 'android/**'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
-    ignores: ["build"],
-    // eslint-plugin-node is not compatible with ESLint 9 (context.getScope removal).
-    // Disable node/* rules until the upstream config is updated.
-    rules: Object.fromEntries(
-      Object.keys(eslintPluginNode.rules).map((rule) => [`node/${rule}`, "off"])
-    ),
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+    },
   },
 ];

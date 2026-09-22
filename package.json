@@ -36,6 +36,9 @@
     "build",
     "ios",
     "android",
+    "!android/build",
+    "!android/.gradle",
+    "!android/.kotlin",
     "Viafoura.podspec",
     "react-native.config.js",
     "README.md",
@@ -43,10 +46,13 @@
   ],
   "dependencies": {},
   "devDependencies": {
+    "@eslint/js": "^9.15.0",
     "@types/react": "~19.1.0",
+    "eslint": "^9.15.0",
     "react": "19.1.0",
     "react-native": "0.81.4",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.15.0"
   },
   "peerDependencies": {
     "react": "*",
