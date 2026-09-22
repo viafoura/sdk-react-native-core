@@ -20,6 +20,7 @@ class ViafouraPackage : ReactPackage {
       ProfileViewManager(),
       NewCommentViewManager(),
       ConversationStarterViewManager(),
+      LiveQuestionsViewManager(),
       AdSlotViewManager()
     )
 }

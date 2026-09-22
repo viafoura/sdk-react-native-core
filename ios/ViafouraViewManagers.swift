@@ -34,3 +34,14 @@ class ViafouraAdSlotManager: RCTViewManager {
     return true
   }
 }
+
+@objc(LiveQuestionsManager)
+class LiveQuestionsManager: RCTViewManager {
+  override func view() -> UIView! {
+    return RNLiveQuestions()
+  }
+
+  override static func requiresMainQueueSetup() -> Bool {
+    return true
+  }
+}
