@@ -8,16 +8,12 @@
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
-    "build": "expo-module build",
-    "clean": "expo-module clean",
+    "build": "tsc",
+    "clean": "rm -rf build",
     "fetch:ios-framework": "node scripts/fetch-ios-framework.js",
-    "lint": "expo-module lint",
-    "test": "expo-module test --passWithNoTests",
-    "prepare": "expo-module prepare && npm run fetch:ios-framework",
-    "prepublishOnly": "expo-module prepublishOnly",
-    "expo-module": "expo-module",
-    "open:ios": "xed ../../example/ios",
-    "open:android": "open -a \"Android Studio\" ../../example/android",
+    "lint": "eslint src",
+    "test": "echo \"no tests\" && exit 0",
+    "prepare": "npm run build && npm run fetch:ios-framework",
     "prepack": "npm run fetch:ios-framework"
   },
   "keywords": [
@@ -26,13 +22,13 @@
     "viafoura-sdk",
     "Viafoura"
   ],
-  "repository": "https://github.com/viafoura/sdk-react-native",
+  "repository": "https://github.com/viafoura/sdk-react-native-core",
   "bugs": {
-    "url": "https://github.com/viafoura/sdk-react-native/issues"
+    "url": "https://github.com/viafoura/sdk-react-native-core/issues"
   },
   "author": "Viafoura <support@viafoura.com> ()",
   "license": "MIT",
-  "homepage": "https://github.com/viafoura/sdk-react-native#readme",
+  "homepage": "https://github.com/viafoura/sdk-react-native-core#readme",
   "publishConfig": {
     "access": "public"
   },
@@ -40,20 +36,19 @@
     "build",
     "ios",
     "android",
-    "expo-module.config.json",
+    "Viafoura.podspec",
+    "react-native.config.js",
     "README.md",
     "package.json"
   ],
   "dependencies": {},
   "devDependencies": {
     "@types/react": "~19.1.0",
-    "@types/invariant": "^2.2.35",
-    "expo-module-scripts": "^5.0.7",
-    "expo": "^54.0.12",
-    "react-native": "0.81.4"
+    "react": "19.1.0",
+    "react-native": "0.81.4",
+    "typescript": "~5.9.2"
   },
   "peerDependencies": {
-    "expo": "*",
     "react": "*",
     "react-native": "*"
   }

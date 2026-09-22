@@ -1,10 +1,10 @@
-import { requireNativeViewManager } from 'expo-modules-core';
+import { requireNativeComponent } from 'react-native';
 import * as React from 'react';
 
 import NativeAdSlotView from './AdSlotView';
 import { PreviewCommentsAdSlotRequestedPayload, PreviewCommentsViewProps } from './Viafoura.types';
 
-const NativeView: React.ComponentType<any> = requireNativeViewManager('PreviewComments');
+const NativeView: React.ComponentType<any> = requireNativeComponent('PreviewComments');
 
 const DEFAULT_AD_HEIGHT = 250;
 const DEFAULT_FIRST_AD_POSITION = 2;

@@ -1,10 +1,10 @@
-package expo.modules.viafourasdk
+package com.viafoura.reactnative
 
 import android.content.Context
-import expo.modules.kotlin.AppContext
-import expo.modules.kotlin.views.ExpoView
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.views.view.ReactViewGroup
 
-class AdSlotView(context: Context, appContext: AppContext) : ExpoView(context, appContext) {
+class AdSlotView(context: Context) : ReactViewGroup(context) {
   var position: Int = 0
 
   var adHeight: Int = 0
@@ -16,7 +16,6 @@ class AdSlotView(context: Context, appContext: AppContext) : ExpoView(context, a
 
   var onContentSizeChange: (() -> Unit)? = null
 
-  override val shouldUseAndroidLayout: Boolean = true
 
   override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
     val width = MeasureSpec.getSize(widthMeasureSpec)

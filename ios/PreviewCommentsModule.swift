@@ -1,4 +1,4 @@
-import ExpoModulesCore
+import React
 import UIKit
 
 #if canImport(ViafouraSDK)
@@ -61,38 +61,37 @@ final class AdSlotBinding {
   }
 }
 
-class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate, VFCustomUIDelegate {
+class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate, VFCustomUIDelegate {
   // Props
-  var containerId: String = ""
-  var authorId: String = ""
-  var articleUrl: String = ""
-  var articleTitle: String = ""
-  var syndicationKey: String = ""
-  var articleSubtitle: String = ""
-  var articleThumbnailUrl: String = ""
-  var darkMode: Bool = false {
+  @objc var containerId: String = ""
+  @objc var authorId: String = ""
+  @objc var articleUrl: String = ""
+  @objc var articleTitle: String = ""
+  @objc var syndicationKey: String = ""
+  @objc var articleSubtitle: String = ""
+  @objc var articleThumbnailUrl: String = ""
+  @objc var darkMode: Bool = false {
     didSet {
       applyThemeIfReady()
     }
   }
-  var theme: String? = nil {
+  @objc var theme: String? = nil {
     didSet {
       applyThemeIfReady()
     }
   }
-  var colors: [String: Any] = [:]
-  var adInterval: Int = 0
-  var firstAdPosition: Int = 2
+  @objc var colors: [String: Any] = [:]
+  @objc var adInterval: Int = 0
+  @objc var firstAdPosition: Int = 2
 
   // Events
-  let onHeightChanged = EventDispatcher()
-  let onAuthNeeded = EventDispatcher()
-  let onOpenProfile = EventDispatcher()
-  let onNewComment = EventDispatcher()
-  let onArticlePressed = EventDispatcher()
-  let onAction = EventDispatcher()
-  let onAdSlotRequested = EventDispatcher()
-
+  @objc var onHeightChanged: RCTDirectEventBlock?
+  @objc var onAuthNeeded: RCTDirectEventBlock?
+  @objc var onOpenProfile: RCTDirectEventBlock?
+  @objc var onNewComment: RCTDirectEventBlock?
+  @objc var onArticlePressed: RCTDirectEventBlock?
+  @objc var onAction: RCTDirectEventBlock?
+  @objc var onAdSlotRequested: RCTDirectEventBlock?
   // Internals
   let fontBold = UIFont.boldSystemFont(ofSize: 17)
   weak var previewCommentsViewController: VFPreviewCommentsViewController?
@@ -149,12 +148,12 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
         self.presentNewCommentViewController(actionType: actionType)
       case .trendingArticlePressed(let metadata, let containerId):
         self.emitAction(type: "trendingArticlePressed", payload: ["containerId": containerId, "articleUrl": metadata.url.absoluteString])
-        self.onArticlePressed(["containerId": containerId, "articleUrl": metadata.url.absoluteString])
+        self.onArticlePressed?(["containerId": containerId, "articleUrl": metadata.url.absoluteString])
       case .openProfilePressed(let userUUID, let presentationType):
         // Emit event and present profile for parity with Android
         let presentation = self.stringForPresentationType(presentationType)
         self.emitAction(type: "openProfilePressed", payload: ["userUUID": userUUID.uuidString, "presentationType": presentation])
-        self.onOpenProfile(["userUUID": userUUID.uuidString, "presentationType": presentation])
+        self.onOpenProfile?(["userUUID": userUUID.uuidString, "presentationType": presentation])
         self.presentProfileViewController(userUUID: userUUID, presentationType: presentationType)
       case .seeMoreCommentsPressed:
         self.emitAction(type: "seeMoreCommentsPressed")
@@ -191,7 +190,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
       case .trendingArticlePressed(let metadata, let containerId):
         profileVC.dismiss(animated: true)
         self.emitAction(type: "trendingArticlePressed", payload: ["containerId": containerId, "articleUrl": metadata.url.absoluteString])
-        self.onArticlePressed(["containerId": containerId, "articleUrl": metadata.url.absoluteString])
+        self.onArticlePressed?(["containerId": containerId, "articleUrl": metadata.url.absoluteString])
       case .notificationPressed(let presentation):
         var payload: [String: Any] = [:]
         switch presentation {
@@ -233,7 +232,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
       switch type {
       case .commentPosted(let contentUUID):
         self.emitAction(type: "commentPosted", payload: ["content": contentUUID.uuidString])
-        self.onNewComment(["content": contentUUID.uuidString])
+        self.onNewComment?(["content": contentUUID.uuidString])
       case .replyPosted(let contentUUID):
         self.emitAction(type: "replyPosted", payload: ["content": contentUUID.uuidString])
       default: break
@@ -249,7 +248,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
   private func emitAction(type: String, payload: [String: Any] = [:]) {
     var event = payload
     event["type"] = type
-    onAction(event)
+    onAction?(event)
   }
 
   // VFCustomUIDelegate
@@ -599,13 +598,13 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
 
   // MARK: VFLayoutDelegate
   func containerHeightUpdated(viewController: VFUIViewController, height: CGFloat) {
-    onHeightChanged(["newHeight": height, "containerId": containerId])
+    onHeightChanged?(["newHeight": height, "containerId": containerId])
   }
 
   // MARK: VFLoginDelegate
   func startLogin() {
     emitAction(type: "authPressed", payload: ["requireLogin": true])
-    onAuthNeeded(["requireLogin": true])
+    onAuthNeeded?(["requireLogin": true])
   }
 
   // MARK: VFAdDelegate
@@ -626,7 +625,7 @@ class RNPreviewComments: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFAdDelega
     if let slot = adSlots[adPosition] {
       binding.attach(slot: slot)
     } else {
-      onAdSlotRequested(["position": adPosition, "containerId": containerId])
+      onAdSlotRequested?(["position": adPosition, "containerId": containerId])
     }
 
     return binding.adView
@@ -721,39 +720,6 @@ extension UIView {
 
 #else
 
-class RNPreviewComments: ExpoView {}
+class RNPreviewComments: UIView {}
 
 #endif
-
-public class PreviewCommentsModule: Module {
-  public func definition() -> ModuleDefinition {
-    Name("PreviewComments")
-
-    View(RNPreviewComments.self) {
-      // Props
-      Prop("containerId") { (view: RNPreviewComments, v: String) in view.containerId = v }
-      Prop("authorId") { (view: RNPreviewComments, v: String?) in view.authorId = v ?? "" }
-      Prop("articleUrl") { (view: RNPreviewComments, v: String) in view.articleUrl = v }
-      Prop("articleTitle") { (view: RNPreviewComments, v: String) in view.articleTitle = v }
-      Prop("articleSubtitle") { (view: RNPreviewComments, v: String?) in view.articleSubtitle = v ?? "" }
-      Prop("articleThumbnailUrl") { (view: RNPreviewComments, v: String) in view.articleThumbnailUrl = v }
-      Prop("syndicationKey") { (view: RNPreviewComments, v: String?) in view.syndicationKey = v ?? "" }
-      Prop("darkMode") { (view: RNPreviewComments, v: Bool?) in view.darkMode = v ?? false }
-      Prop("theme") { (view: RNPreviewComments, v: String?) in view.theme = v }
-      Prop("colors") { (view: RNPreviewComments, v: [String: Any]?) in view.colors = v ?? [:] }
-      Prop("adInterval") { (view: RNPreviewComments, v: Int?) in view.adInterval = v ?? 0 }
-      Prop("firstAdPosition") { (view: RNPreviewComments, v: Int?) in view.firstAdPosition = v ?? 2 }
-
-      // Events
-      Events(
-        "onHeightChanged",
-        "onAuthNeeded",
-        "onOpenProfile",
-        "onNewComment",
-        "onArticlePressed",
-        "onAction",
-        "onAdSlotRequested"
-      )
-    }
-  }
-}

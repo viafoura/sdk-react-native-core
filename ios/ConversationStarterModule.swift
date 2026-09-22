@@ -1,40 +1,39 @@
-import ExpoModulesCore
+import React
 import UIKit
 
 #if canImport(ViafouraSDK)
 import ViafouraSDK
 
-class RNConversationStarter: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDelegate {
+class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDelegate {
   // Props
-  var containerId: String = ""
-  var articleUrl: String = ""
-  var articleTitle: String = ""
-  var articleSubtitle: String = ""
-  var articleThumbnailUrl: String = ""
-  var syndicationKey: String = ""
-  var starterTitle: String = ""
-  var starterDescription: String = ""
-  var minimumCommentCount: Int? = nil
-  var darkMode: Bool = false {
+  @objc var containerId: String = ""
+  @objc var articleUrl: String = ""
+  @objc var articleTitle: String = ""
+  @objc var articleSubtitle: String = ""
+  @objc var articleThumbnailUrl: String = ""
+  @objc var syndicationKey: String = ""
+  @objc var starterTitle: String = ""
+  @objc var starterDescription: String = ""
+  @objc var minimumCommentCount: NSNumber?
+  @objc var darkMode: Bool = false {
     didSet {
       applyThemeIfReady()
     }
   }
-  var theme: String? = nil {
+  @objc var theme: String? = nil {
     didSet {
       applyThemeIfReady()
     }
   }
-  var colors: [String: Any] = [:]
+  @objc var colors: [String: Any] = [:]
 
   // Events
-  let onHeightChanged = EventDispatcher()
-  let onAuthNeeded = EventDispatcher()
-  let onOpenProfile = EventDispatcher()
-  let onNewComment = EventDispatcher()
-  let onSeeMoreComments = EventDispatcher()
-  let onAction = EventDispatcher()
-
+  @objc var onHeightChanged: RCTDirectEventBlock?
+  @objc var onAuthNeeded: RCTDirectEventBlock?
+  @objc var onOpenProfile: RCTDirectEventBlock?
+  @objc var onNewComment: RCTDirectEventBlock?
+  @objc var onSeeMoreComments: RCTDirectEventBlock?
+  @objc var onAction: RCTDirectEventBlock?
   // Internals
   private let fontBold = UIFont.boldSystemFont(ofSize: 17)
   private weak var conversationStarterViewController: VFConversationStarterViewController?
@@ -76,7 +75,7 @@ class RNConversationStarter: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFCust
       settings: settings,
       title: starterTitle.isEmpty ? nil : starterTitle,
       description: starterDescription.isEmpty ? nil : starterDescription,
-      minimumCommentCount: minimumCommentCount ?? VFConversationStarterDefaults.minimumCommentCount,
+      minimumCommentCount: minimumCommentCount?.intValue ?? VFConversationStarterDefaults.minimumCommentCount,
       syndicationKey: syndicationKey.isEmpty ? nil : syndicationKey
     )
 
@@ -88,15 +87,15 @@ class RNConversationStarter: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFCust
       switch type {
       case .seeMoreCommentsPressed:
         self.emitAction(type: "seeMoreCommentsPressed")
-        self.onSeeMoreComments([String: Any]())
+        self.onSeeMoreComments?([String: Any]())
       case .writeNewCommentPressed(let actionType):
         self.emitAction(type: "writeNewCommentPressed", payload: ["actionType": self.stringForActionType(actionType)])
-        self.onNewComment(["actionType": self.stringForActionType(actionType)])
+        self.onNewComment?(["actionType": self.stringForActionType(actionType)])
         self.presentNewCommentViewController(actionType: actionType)
       case .openProfilePressed(let userUUID, let presentationType):
         let presentation = self.stringForPresentationType(presentationType)
         self.emitAction(type: "openProfilePressed", payload: ["userUUID": userUUID.uuidString, "presentationType": presentation])
-        self.onOpenProfile(["userUUID": userUUID.uuidString, "presentationType": presentation])
+        self.onOpenProfile?(["userUUID": userUUID.uuidString, "presentationType": presentation])
         self.presentProfileViewController(userUUID: userUUID, presentationType: presentationType)
       case .commentLiked(let contentUUID):
         self.emitAction(type: "commentLiked", payload: ["content": contentUUID.uuidString])
@@ -104,7 +103,7 @@ class RNConversationStarter: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFCust
         self.emitAction(type: "commentDisliked", payload: ["content": contentUUID.uuidString])
       case .authPressed:
         self.emitAction(type: "authPressed", payload: ["requireLogin": true])
-        self.onAuthNeeded(["requireLogin": true])
+        self.onAuthNeeded?(["requireLogin": true])
       default:
         break
       }
@@ -172,7 +171,7 @@ class RNConversationStarter: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFCust
   private func emitAction(type: String, payload: [String: Any] = [:]) {
     var event = payload
     event["type"] = type
-    onAction(event)
+    onAction?(event)
   }
 
   // MARK: VFCustomUIDelegate
@@ -268,50 +267,18 @@ class RNConversationStarter: ExpoView, VFLoginDelegate, VFLayoutDelegate, VFCust
 
   // MARK: VFLayoutDelegate
   func containerHeightUpdated(viewController: VFUIViewController, height: CGFloat) {
-    onHeightChanged(["newHeight": height, "containerId": containerId])
+    onHeightChanged?(["newHeight": height, "containerId": containerId])
   }
 
   // MARK: VFLoginDelegate
   func startLogin() {
     emitAction(type: "authPressed", payload: ["requireLogin": true])
-    onAuthNeeded(["requireLogin": true])
+    onAuthNeeded?(["requireLogin": true])
   }
 }
 
 #else
 
-class RNConversationStarter: ExpoView {}
+class RNConversationStarter: UIView {}
 
 #endif
-
-public class ConversationStarterModule: Module {
-  public func definition() -> ModuleDefinition {
-    Name("ConversationStarter")
-
-    View(RNConversationStarter.self) {
-      // Props
-      Prop("containerId") { (view: RNConversationStarter, v: String) in view.containerId = v }
-      Prop("articleUrl") { (view: RNConversationStarter, v: String) in view.articleUrl = v }
-      Prop("articleTitle") { (view: RNConversationStarter, v: String) in view.articleTitle = v }
-      Prop("articleSubtitle") { (view: RNConversationStarter, v: String?) in view.articleSubtitle = v ?? "" }
-      Prop("articleThumbnailUrl") { (view: RNConversationStarter, v: String) in view.articleThumbnailUrl = v }
-      Prop("syndicationKey") { (view: RNConversationStarter, v: String?) in view.syndicationKey = v ?? "" }
-      Prop("title") { (view: RNConversationStarter, v: String?) in view.starterTitle = v ?? "" }
-      Prop("description") { (view: RNConversationStarter, v: String?) in view.starterDescription = v ?? "" }
-      Prop("minimumCommentCount") { (view: RNConversationStarter, v: Int?) in view.minimumCommentCount = v }
-      Prop("darkMode") { (view: RNConversationStarter, v: Bool?) in view.darkMode = v ?? false }
-      Prop("theme") { (view: RNConversationStarter, v: String?) in view.theme = v }
-      Prop("colors") { (view: RNConversationStarter, v: [String: Any]?) in view.colors = v ?? [:] }
-
-      // Events
-      Events(
-        "onHeightChanged",
-        "onAuthNeeded",
-        "onOpenProfile",
-        "onNewComment",
-        "onSeeMoreComments",
-        "onAction"
-      )
-    }
-  }
-}

@@ -1,34 +1,40 @@
-package expo.modules.viafourasdk
+package com.viafoura.reactnative
 
 import android.content.Context
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.views.view.ReactViewGroup
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
-import expo.modules.kotlin.AppContext
-import expo.modules.kotlin.viewevent.EventDispatcher
-import expo.modules.kotlin.views.ExpoView
 
 // Viafoura SDK imports
-import com.viafourasdk.src.fragments.profile.VFProfileFragment
-import com.viafourasdk.src.fragments.profile.VFProfileFragmentBuilder
+import com.viafourasdk.src.fragments.base.VFFragment
+import com.viafourasdk.src.fragments.conversationstarter.VFConversationStarterFragment
+import com.viafourasdk.src.fragments.conversationstarter.VFConversationStarterFragmentBuilder
 import com.viafourasdk.src.interfaces.VFActionsInterface
 import com.viafourasdk.src.interfaces.VFCustomUIInterface
 import com.viafourasdk.src.interfaces.VFLayoutInterface
 import com.viafourasdk.src.model.local.VFActionData
 import com.viafourasdk.src.model.local.VFActionType
+import com.viafourasdk.src.model.local.VFArticleMetadata
 import com.viafourasdk.src.model.local.VFSettings
-import com.viafourasdk.src.model.local.VFProfilePresentationType
 import com.viafourasdk.src.model.local.VFTheme
-import java.util.UUID
+import java.net.URL
 
-class ProfileView(context: Context, appContext: AppContext) :
-  ExpoView(context, appContext), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
+class ConversationStarterView(context: Context) :
+  ReactViewGroup(context), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
 
   // Props
-  var userUUID: String? = null
-  var presentationType: String? = null // "profile" | "feed"
+  var containerId: String? = null
+  var articleUrl: String? = null
+  var articleTitle: String? = null
+  var articleSubtitle: String? = null
+  var articleThumbnailUrl: String? = null
+  var syndicationKey: String? = null
+  var starterTitle: String? = null
+  var starterDescription: String? = null
+  var minimumCommentCount: Int? = null
   var darkMode: Boolean = false
     set(value) {
       field = value
@@ -42,20 +48,27 @@ class ProfileView(context: Context, appContext: AppContext) :
   var colors: Map<String, Any?>? = null
 
   // Events
-  private val onAuthNeeded by EventDispatcher()
-  private val onCloseProfile by EventDispatcher()
-  private val onAction by EventDispatcher()
+  private val onHeightChanged by viafouraEvent()
+  private val onAuthNeeded by viafouraEvent()
+  private val onOpenProfile by viafouraEvent()
+  private val onNewComment by viafouraEvent()
+  private val onSeeMoreComments by viafouraEvent()
+  private val onAction by viafouraEvent()
 
   // Internals
+  // FragmentContainerView (not a plain FrameLayout) is required to host a fragment:
+  // replace()-ing into a plain FrameLayout can run the fragment lifecycle without ever
+  // attaching its view, leaving the host blank.
   private val container = FragmentContainerView(context).also {
     it.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     it.id = ViewCompat.generateViewId()
     addView(it)
   }
-  private var fragment: VFProfileFragment? = null
+
+  private var fragment: VFConversationStarterFragment? = null
 
   // On the new architecture (Fabric), native child views added imperatively to an
-  // ExpoView are never measured/laid out by React's layout system, so the hosted
+  // interop views are never measured/laid out by React's layout system, so the hosted
   // fragment renders at 0x0 and appears blank. Force a manual measure+layout pass.
   private val measureAndLayout = Runnable {
     measure(
@@ -85,7 +98,7 @@ class ProfileView(context: Context, appContext: AppContext) :
   }
 
   private fun currentActivity(): FragmentActivity? =
-    appContext.currentActivity as? FragmentActivity
+    reactActivity() as? FragmentActivity
 
   private fun ensureFragment() {
     if (fragment != null) return
@@ -94,20 +107,25 @@ class ProfileView(context: Context, appContext: AppContext) :
 
     try {
       val resolvedTheme = resolveTheme()
+      val meta = VFArticleMetadata(
+        URL(requireNotNull(articleUrl)),
+        requireNotNull(articleTitle),
+        articleSubtitle ?: "",
+        URL(requireNotNull(articleThumbnailUrl))
+      )
       val settings = VFSettings(
         resolveVFColors(colors, resolvedTheme)
       )
 
-      val pres = when (presentationType) {
-        "feed" -> VFProfilePresentationType.feed
-        else -> VFProfilePresentationType.profile
-      }
-
-      val uuid = UUID.fromString(requireNotNull(userUUID))
-      val frag = VFProfileFragmentBuilder(uuid, pres, settings).build()
+      val builder = VFConversationStarterFragmentBuilder(requireNotNull(containerId), meta, settings)
+      syndicationKey?.let { builder.syndicationKey(it) }
+      starterTitle?.let { if (it.isNotEmpty()) builder.title(it) }
+      starterDescription?.let { if (it.isNotEmpty()) builder.description(it) }
+      minimumCommentCount?.let { builder.minimumCommentCount(it) }
+      val frag = builder.build()
       frag.setActionCallback(this)
+      frag.setLayoutCallback(this)
       frag.setCustomUICallback(this)
-      frag.setTheme(resolvedTheme)
 
       // Add the fragment "headless" (no container view id). When a container id is
       // supplied, the FragmentManager — running under the React/Fabric view host — resolves
@@ -120,6 +138,7 @@ class ProfileView(context: Context, appContext: AppContext) :
         .commitNow()
 
       fragment = frag
+      frag.setTheme(resolvedTheme)
 
       val fragView = frag.view
       if (fragView != null) {
@@ -140,7 +159,7 @@ class ProfileView(context: Context, appContext: AppContext) :
   private fun destroyFragment() {
     val activity = currentActivity() ?: return
     val tag = container.id.toString()
-    val frag: Fragment? = activity.supportFragmentManager.findFragmentByTag(tag)
+    val frag = activity.supportFragmentManager.findFragmentByTag(tag)
     if (frag != null) {
       activity.supportFragmentManager
         .beginTransaction()
@@ -148,22 +167,6 @@ class ProfileView(context: Context, appContext: AppContext) :
         .commit()
     }
     fragment = null
-  }
-
-  // VFActionsInterface
-  override fun onNewAction(actionType: VFActionType, action: VFActionData?) {
-    val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
-    when (actionType) {
-      VFActionType.closeProfilePressed -> {
-        onCloseProfile(emptyMap<String, Any>())
-      }
-      VFActionType.authPressed -> {
-        actionPayload["requireLogin"] = true
-        onAuthNeeded(mapOf("requireLogin" to true))
-      }
-      else -> {}
-    }
-    onAction(actionPayload)
   }
 
   // VFCustomUIInterface
@@ -179,12 +182,40 @@ class ProfileView(context: Context, appContext: AppContext) :
     CustomUIViewRegistry.applyStyle(view, style)
   }
 
+  // VFActionsInterface
+  override fun onNewAction(actionType: VFActionType, action: VFActionData?) {
+    val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
+    when (actionType) {
+      VFActionType.seeMoreCommentsPressed -> {
+        onSeeMoreComments(emptyMap<String, Any>())
+      }
+      VFActionType.writeNewCommentPressed -> {
+        val payload = mutableMapOf<String, Any>()
+        action?.newCommentAction?.content?.toString()?.let { payload["content"] = it }
+        action?.newCommentAction?.type?.toString()?.let { payload["actionType"] = it }
+        actionPayload.putAll(payload)
+        onNewComment(payload)
+      }
+      VFActionType.openProfilePressed -> {
+        val payload = mutableMapOf<String, Any>()
+        action?.openProfileAction?.presentationType?.toString()?.let { payload["presentationType"] = it }
+        action?.openProfileAction?.userUUID?.toString()?.let { payload["userUUID"] = it }
+        actionPayload.putAll(payload)
+        onOpenProfile(payload)
+      }
+      VFActionType.authPressed -> {
+        actionPayload["requireLogin"] = true
+        onAuthNeeded(mapOf("requireLogin" to true))
+      }
+      else -> {}
+    }
+    onAction(actionPayload)
+  }
+
   // VFLayoutInterface
-  override fun containerHeightUpdated(
-    fragment: com.viafourasdk.src.fragments.base.VFFragment,
-    containerId: String,
-    height: Int
-  ) { /* no-op for profile */ }
+  override fun containerHeightUpdated(fragment: VFFragment, containerId: String, height: Int) {
+    onHeightChanged(mapOf("newHeight" to height, "containerId" to containerId))
+  }
 
   private fun resolveTheme(): VFTheme {
     return when (theme?.lowercase()) {

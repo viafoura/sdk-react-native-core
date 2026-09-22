@@ -1,5 +1,5 @@
 import Foundation
-import ExpoModulesCore
+import React
 
 // Optional Viafoura SDK import. Code is guarded to build without it.
 #if canImport(ViafouraSDK)
@@ -211,6 +211,10 @@ struct VFAuthAdapter {
     completion(.failure(VFAdapterError.sdkUnavailable))
   }
 
+  func loginRadiusLogin(token: String, provider: String?, completion: @escaping (Result<Void, Error>) -> Void) {
+    completion(.failure(VFAdapterError.sdkUnavailable))
+  }
+
   func openIdLogin(token: String, completion: @escaping (Result<Void, Error>) -> Void) {
     completion(.failure(VFAdapterError.sdkUnavailable))
   }
@@ -232,135 +236,134 @@ struct VFCoreAdapter {
 
 #endif
 
-public class ViafouraModule: Module {
+
+@objc(Viafoura)
+public class ViafouraModule: NSObject {
   private let auth = VFAuthAdapter()
   private let core = VFCoreAdapter()
 
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
-  public func definition() -> ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('Viafoura')` in JavaScript.
-    Name("Viafoura")
+  @objc
+  public static func requiresMainQueueSetup() -> Bool {
+    return false
+  }
 
-    // Defines constant property on the module.
-    Constant("PI") {
-      Double.pi
+  private func settle(
+    _ result: Result<Void, Error>,
+    _ resolve: @escaping RCTPromiseResolveBlock,
+    _ reject: @escaping RCTPromiseRejectBlock
+  ) {
+    switch result {
+    case .success:
+      resolve(nil)
+    case .failure(let error):
+      reject("ERR_VIAFOURA", error.localizedDescription, error)
     }
+  }
 
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
+  @objc(logout:rejecter:)
+  public func logout(
+    _ resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    auth.logout()
+    resolve(nil)
+  }
 
-    // MARK: - Auth API
-    AsyncFunction("logout") {
-      self.auth.logout()
+  @objc(login:password:resolver:rejecter:)
+  public func login(
+    _ email: String,
+    password: String,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    auth.login(email: email, password: password) { self.settle($0, resolve, reject) }
+  }
+
+  @objc(signup:email:password:resolver:rejecter:)
+  public func signup(
+    _ name: String,
+    email: String,
+    password: String,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    auth.signup(name: name, email: email, password: password) { self.settle($0, resolve, reject) }
+  }
+
+  @objc(socialLogin:provider:resolver:rejecter:)
+  public func socialLogin(
+    _ token: String,
+    provider: String?,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    guard let provider = provider, !provider.isEmpty else {
+      let error = VFAdapterError.invalidProvider
+      reject("ERR_VIAFOURA", error.localizedDescription, error)
+      return
     }
+    auth.socialLogin(token: token, provider: provider) { self.settle($0, resolve, reject) }
+  }
 
-    AsyncFunction("login") { (email: String, password: String) async throws in
-      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-        self.auth.login(email: email, password: password) { result in
-          switch result {
-          case .success:
-            continuation.resume()
-          case .failure(let error):
-            continuation.resume(throwing: error)
-          }
-        }
-      }
+  @objc(loginRadiusLogin:provider:resolver:rejecter:)
+  public func loginRadiusLogin(
+    _ token: String,
+    provider: String?,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    auth.loginRadiusLogin(token: token, provider: provider) { self.settle($0, resolve, reject) }
+  }
+
+  @objc(openIdLogin:resolver:rejecter:)
+  public func openIdLogin(
+    _ token: String,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    auth.openIdLogin(token: token) { self.settle($0, resolve, reject) }
+  }
+
+  @objc(cookieLogin:resolver:rejecter:)
+  public func cookieLogin(
+    _ token: String,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    auth.cookieLogin(token: token) { self.settle($0, resolve, reject) }
+  }
+
+  @objc(resetPassword:resolver:rejecter:)
+  public func resetPassword(
+    _ email: String,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    auth.resetPassword(email: email) { self.settle($0, resolve, reject) }
+  }
+
+  @objc(initialize:siteDomain:enableLogging:resolver:rejecter:)
+  public func initialize(
+    _ siteUUID: String,
+    siteDomain: String,
+    enableLogging: NSNumber?,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    guard !siteUUID.isEmpty, !siteDomain.isEmpty else {
+      let error = VFAdapterError.invalidInitialization
+      reject("ERR_VIAFOURA", error.localizedDescription, error)
+      return
     }
-
-    AsyncFunction("signup") { (name: String, email: String, password: String) async throws in
-      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-        self.auth.signup(name: name, email: email, password: password) { result in
-          switch result {
-          case .success:
-            continuation.resume()
-          case .failure(let error):
-            continuation.resume(throwing: error)
-          }
-        }
-      }
+    do {
+      try core.initialize(
+        siteUUID: siteUUID,
+        siteDomain: siteDomain,
+        enableLogging: enableLogging?.boolValue
+      )
+      resolve(nil)
+    } catch {
+      reject("ERR_VIAFOURA", error.localizedDescription, error)
     }
-
-    AsyncFunction("socialLogin") { (token: String, provider: String?) async throws in
-      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-        guard let provider = provider, !provider.isEmpty else {
-          continuation.resume(throwing: VFAdapterError.invalidProvider)
-          return
-        }
-        self.auth.socialLogin(token: token, provider: provider) { result in
-          switch result {
-          case .success:
-            continuation.resume()
-          case .failure(let error):
-            continuation.resume(throwing: error)
-          }
-        }
-      }
-    }
-
-    AsyncFunction("loginRadiusLogin") { (token: String, provider: String?) async throws in
-      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-        self.auth.loginRadiusLogin(token: token, provider: provider) { result in
-          switch result {
-          case .success:
-            continuation.resume()
-          case .failure(let error):
-            continuation.resume(throwing: error)
-          }
-        }
-      }
-    }
-
-    AsyncFunction("openIdLogin") { (token: String) async throws in
-      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-        self.auth.openIdLogin(token: token) { result in
-          switch result {
-          case .success:
-            continuation.resume()
-          case .failure(let error):
-            continuation.resume(throwing: error)
-          }
-        }
-      }
-    }
-
-    AsyncFunction("cookieLogin") { (token: String) async throws in
-      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-        self.auth.cookieLogin(token: token) { result in
-          switch result {
-          case .success:
-            continuation.resume()
-          case .failure(let error):
-            continuation.resume(throwing: error)
-          }
-        }
-      }
-    }
-
-    AsyncFunction("resetPassword") { (email: String) async throws in
-      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-        self.auth.resetPassword(email: email) { result in
-          switch result {
-          case .success:
-            continuation.resume()
-          case .failure(let error):
-            continuation.resume(throwing: error)
-          }
-        }
-      }
-    }
-
-    // MARK: - Core API
-    AsyncFunction("initialize") { (siteUUID: String, siteDomain: String, enableLogging: Bool?) async throws in
-      guard !siteUUID.isEmpty, !siteDomain.isEmpty else {
-        throw VFAdapterError.invalidInitialization
-      }
-      try self.core.initialize(siteUUID: siteUUID, siteDomain: siteDomain, enableLogging: enableLogging)
-    }
-
-    // No additional native view here. PreviewComments is exposed via a separate module.
   }
 }

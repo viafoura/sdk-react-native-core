@@ -1,43 +1,33 @@
-package expo.modules.viafourasdk
+package com.viafoura.reactnative
 
 import android.content.Context
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.views.view.ReactViewGroup
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
-import expo.modules.kotlin.AppContext
-import expo.modules.kotlin.viewevent.EventDispatcher
-import expo.modules.kotlin.views.ExpoView
 
 // Viafoura SDK imports
-import com.viafourasdk.src.fragments.base.VFFragment
-import com.viafourasdk.src.fragments.newcomment.VFNewCommentFragment
-import com.viafourasdk.src.fragments.newcomment.VFNewCommentFragmentBuilder
-import com.viafourasdk.src.model.local.VFNewCommentAction
+import com.viafourasdk.src.fragments.profile.VFProfileFragment
+import com.viafourasdk.src.fragments.profile.VFProfileFragmentBuilder
 import com.viafourasdk.src.interfaces.VFActionsInterface
 import com.viafourasdk.src.interfaces.VFCustomUIInterface
 import com.viafourasdk.src.interfaces.VFLayoutInterface
 import com.viafourasdk.src.model.local.VFActionData
 import com.viafourasdk.src.model.local.VFActionType
-import com.viafourasdk.src.model.local.VFArticleMetadata
 import com.viafourasdk.src.model.local.VFSettings
+import com.viafourasdk.src.model.local.VFProfilePresentationType
 import com.viafourasdk.src.model.local.VFTheme
-import java.net.URL
 import java.util.UUID
 
-class NewCommentView(context: Context, appContext: AppContext) :
-  ExpoView(context, appContext), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
+class ProfileView(context: Context) :
+  ReactViewGroup(context), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
 
   // Props
-  var newCommentActionType: String = "create" // create | edit | reply
-  var content: String? = null
-  var containerId: String? = null
-  var syndicationKey: String? = null
-  var articleTitle: String? = null
-  var articleSubtitle: String? = null
-  var articleUrl: String? = null
-  var articleThumbnailUrl: String? = null
+  var userUUID: String? = null
+  var presentationType: String? = null // "profile" | "feed"
   var darkMode: Boolean = false
     set(value) {
       field = value
@@ -51,10 +41,9 @@ class NewCommentView(context: Context, appContext: AppContext) :
   var colors: Map<String, Any?>? = null
 
   // Events
-  private val onAuthNeeded by EventDispatcher()
-  private val onCloseNewComment by EventDispatcher()
-  private val onHeightChanged by EventDispatcher()
-  private val onAction by EventDispatcher()
+  private val onAuthNeeded by viafouraEvent()
+  private val onCloseProfile by viafouraEvent()
+  private val onAction by viafouraEvent()
 
   // Internals
   private val container = FragmentContainerView(context).also {
@@ -62,10 +51,10 @@ class NewCommentView(context: Context, appContext: AppContext) :
     it.id = ViewCompat.generateViewId()
     addView(it)
   }
-  private var fragment: VFNewCommentFragment? = null
+  private var fragment: VFProfileFragment? = null
 
   // On the new architecture (Fabric), native child views added imperatively to an
-  // ExpoView are never measured/laid out by React's layout system, so the hosted
+  // interop views are never measured/laid out by React's layout system, so the hosted
   // fragment renders at 0x0 and appears blank. Force a manual measure+layout pass.
   private val measureAndLayout = Runnable {
     measure(
@@ -95,7 +84,7 @@ class NewCommentView(context: Context, appContext: AppContext) :
   }
 
   private fun currentActivity(): FragmentActivity? =
-    appContext.currentActivity as? FragmentActivity
+    reactActivity() as? FragmentActivity
 
   private fun ensureFragment() {
     if (fragment != null) return
@@ -104,29 +93,17 @@ class NewCommentView(context: Context, appContext: AppContext) :
 
     try {
       val resolvedTheme = resolveTheme()
-      val metadata = VFArticleMetadata(
-        URL(requireNotNull(articleUrl)),
-        requireNotNull(articleTitle),
-        articleSubtitle ?: "",
-        URL(requireNotNull(articleThumbnailUrl))
-      )
       val settings = VFSettings(
         resolveVFColors(colors, resolvedTheme)
       )
 
-      val type = when (newCommentActionType) {
-        "edit" -> VFNewCommentAction.VFNewCommentActionType.edit
-        "reply" -> VFNewCommentAction.VFNewCommentActionType.reply
-        else -> VFNewCommentAction.VFNewCommentActionType.create
-      }
-      val action = VFNewCommentAction(type)
-      content?.let { c ->
-        if (c.isNotEmpty()) action.content = UUID.fromString(c)
+      val pres = when (presentationType) {
+        "feed" -> VFProfilePresentationType.feed
+        else -> VFProfilePresentationType.profile
       }
 
-      val builder = VFNewCommentFragmentBuilder(action, requireNotNull(containerId), metadata, settings)
-      syndicationKey?.let { builder.syndicationKey(it) }
-      val frag = builder.build()
+      val uuid = UUID.fromString(requireNotNull(userUUID))
+      val frag = VFProfileFragmentBuilder(uuid, pres, settings).build()
       frag.setActionCallback(this)
       frag.setCustomUICallback(this)
       frag.setTheme(resolvedTheme)
@@ -176,8 +153,8 @@ class NewCommentView(context: Context, appContext: AppContext) :
   override fun onNewAction(actionType: VFActionType, action: VFActionData?) {
     val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
     when (actionType) {
-      VFActionType.closeNewCommentPressed -> {
-        onCloseNewComment(emptyMap<String, Any>())
+      VFActionType.closeProfilePressed -> {
+        onCloseProfile(emptyMap<String, Any>())
       }
       VFActionType.authPressed -> {
         actionPayload["requireLogin"] = true
@@ -202,9 +179,11 @@ class NewCommentView(context: Context, appContext: AppContext) :
   }
 
   // VFLayoutInterface
-  override fun containerHeightUpdated(fragment: VFFragment, containerId: String, height: Int) {
-    onHeightChanged(mapOf("newHeight" to height, "containerId" to containerId))
-  }
+  override fun containerHeightUpdated(
+    fragment: com.viafourasdk.src.fragments.base.VFFragment,
+    containerId: String,
+    height: Int
+  ) { /* no-op for profile */ }
 
   private fun resolveTheme(): VFTheme {
     return when (theme?.lowercase()) {

@@ -1,10 +1,10 @@
-import { requireNativeViewManager } from 'expo-modules-core';
+import { requireNativeComponent } from 'react-native';
 import * as React from 'react';
 
 import { ConversationStarterViewProps } from './Viafoura.types';
 
 const NativeView: React.ComponentType<ConversationStarterViewProps> =
-  requireNativeViewManager('ConversationStarter');
+  requireNativeComponent('ConversationStarter');
 
 export default function ConversationStarterView(props: ConversationStarterViewProps) {
   return <NativeView {...props} />;

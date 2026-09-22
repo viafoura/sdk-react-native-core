@@ -1,22 +1,26 @@
-import ExpoModulesCore
+import React
 
-public class ViafouraCustomUIModule: Module {
-  public func definition() -> ModuleDefinition {
-    Name("ViafouraCustomUI")
+@objc(ViafouraCustomUI)
+public class ViafouraCustomUIModule: NSObject {
+  @objc
+  public static func requiresMainQueueSetup() -> Bool {
+    return false
+  }
 
-    Function("setCustomUIStyle") { (viewType: String, style: [String: Any?], theme: String?) in
-      let visibility = style["visibility"] as? String
-      let backgroundColor = style["backgroundColor"] as? String
-      CustomUIViewRegistry.shared.setStyle(
-        viewType: viewType,
-        visibility: visibility,
-        backgroundColor: backgroundColor,
-        theme: theme
-      )
-    }
+  @objc(setCustomUIStyle:style:theme:)
+  public func setCustomUIStyle(_ viewType: String, style: NSDictionary, theme: String?) {
+    let visibility = style["visibility"] as? String
+    let backgroundColor = style["backgroundColor"] as? String
+    CustomUIViewRegistry.shared.setStyle(
+      viewType: viewType,
+      visibility: visibility,
+      backgroundColor: backgroundColor,
+      theme: theme
+    )
+  }
 
-    Function("clearCustomUIStyle") { (viewType: String, theme: String?) in
-      CustomUIViewRegistry.shared.clearStyle(viewType: viewType, theme: theme)
-    }
+  @objc(clearCustomUIStyle:theme:)
+  public func clearCustomUIStyle(_ viewType: String, theme: String?) {
+    CustomUIViewRegistry.shared.clearStyle(viewType: viewType, theme: theme)
   }
 }
