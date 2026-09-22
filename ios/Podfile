@@ -5,6 +5,10 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+# Use React Native's prebuilt dependency artifacts instead of compiling folly/fmt
+# from source. fmt 11.0.2, which RCT-Folly pins, does not compile under Xcode 26.
+ENV['RCT_USE_RN_DEP'] ||= '1'
+
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 
