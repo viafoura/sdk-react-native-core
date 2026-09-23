@@ -1,19 +1,25 @@
-<p align="center">
-<img src="https://github.com/viafoura/sdk-ios/assets/103942744/f4b6b449-c64b-452c-8260-8e1c1795266f" alt="Viafoura" title="Viafoura" width="557"/>
-</p>
+# Viafoura React Native sample (bare)
 
-<p align="center">
+A bare React Native app that consumes `@viafoura/sdk-react-native` from the
+package at the repository root, so it always runs the source in this checkout.
 
-</p>
+## Run
 
-# Viafoura React Native Sample app
+Install and build the package first, from the repository root:
 
-This project shows you how to integrate Viafoura tools into a react native app.
+```
+npm install
+```
 
-#### How to run?
+Then, in this directory:
 
-1. Clone project
-2. Run `npm install --save react@latest` in terminal
-3. Run `npx patch-package react-native`
-4. Go to to `ios` folder and run `pod install` in terminal
-5. Go to root project folder and execute `npx react-native start` in terminal
+```
+npm install
+cd ios && RCT_USE_RN_DEP=1 pod install && cd ..
+npm run ios
+npm run android
+```
+
+`npm run start` starts Metro on its own. Metro watches the repository root, so
+edits under `src/` reload without reinstalling; native changes under `ios/` or
+`android/` need a rebuild.

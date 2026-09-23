@@ -1,10 +1,6 @@
 pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
 plugins { id("com.facebook.react.settings") }
-// Invoke the CLI through node: yarn's node_modules linker does not preserve the
-// executable bit on rnc-cli, so the default command fails with exit 126.
-extensions.configure(com.facebook.react.ReactSettingsExtension){ ex ->
-  ex.autolinkLibrariesFromCommand(["node", "node_modules/@react-native-community/cli/build/bin.js", "config"])
-}
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
 rootProject.name = 'sdk'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')

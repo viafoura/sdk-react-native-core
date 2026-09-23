@@ -1272,7 +1272,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-webview (13.15.0):
+  - react-native-webview (13.17.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1662,7 +1662,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - Viafoura (0.1.17):
+  - Viafoura (0.1.18):
     - React-Core
   - Yoga (0.0.0)
 
@@ -1918,7 +1918,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: e1e40549e1d1b760cf201d6100cd8898f389e0ea
   React-microtasksnativemodule: 11fd5d6cb420a4fde30dc835b859f91e659b095c
   react-native-safe-area-context: 2b9d2620593f440441e525fa927cf81df9ab58c6
-  react-native-webview: efe2497dd5df985d9c4e847271b35005eced9028
+  react-native-webview: 3f6f52ccdae57abe117fa668ca63dbf2a82541ac
   React-NativeModulesApple: 94a58c33df00dcc5dd03708dcd170a35c3e7aef9
   React-oscompat: eb0626e8ba1a2c61673c991bf9dc21834898475d
   React-perflogger: 1d2fc82c131d6faf43b5b496b66bd53f1153ce2e
@@ -1951,7 +1951,7 @@ SPEC CHECKSUMS:
   ReactCommon: ef34cd62c224adf5f330016e238261fc36961008
   ReactNativeDependencies: 71ce9c28beb282aa720ea7b46980fff9669f428a
   RNScreens: eba831f92a65fda13b81939e5a7011a2c4668f1b
-  Viafoura: 46ca7e115abd8586f05ffccf6275919dc3d23eab
+  Viafoura: cfb46d472d76f36ad05c0985a30444de94722341
   Yoga: 728df40394d49f3f471688747cf558158b3a3bd1
 
 PODFILE CHECKSUM: a5aeecee5f0345c6d31b701574aaf55a84320a8a
