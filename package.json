@@ -1,6 +1,6 @@
 {
   "name": "@viafoura/sdk-react-native",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "viafoura": {
     "iosSdkVersion": "1.3.8"
   },
