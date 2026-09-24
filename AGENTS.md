@@ -24,8 +24,8 @@ When you change install, linking or build requirements, also check:
 - **`README.md` → Requirements / Install** — both the bare React Native and the
   Expo path. This package supports both; documentation that covers only one is
   incomplete.
-- **`.github/workflows/build.yml`** — CI smoke tests both integration paths. A
-  new native requirement usually means a new CI step.
+- **`.github/workflows/build.yml`** — CI builds both sample apps from the packed
+  tarball. A new native requirement usually means a new CI step.
 
 If a change is deliberately undocumented (internal refactor, no consumer-visible
 effect), say so in the commit message so the omission reads as a decision.
@@ -75,7 +75,8 @@ Compiling is not evidence that it works. Before calling native work done:
 
 1. `npm run build && npm run lint`
 2. Build **both** sample apps, both platforms — `examples/bare` and
-   `examples/expo`. CI does this on every PR.
+   `examples/expo`. CI does this on every PR, installing the packed tarball
+   into each sample so the `files` whitelist is exercised too.
 3. **Run it.** Launch at least one app and confirm the view renders and the
    native modules resolve at runtime. Duplicate-React errors, missing view
    managers and initialization crashes are invisible to the compiler.
