@@ -61,6 +61,18 @@ same `ViafouraSDK.xcframework`, and CocoaPods refuses to install both:
 [!] The '<YourApp>' target has frameworks with conflicting names: viafourasdk.xcframework.
 ```
 
+## Examples
+
+Two sample apps live in this repository and consume the package from source:
+
+| | |
+| --- | --- |
+| [`examples/bare`](examples/bare) | Bare React Native app (React Native CLI) |
+| [`examples/expo`](examples/expo) | Expo app using prebuild |
+
+Run `npm install` at the repository root first, then follow the README in the
+sample's directory.
+
 ## Platform support
 
 | Export | iOS | Android |

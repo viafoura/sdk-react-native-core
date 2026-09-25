@@ -10,7 +10,6 @@ concurrency:
 
 env:
   NODE_VERSION: 20.19.4
-  RN_VERSION: 0.81.5
 
 jobs:
   build:
@@ -39,16 +38,17 @@ jobs:
       - name: Build
         run: npm run build
 
-  # The package is a classic React Native module, so it has to autolink in a bare
-  # React Native app and in an Expo prebuild app. Both are smoke tested.
-  android-native:
+  # The sample apps are the smoke test for both integration paths: the packed
+  # tarball is installed into each of them in place of the file:../.. link, so
+  # the compiled artifact is exactly what gets published.
+  examples-android:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        app: [expo, bare]
+        app: [bare, expo]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,6 +58,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            examples/${{ matrix.app }}/package-lock.json
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -68,28 +71,22 @@ jobs:
       - name: Package module
         run: |
           npm ci
-          npm run build
           mkdir -p /tmp/viafoura-package
           npm pack --pack-destination /tmp/viafoura-package
 
-      - name: Create ${{ matrix.app }} smoke app
+      - name: Install example with the packed module
+        working-directory: examples/${{ matrix.app }}
         run: |
-          set -euo pipefail
-          if [ "${{ matrix.app }}" = "expo" ]; then
-            npx create-expo-app@latest /tmp/smoke --template blank-typescript --yes
-            cd /tmp/smoke
-            npm install /tmp/viafoura-package/*.tgz
-            npx expo prebuild --platform android --non-interactive
-          else
-            npx @react-native-community/cli@latest init ViafouraSmoke \
-              --directory /tmp/smoke --version "$RN_VERSION" --skip-install --skip-git-init
-            cd /tmp/smoke
-            npm install
-            npm install /tmp/viafoura-package/*.tgz
-          fi
+          npm ci
+          npm install --no-save /tmp/viafoura-package/*.tgz
+
+      - name: Prebuild
+        if: matrix.app == 'expo'
+        working-directory: examples/expo
+        run: npx expo prebuild --platform android --non-interactive --no-install
 
       - name: Verify autolinking picked up the module
-        working-directory: /tmp/smoke
+        working-directory: examples/${{ matrix.app }}
         run: |
           set -euo pipefail
           if [ "${{ matrix.app }}" = "expo" ]; then
@@ -110,17 +107,23 @@ jobs:
           '
 
       - name: Compile Android
-        working-directory: /tmp/smoke/android
+        working-directory: examples/${{ matrix.app }}/android
         run: ./gradlew assembleDebug --no-daemon
 
-  ios-native:
+  examples-ios:
     runs-on: macos-26
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        app: [expo, bare]
+        include:
+          - app: bare
+            workspace: ViafouraDemo.xcworkspace
+            scheme: sdk
+          - app: expo
+            workspace: ViafouraExpoSampleApp.xcworkspace
+            scheme: ViafouraExpoSampleApp
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -135,39 +138,36 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            examples/${{ matrix.app }}/package-lock.json
 
       - name: Package module
         run: |
           npm ci
-          npm run build
           mkdir -p /tmp/viafoura-package
           npm pack --pack-destination /tmp/viafoura-package
 
-      - name: Create ${{ matrix.app }} smoke app
+      - name: Install example with the packed module
+        working-directory: examples/${{ matrix.app }}
         run: |
-          set -euo pipefail
-          if [ "${{ matrix.app }}" = "expo" ]; then
-            npx create-expo-app@latest /tmp/smoke --template blank-typescript --yes
-            cd /tmp/smoke
-            npm install /tmp/viafoura-package/*.tgz
-            npx expo prebuild --platform ios --non-interactive
-          else
-            npx @react-native-community/cli@latest init ViafouraSmoke \
-              --directory /tmp/smoke --version "$RN_VERSION" --skip-install --skip-git-init
-            cd /tmp/smoke
-            npm install
-            npm install /tmp/viafoura-package/*.tgz
-          fi
+          npm ci
+          npm install --no-save /tmp/viafoura-package/*.tgz
+
+      - name: Prebuild
+        if: matrix.app == 'expo'
+        working-directory: examples/expo
+        run: npx expo prebuild --platform ios --non-interactive --no-install
 
       - name: Install pods
-        working-directory: /tmp/smoke/ios
+        working-directory: examples/${{ matrix.app }}/ios
         # RCT_USE_RN_DEP makes CocoaPods use React Native's prebuilt dependency
         # artifacts. Built from source, fmt 11.0.2 (pinned by RCT-Folly) fails to
         # compile under Xcode 26. Expo prebuild already defaults to the artifacts.
         run: RCT_USE_RN_DEP=1 pod install --repo-update
 
       - name: Verify the module pod installed
-        working-directory: /tmp/smoke/ios
+        working-directory: examples/${{ matrix.app }}/ios
         run: |
           set -euo pipefail
           if ! grep -qE '^  - Viafoura \(' Podfile.lock; then
@@ -177,20 +177,11 @@ jobs:
           echo "Viafoura pod installed"
 
       - name: Compile iOS
-        working-directory: /tmp/smoke/ios
+        working-directory: examples/${{ matrix.app }}/ios
         run: |
-          set -euo pipefail
-          WORKSPACE=$(find . -maxdepth 1 -name "*.xcworkspace" -print -quit)
-          SCHEME=Viafoura
-
-          if ! xcodebuild -list -json -workspace "$WORKSPACE" | ruby -rjson -e 'exit JSON.parse(STDIN.read).dig("workspace", "schemes").include?(ARGV[0]) ? 0 : 1' "$SCHEME"; then
-            echo "::error::Scheme '$SCHEME' not found in $WORKSPACE; the module pod did not install."
-            exit 1
-          fi
-
           xcodebuild \
-            -workspace "$WORKSPACE" \
-            -scheme "$SCHEME" \
+            -workspace "${{ matrix.workspace }}" \
+            -scheme "${{ matrix.scheme }}" \
             -configuration Debug \
             -sdk iphonesimulator \
             -destination "generic/platform=iOS Simulator" \

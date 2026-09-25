@@ -24,8 +24,8 @@ When you change install, linking or build requirements, also check:
 - **`README.md` → Requirements / Install** — both the bare React Native and the
   Expo path. This package supports both; documentation that covers only one is
   incomplete.
-- **`.github/workflows/build.yml`** — CI smoke tests both integration paths. A
-  new native requirement usually means a new CI step.
+- **`.github/workflows/build.yml`** — CI builds both sample apps from the packed
+  tarball. A new native requirement usually means a new CI step.
 
 If a change is deliberately undocumented (internal refactor, no consumer-visible
 effect), say so in the commit message so the omission reads as a decision.
@@ -53,6 +53,15 @@ Layout:
 | `ios/` | Swift views + `RCTViewManager` subclasses, exported via `RCT_EXTERN_MODULE` in the `.m` files |
 | `android/src/main/java/com/viafoura/reactnative/` | Kotlin views + `ViewManager`s, registered in `ViafouraPackage.kt` |
 | `Viafoura.podspec` | Must stay at the package root — iOS autolinking ignores `podspecPath` in `react-native.config.js` |
+| `examples/bare/` | Bare React Native sample app |
+| `examples/expo/` | Expo (prebuild) sample app; `ios/` and `android/` are generated, not committed |
+
+Both samples depend on `"@viafoura/sdk-react-native": "file:../.."`, so they
+always run the source in this checkout. Their `metro.config.js` watches the
+repository root and disables hierarchical lookup so `react` resolves from the
+sample's `node_modules` only — the symlinked package would otherwise pull the
+root's copy in as well and every hook would throw. Run `npm install` at the
+root before a sample: it builds `build/` and fetches the iOS xcframework.
 
 A view manager class named `FooManager` exports the component as `Foo`: React
 Native strips the `Manager` suffix, and that is also what makes the class work
@@ -65,8 +74,9 @@ differ from the JavaScript prop.
 Compiling is not evidence that it works. Before calling native work done:
 
 1. `npm run build && npm run lint`
-2. Build **both** sample apps, both platforms — `sdk-react-native` (bare) and
-   `sdk-react-native-expo` (Expo).
+2. Build **both** sample apps, both platforms — `examples/bare` and
+   `examples/expo`. CI does this on every PR, installing the packed tarball
+   into each sample so the `files` whitelist is exercised too.
 3. **Run it.** Launch at least one app and confirm the view renders and the
    native modules resolve at runtime. Duplicate-React errors, missing view
    managers and initialization crashes are invisible to the compiler.

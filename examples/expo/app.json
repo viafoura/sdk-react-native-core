@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Viafoura Expo Sample App",
+    "slug": "viafoura",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/viafoura-icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/viafoura-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.martindesimoneunicity.example"
+    },
+    "android": {
+      "icon": "./assets/viafoura-icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/viafoura-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.martindesimoneunicity.example"
+    },
+    "web": {
+      "favicon": "./assets/viafoura-icon.png"
+    },
+    "plugins": [
+      "expo-asset"
+    ]
+  }
+}
