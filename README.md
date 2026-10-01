@@ -231,6 +231,29 @@ Props are read when the session is created, so changing `containerId`,
 `sectionUUID`, `limit` or `replyLimit` later has no effect until the view
 remounts. `darkMode` and `theme` do apply live.
 
+### Composer
+
+Asking a question, replying, or answering opens the SDK's Live Q&A composer. The
+view presents it natively on both platforms (a modal on iOS, a bottom sheet on
+Android) using the same `colors`, `fonts`, `theme`, and `sectionUUID` as the
+session, so there is nothing to wire up. There is no separate composer component.
+
+Before the composer opens, `onAction` fires with `type: 'writeNewQuestionPressed'`
+and an `actionType` of `question`, `reply`, or `answer`. For replies and answers
+`content` carries the UUID of the question being responded to. Actions the
+composer reports while open, such as `authPressed` when a guest tries to post,
+are forwarded through the same `onAction` and `onAuthNeeded` callbacks.
+
+### Customizing Live Q&A views
+
+`ViafouraCustomUI.setCustomUIStyle` accepts every `liveQuestion*` name listed in
+`CustomUIViewType`: the question cells (`liveQuestionCell*`), the host list
+(`liveQuestionsHost*`), the inline "Ask a question" prompt
+(`liveQuestionComposer*`), and the header (`liveQuestionTitleLabel`,
+`liveQuestionStatus*`, `liveQuestionBackgroundView`, `liveQuestionPoweredByView`).
+The names match on both platforms except `liveQuestionsHostCellBadgePillView` and
+`liveQuestionsHostsListBackgroundView`, which exist on iOS only.
+
 ## Ads
 
 `PreviewCommentsView` can interleave ads into the comment list. Ads are rendered by React,

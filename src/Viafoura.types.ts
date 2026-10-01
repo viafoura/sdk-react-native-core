@@ -189,6 +189,42 @@ export const IOSCustomUIViewType = {
   notificationGroupTitleLabel: 'notificationGroupTitleLabel',
   notificationBellText: 'notificationBellText',
   notificationBellIcon: 'notificationBellIcon',
+  liveQuestionCellUserAvatar: 'liveQuestionCellUserAvatar',
+  liveQuestionCellUserImage: 'liveQuestionCellUserImage',
+  liveQuestionCellUserNameLabel: 'liveQuestionCellUserNameLabel',
+  liveQuestionCellDateLabel: 'liveQuestionCellDateLabel',
+  liveQuestionCellContentLabel: 'liveQuestionCellContentLabel',
+  liveQuestionCellLikeButton: 'liveQuestionCellLikeButton',
+  liveQuestionCellLikeLabel: 'liveQuestionCellLikeLabel',
+  liveQuestionCellDislikeButton: 'liveQuestionCellDislikeButton',
+  liveQuestionCellDislikeLabel: 'liveQuestionCellDislikeLabel',
+  liveQuestionCellReplyButton: 'liveQuestionCellReplyButton',
+  liveQuestionCellOptionsButton: 'liveQuestionCellOptionsButton',
+  liveQuestionCellReplyingToLabel: 'liveQuestionCellReplyingToLabel',
+  liveQuestionCellPinnedView: 'liveQuestionCellPinnedView',
+  liveQuestionCellHostPillView: 'liveQuestionCellHostPillView',
+  liveQuestionCellSeparator: 'liveQuestionCellSeparator',
+  liveQuestionCellAnnouncementLabel: 'liveQuestionCellAnnouncementLabel',
+  liveQuestionCellAnnouncementIcon: 'liveQuestionCellAnnouncementIcon',
+  liveQuestionCellAnnouncementBackground: 'liveQuestionCellAnnouncementBackground',
+  liveQuestionCellAnswerLabel: 'liveQuestionCellAnswerLabel',
+  liveQuestionCellAnswerIcon: 'liveQuestionCellAnswerIcon',
+  liveQuestionCellAnswerBackground: 'liveQuestionCellAnswerBackground',
+  liveQuestionsHostCellNameLabel: 'liveQuestionsHostCellNameLabel',
+  liveQuestionsHostCellBadgeLabel: 'liveQuestionsHostCellBadgeLabel',
+  liveQuestionsHostCellBadgePillView: 'liveQuestionsHostCellBadgePillView',
+  liveQuestionsHostCellContainerView: 'liveQuestionsHostCellContainerView',
+  liveQuestionsHostsListBackgroundView: 'liveQuestionsHostsListBackgroundView',
+  liveQuestionComposerUserAvatar: 'liveQuestionComposerUserAvatar',
+  liveQuestionComposerUserImage: 'liveQuestionComposerUserImage',
+  liveQuestionComposerHintLabel: 'liveQuestionComposerHintLabel',
+  liveQuestionComposerPillView: 'liveQuestionComposerPillView',
+  liveQuestionTitleLabel: 'liveQuestionTitleLabel',
+  liveQuestionPoweredByView: 'liveQuestionPoweredByView',
+  liveQuestionBackgroundView: 'liveQuestionBackgroundView',
+  liveQuestionStatusChipView: 'liveQuestionStatusChipView',
+  liveQuestionStatusDotView: 'liveQuestionStatusDotView',
+  liveQuestionStatusLabel: 'liveQuestionStatusLabel',
 } as const;
 
 export type IOSCustomViewType = (typeof IOSCustomUIViewType)[keyof typeof IOSCustomUIViewType];
@@ -331,6 +367,40 @@ export const AndroidCustomUIViewType = {
   reportChosenCancelLabel: 'reportChosenCancelLabel',
   reportThanksLabel: 'reportThanksLabel',
   reportThanksButton: 'reportThanksButton',
+  liveQuestionCellUserAvatar: 'liveQuestionCellUserAvatar',
+  liveQuestionCellUserImage: 'liveQuestionCellUserImage',
+  liveQuestionCellUserNameLabel: 'liveQuestionCellUserNameLabel',
+  liveQuestionCellDateLabel: 'liveQuestionCellDateLabel',
+  liveQuestionCellContentLabel: 'liveQuestionCellContentLabel',
+  liveQuestionCellLikeButton: 'liveQuestionCellLikeButton',
+  liveQuestionCellLikeLabel: 'liveQuestionCellLikeLabel',
+  liveQuestionCellDislikeButton: 'liveQuestionCellDislikeButton',
+  liveQuestionCellDislikeLabel: 'liveQuestionCellDislikeLabel',
+  liveQuestionCellReplyButton: 'liveQuestionCellReplyButton',
+  liveQuestionCellOptionsButton: 'liveQuestionCellOptionsButton',
+  liveQuestionCellReplyingToLabel: 'liveQuestionCellReplyingToLabel',
+  liveQuestionCellPinnedView: 'liveQuestionCellPinnedView',
+  liveQuestionCellHostPillView: 'liveQuestionCellHostPillView',
+  liveQuestionCellSeparator: 'liveQuestionCellSeparator',
+  liveQuestionCellAnnouncementLabel: 'liveQuestionCellAnnouncementLabel',
+  liveQuestionCellAnnouncementIcon: 'liveQuestionCellAnnouncementIcon',
+  liveQuestionCellAnnouncementBackground: 'liveQuestionCellAnnouncementBackground',
+  liveQuestionCellAnswerLabel: 'liveQuestionCellAnswerLabel',
+  liveQuestionCellAnswerIcon: 'liveQuestionCellAnswerIcon',
+  liveQuestionCellAnswerBackground: 'liveQuestionCellAnswerBackground',
+  liveQuestionsHostCellNameLabel: 'liveQuestionsHostCellNameLabel',
+  liveQuestionsHostCellBadgeLabel: 'liveQuestionsHostCellBadgeLabel',
+  liveQuestionsHostCellContainerView: 'liveQuestionsHostCellContainerView',
+  liveQuestionComposerUserAvatar: 'liveQuestionComposerUserAvatar',
+  liveQuestionComposerUserImage: 'liveQuestionComposerUserImage',
+  liveQuestionComposerHintLabel: 'liveQuestionComposerHintLabel',
+  liveQuestionComposerPillView: 'liveQuestionComposerPillView',
+  liveQuestionTitleLabel: 'liveQuestionTitleLabel',
+  liveQuestionPoweredByView: 'liveQuestionPoweredByView',
+  liveQuestionBackgroundView: 'liveQuestionBackgroundView',
+  liveQuestionStatusChipView: 'liveQuestionStatusChipView',
+  liveQuestionStatusDotView: 'liveQuestionStatusDotView',
+  liveQuestionStatusLabel: 'liveQuestionStatusLabel',
 } as const;
 
 export type AndroidCustomViewType =
@@ -355,7 +425,8 @@ export type ActionCallbackType =
   | 'closeNewCommentPressed'
   | 'closeProfilePressed'
   | 'commentLiked'
-  | 'commentDisliked';
+  | 'commentDisliked'
+  | 'writeNewQuestionPressed';
 
 export type ActionCallbackPayload =
   | {
@@ -409,6 +480,11 @@ export type ActionCallbackPayload =
     }
   | {
       type: 'commentDisliked';
+      content?: string;
+    }
+  | {
+      type: 'writeNewQuestionPressed';
+      actionType?: 'question' | 'reply' | 'answer';
       content?: string;
     };
 
