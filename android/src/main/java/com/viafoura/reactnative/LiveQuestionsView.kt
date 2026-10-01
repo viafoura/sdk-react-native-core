@@ -198,6 +198,9 @@ class LiveQuestionsView(context: Context) :
         questionAction?.content?.toString()?.let { actionPayload["content"] = it }
         questionAction?.let { showComposer(it) }
       }
+      VFActionType.commentPosted, VFActionType.replyPosted -> {
+        action?.contentUUID?.toString()?.let { actionPayload["content"] = it }
+      }
       else -> {}
     }
     onAction(actionPayload)

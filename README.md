@@ -139,7 +139,8 @@ PostScript name on iOS, and the file name under `assets/fonts/` (`.ttf` or
 `.otf`) on Android. Fonts are bundled by the host app, not by this package.
 Bare React Native apps list the directory in `react-native.config.js` under
 `assets` and run `npx react-native-asset`; Expo apps use the `expo-font` config
-plugin. Both sample apps bundle Lora this way.
+plugin. Both sample apps bundle Lora this way; Lora is licensed under the SIL
+Open Font License and its `OFL.txt` sits next to the font files.
 
 Fonts control the family per weight only. Text sizes stay as the SDK defines
 them for each label. A name that does not resolve at runtime falls back to the
@@ -242,7 +243,10 @@ Before the composer opens, `onAction` fires with `type: 'writeNewQuestionPressed
 and an `actionType` of `question`, `reply`, or `answer`. For replies and answers
 `content` carries the UUID of the question being responded to. Actions the
 composer reports while open, such as `authPressed` when a guest tries to post,
-are forwarded through the same `onAction` and `onAuthNeeded` callbacks.
+are forwarded through the same `onAction` and `onAuthNeeded` callbacks. When a
+post succeeds, `onAction` fires with `type: 'commentPosted'` for a new question
+or `type: 'replyPosted'` for a reply or answer, and `content` carries the UUID of
+the posted content on both platforms.
 
 ### Customizing Live Q&A views
 
