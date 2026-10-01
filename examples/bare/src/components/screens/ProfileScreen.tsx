@@ -2,6 +2,7 @@ import React from 'react';
 import { ProfileView } from '@viafoura/sdk-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
+import { viafouraFonts } from '../../fonts';
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -18,6 +19,7 @@ const ProfileScreen = () => {
       userUUID={route.params?.userUUID}
       presentationType={route.params?.presentationType}
       darkMode={false}
+      fonts={viafouraFonts}
       onCloseProfile={() => {
         navigation.goBack();
       }}

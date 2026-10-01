@@ -4,6 +4,7 @@ import { useWindowDimensions } from 'react-native';
 import { LiveQuestionsView } from '@viafoura/sdk-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
+import { viafouraFonts } from '../../fonts';
 
 const LiveQuestionsScreen = () => {
   const navigation = useNavigation();
@@ -22,6 +23,7 @@ const LiveQuestionsScreen = () => {
       title={route.params.title}
       sectionUUID={route.params.sectionUUID}
       darkMode={false}
+      fonts={viafouraFonts}
       onOpenProfile={({ nativeEvent }) => {
         navigation.navigate(Screens.Profile, {
           userUUID: nativeEvent.userUUID,

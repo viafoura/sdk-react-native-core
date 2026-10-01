@@ -116,6 +116,36 @@ ViafouraCustomUI.setCustomUIStyle(viewType, { visibility, backgroundColor }, the
 ViafouraCustomUI.clearCustomUIStyle(viewType, theme?);
 ```
 
+## Fonts
+
+Every view accepts a `fonts` prop next to `colors`. Each key names the font the
+SDK uses for that weight; keys you leave out keep the SDK's bundled Inter fonts.
+
+```tsx
+<PreviewCommentsView
+  {...articleProps}
+  fonts={{
+    fontLight: 'Lora-Regular',
+    fontRegular: 'Lora-Regular',
+    fontMedium: 'Lora-Medium',
+    fontSemibold: 'Lora-SemiBold',
+    fontBold: 'Lora-Bold',
+  }}
+/>
+```
+
+Values follow the same convention as React Native's own `fontFamily`: the
+PostScript name on iOS, and the file name under `assets/fonts/` (`.ttf` or
+`.otf`) on Android. Fonts are bundled by the host app, not by this package.
+Bare React Native apps list the directory in `react-native.config.js` under
+`assets` and run `npx react-native-asset`; Expo apps use the `expo-font` config
+plugin. Both sample apps bundle Lora this way.
+
+Fonts control the family per weight only. Text sizes stay as the SDK defines
+them for each label. A name that does not resolve at runtime falls back to the
+SDK default for that weight. Like `colors`, `fonts` is read when the native view
+is created, so changing it later has no effect until the view remounts.
+
 ## Usage
 
 Initialize the SDK once at app startup (e.g., in `App.tsx` or a bootstrap module):
@@ -192,6 +222,7 @@ import { LiveQuestionsView } from '@viafoura/sdk-react-native';
 | `replyLimit` | `2` | Replies fetched per question. |
 | `darkMode` / `theme` | `light` | `theme` wins when both are set. |
 | `colors` | SDK defaults | Same shape as the other views. |
+| `fonts` | SDK defaults | See [Fonts](#fonts). |
 
 Events: `onHeightChanged`, `onAuthNeeded`, `onOpenProfile`, and `onAction` for the
 full action stream.

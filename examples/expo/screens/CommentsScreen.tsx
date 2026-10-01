@@ -54,6 +54,7 @@ export default function CommentsScreen({ initError, navigation }: CommentsScreen
             articleTitle={viafouraConfig.articleTitle}
             articleThumbnailUrl={viafouraConfig.articleThumbnailUrl}
             colors={{ ...viafouraConfig.colors }}
+            fonts={{ ...viafouraConfig.fonts }}
             onHeightChanged={(event) => {
               const next = event.nativeEvent?.newHeight;
               if (typeof next === 'number' && next > 0) setHeight(next);

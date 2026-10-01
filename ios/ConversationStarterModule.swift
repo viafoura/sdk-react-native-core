@@ -26,6 +26,7 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
     }
   }
   @objc var colors: [String: Any] = [:]
+  @objc var fonts: [String: Any] = [:]
 
   // Events
   @objc var onHeightChanged: RCTDirectEventBlock?
@@ -35,7 +36,6 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
   @objc var onSeeMoreComments: RCTDirectEventBlock?
   @objc var onAction: RCTDirectEventBlock?
   // Internals
-  private let fontBold = UIFont.boldSystemFont(ofSize: 17)
   private weak var conversationStarterViewController: VFConversationStarterViewController?
   private var settings: VFSettings?
   private var articleMetadata: VFArticleMetadata?
@@ -56,8 +56,7 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
       colorPrimaryLight: resolveColor(key: "colorPrimaryLight", fallbackKey: "primaryLight", fallback: UIColor(red: 0.90, green: 0.95, blue: 1.00, alpha: 1.00)),
       colorAvatars: resolveAvatarColors() ?? Constants.AvatarColors.colors
     )
-    let fonts = VFFonts(fontBold: fontBold)
-    settings = VFSettings(colors: colors, fonts: fonts)
+    settings = VFSettings(colors: colors, fonts: resolveVFFonts(fonts))
 
     guard let url = URL(string: articleUrl), let thumb = URL(string: articleThumbnailUrl) else {
       return

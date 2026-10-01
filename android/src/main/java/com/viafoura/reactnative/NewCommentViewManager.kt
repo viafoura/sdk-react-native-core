@@ -72,4 +72,9 @@ class NewCommentViewManager : SimpleViewManager<NewCommentView>() {
   fun setColors(view: NewCommentView, value: ReadableMap?) {
     view.colors = value?.toHashMap()
   }
+
+  @ReactProp(name = "fonts")
+  fun setFonts(view: NewCommentView, value: ReadableMap?) {
+    view.fonts = value?.toHashMap()
+  }
 }

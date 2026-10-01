@@ -80,4 +80,9 @@ class ConversationStarterViewManager : SimpleViewManager<ConversationStarterView
   fun setColors(view: ConversationStarterView, value: ReadableMap?) {
     view.colors = value?.toHashMap()
   }
+
+  @ReactProp(name = "fonts")
+  fun setFonts(view: ConversationStarterView, value: ReadableMap?) {
+    view.fonts = value?.toHashMap()
+  }
 }

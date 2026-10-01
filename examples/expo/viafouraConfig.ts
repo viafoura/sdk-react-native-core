@@ -11,6 +11,13 @@ export const viafouraConfig = {
     colorPrimary: '#1D5EFF',
     colorPrimaryLight: '#E8F0FF',
   },
+  fonts: {
+    fontLight: 'Lora-Regular',
+    fontRegular: 'Lora-Regular',
+    fontMedium: 'Lora-Medium',
+    fontSemibold: 'Lora-SemiBold',
+    fontBold: 'Lora-Bold',
+  },
 } as const;
 
 export const demoUserUUID = '00000000-0000-4000-8000-000000000000';

@@ -16,6 +16,7 @@ export default function ProfileScreen({ route, navigation }: ProfileScreenProps)
           userUUID={route.params.userUUID}
           presentationType={route.params.presentationType}
           colors={{ ...viafouraConfig.colors }}
+          fonts={{ ...viafouraConfig.fonts }}
           onAuthNeeded={() => {
             navigation.navigate('Login', { reason: 'Sign in to view profiles.' });
           }}

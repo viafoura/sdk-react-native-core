@@ -3,6 +3,7 @@ import React from 'react';
 import { NewCommentView } from '@viafoura/sdk-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
+import { viafouraFonts } from '../../fonts';
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -21,6 +22,7 @@ const NewCommentScreen = () => {
       articleSubtitle={route.params?.articleDesc}
       articleUrl={route.params?.articleUrl}
       darkMode={true}
+      fonts={viafouraFonts}
       articleThumbnailUrl={route.params?.articleThumbnailUrl}
       newCommentActionType={route.params?.newCommentActionType}
       content={route.params?.content}

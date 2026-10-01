@@ -46,6 +46,7 @@ class LiveQuestionsView(context: Context) :
       applyThemeIfReady()
     }
   var colors: Map<String, Any?>? = null
+  var fonts: Map<String, Any?>? = null
 
   // Events
   private val onHeightChanged by viafouraEvent()
@@ -106,7 +107,8 @@ class LiveQuestionsView(context: Context) :
         URL(requireNotNull(articleThumbnailUrl))
       )
       val settings = VFSettings(
-        resolveVFColors(colors, resolvedTheme)
+        resolveVFColors(colors, resolvedTheme),
+        resolveVFFonts(context, fonts)
       )
 
       val builder = VFLiveQuestionsFragmentBuilder(requireNotNull(containerId), meta, settings)

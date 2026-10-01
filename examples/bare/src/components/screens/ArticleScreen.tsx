@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
+import { viafouraFonts } from '../../fonts';
 
 const ArticleScreen = () => {
   const navigation = useNavigation();
@@ -23,6 +24,7 @@ const ArticleScreen = () => {
         articleUrl={route.params.articleUrl}
         articleThumbnailUrl={route.params.articleThumbnailUrl}
         darkMode={false}
+        fonts={viafouraFonts}
         onHeightChanged={({ nativeEvent }) => {
           if (nativeEvent.containerId === route.params.containerId) {
             setCommentsHeight(nativeEvent.newHeight);

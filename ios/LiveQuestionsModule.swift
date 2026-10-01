@@ -28,6 +28,7 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
     }
   }
   @objc var colors: [String: Any] = [:]
+  @objc var fonts: [String: Any] = [:]
 
   // Events
   @objc var onHeightChanged: RCTDirectEventBlock?
@@ -36,7 +37,6 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
   @objc var onAction: RCTDirectEventBlock?
 
   // Internals
-  private let fontBold = UIFont.boldSystemFont(ofSize: 17)
   private weak var liveQuestionsViewController: VFLiveQuestionsViewController?
   private var settings: VFSettings?
   private var articleMetadata: VFArticleMetadata?
@@ -57,8 +57,7 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
       colorPrimaryLight: resolveColor(key: "colorPrimaryLight", fallbackKey: "primaryLight", fallback: UIColor(red: 0.90, green: 0.95, blue: 1.00, alpha: 1.00)),
       colorAvatars: resolveAvatarColors() ?? Constants.AvatarColors.colors
     )
-    let fonts = VFFonts(fontBold: fontBold)
-    settings = VFSettings(colors: colors, fonts: fonts)
+    settings = VFSettings(colors: colors, fonts: resolveVFFonts(fonts))
 
     guard let url = URL(string: articleUrl), let thumb = URL(string: articleThumbnailUrl) else {
       return

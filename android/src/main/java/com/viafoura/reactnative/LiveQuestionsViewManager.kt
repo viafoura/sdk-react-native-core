@@ -87,4 +87,9 @@ class LiveQuestionsViewManager : SimpleViewManager<LiveQuestionsView>() {
   fun setColors(view: LiveQuestionsView, value: ReadableMap?) {
     view.colors = value?.toHashMap()
   }
+
+  @ReactProp(name = "fonts")
+  fun setFonts(view: LiveQuestionsView, value: ReadableMap?) {
+    view.fonts = value?.toHashMap()
+  }
 }

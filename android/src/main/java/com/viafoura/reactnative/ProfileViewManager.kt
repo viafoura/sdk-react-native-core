@@ -37,4 +37,9 @@ class ProfileViewManager : SimpleViewManager<ProfileView>() {
   fun setColors(view: ProfileView, value: ReadableMap?) {
     view.colors = value?.toHashMap()
   }
+
+  @ReactProp(name = "fonts")
+  fun setFonts(view: ProfileView, value: ReadableMap?) {
+    view.fonts = value?.toHashMap()
+  }
 }

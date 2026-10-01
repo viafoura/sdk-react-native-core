@@ -24,6 +24,14 @@ export type ViafouraColors = {
   colorAvatars?: string[];
 };
 
+export type ViafouraFonts = {
+  fontLight?: string;
+  fontRegular?: string;
+  fontMedium?: string;
+  fontSemibold?: string;
+  fontBold?: string;
+};
+
 export const CustomUIVisibility = {
   Visible: 'visible',
   Hidden: 'hidden',
@@ -448,6 +456,7 @@ export type PreviewCommentsViewProps = {
   darkMode?: boolean;
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;
+  fonts?: ViafouraFonts;
   onHeightChanged?: (event: { nativeEvent: PreviewCommentsHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: PreviewCommentsAuthNeededPayload }) => void;
   onOpenProfile?: (event: { nativeEvent: PreviewCommentsOpenProfilePayload }) => void;
@@ -472,6 +481,7 @@ export type ProfileViewProps = {
   darkMode?: boolean;
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;
+  fonts?: ViafouraFonts;
   onAuthNeeded?: (event: { nativeEvent: ProfileAuthNeededPayload }) => void;
   onCloseProfile?: (event: { nativeEvent: Record<string, never> }) => void;
   onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
@@ -493,6 +503,7 @@ export type NewCommentViewProps = {
   darkMode?: boolean;
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;
+  fonts?: ViafouraFonts;
   onHeightChanged?: (event: { nativeEvent: NewCommentHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: NewCommentAuthNeededPayload }) => void;
   onCloseNewComment?: (event: { nativeEvent: Record<string, never> }) => void;
@@ -518,6 +529,7 @@ export type ConversationStarterViewProps = {
   darkMode?: boolean;
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;
+  fonts?: ViafouraFonts;
   onHeightChanged?: (event: { nativeEvent: ConversationStarterHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: ConversationStarterAuthNeededPayload }) => void;
   onOpenProfile?: (event: { nativeEvent: ConversationStarterOpenProfilePayload }) => void;
@@ -556,6 +568,7 @@ export type LiveQuestionsViewProps = {
   darkMode?: boolean;
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;
+  fonts?: ViafouraFonts;
   onHeightChanged?: (event: { nativeEvent: LiveQuestionsHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: LiveQuestionsAuthNeededPayload }) => void;
   onOpenProfile?: (event: { nativeEvent: LiveQuestionsOpenProfilePayload }) => void;

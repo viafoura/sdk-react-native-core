@@ -48,6 +48,7 @@ class NewCommentView(context: Context) :
       applyThemeIfReady()
     }
   var colors: Map<String, Any?>? = null
+  var fonts: Map<String, Any?>? = null
 
   // Events
   private val onAuthNeeded by viafouraEvent()
@@ -115,7 +116,8 @@ class NewCommentView(context: Context) :
         URL(requireNotNull(articleThumbnailUrl))
       )
       val settings = VFSettings(
-        resolveVFColors(colors, resolvedTheme)
+        resolveVFColors(colors, resolvedTheme),
+        resolveVFFonts(context, fonts)
       )
 
       val type = when (newCommentActionType) {
