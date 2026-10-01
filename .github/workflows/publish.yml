@@ -1,18 +1,22 @@
 name: Publish to npm
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
 
 jobs:
   publish:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -52,7 +56,9 @@ jobs:
         with:
           tag_name: v${{ steps.check.outputs.version }}
           name: v${{ steps.check.outputs.version }}
-          generate_release_notes: true
+          target_commitish: ${{ github.event.pull_request.merge_commit_sha }}
+          body: ${{ github.event.pull_request.body }}
+          generate_release_notes: ${{ github.event.pull_request.body == '' }}
 
       - name: Trigger slack Notification on success
         if: success() && steps.check.outputs.publish == 'true'
