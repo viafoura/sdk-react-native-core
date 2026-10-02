@@ -81,6 +81,7 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
     }
   }
   @objc var colors: [String: Any] = [:]
+  @objc var fonts: [String: Any] = [:]
   @objc var adInterval: Int = 0
   @objc var firstAdPosition: Int = 2
 
@@ -93,7 +94,6 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
   @objc var onAction: RCTDirectEventBlock?
   @objc var onAdSlotRequested: RCTDirectEventBlock?
   // Internals
-  let fontBold = UIFont.boldSystemFont(ofSize: 17)
   weak var previewCommentsViewController: VFPreviewCommentsViewController?
   var settings: VFSettings?
   var articleMetadata: VFArticleMetadata?
@@ -116,8 +116,7 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
       colorPrimaryLight: resolveColor(key: "colorPrimaryLight", fallbackKey: "primaryLight", fallback: UIColor(red: 0.90, green: 0.95, blue: 1.00, alpha: 1.00)),
       colorAvatars: resolveAvatarColors() ?? Constants.AvatarColors.colors
     )
-    let fonts = VFFonts(fontBold: fontBold)
-    settings = VFSettings(colors: colors, fonts: fonts)
+    settings = VFSettings(colors: colors, fonts: resolveVFFonts(fonts))
 
     guard let url = URL(string: articleUrl), let thumb = URL(string: articleThumbnailUrl) else {
       return

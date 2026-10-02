@@ -48,6 +48,7 @@ class PreviewCommentsView(context: Context) :
       applyThemeIfReady()
     }
   var colors: Map<String, Any?>? = null
+  var fonts: Map<String, Any?>? = null
   var adInterval: Int = 0
   var firstAdPosition: Int = 2
 
@@ -128,7 +129,8 @@ class PreviewCommentsView(context: Context) :
         URL(requireNotNull(articleThumbnailUrl))
       )
       val settings = VFSettings(
-        resolveVFColors(colors, resolvedTheme)
+        resolveVFColors(colors, resolvedTheme),
+        resolveVFFonts(context, fonts)
       )
 
       val builder = VFPreviewCommentsFragmentBuilder(requireNotNull(containerId), meta, settings)

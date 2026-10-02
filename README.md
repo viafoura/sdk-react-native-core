@@ -116,6 +116,37 @@ ViafouraCustomUI.setCustomUIStyle(viewType, { visibility, backgroundColor }, the
 ViafouraCustomUI.clearCustomUIStyle(viewType, theme?);
 ```
 
+## Fonts
+
+Every view accepts a `fonts` prop next to `colors`. Each key names the font the
+SDK uses for that weight; keys you leave out keep the SDK's bundled Inter fonts.
+
+```tsx
+<PreviewCommentsView
+  {...articleProps}
+  fonts={{
+    fontLight: 'Lora-Regular',
+    fontRegular: 'Lora-Regular',
+    fontMedium: 'Lora-Medium',
+    fontSemibold: 'Lora-SemiBold',
+    fontBold: 'Lora-Bold',
+  }}
+/>
+```
+
+Values follow the same convention as React Native's own `fontFamily`: the
+PostScript name on iOS, and the file name under `assets/fonts/` (`.ttf` or
+`.otf`) on Android. Fonts are bundled by the host app, not by this package.
+Bare React Native apps list the directory in `react-native.config.js` under
+`assets` and run `npx react-native-asset`; Expo apps use the `expo-font` config
+plugin. Both sample apps bundle Lora this way; Lora is licensed under the SIL
+Open Font License and its `OFL.txt` sits next to the font files.
+
+Fonts control the family per weight only. Text sizes stay as the SDK defines
+them for each label. A name that does not resolve at runtime falls back to the
+SDK default for that weight. Like `colors`, `fonts` is read when the native view
+is created, so changing it later has no effect until the view remounts.
+
 ## Usage
 
 Initialize the SDK once at app startup (e.g., in `App.tsx` or a bootstrap module):
@@ -192,6 +223,7 @@ import { LiveQuestionsView } from '@viafoura/sdk-react-native';
 | `replyLimit` | `2` | Replies fetched per question. |
 | `darkMode` / `theme` | `light` | `theme` wins when both are set. |
 | `colors` | SDK defaults | Same shape as the other views. |
+| `fonts` | SDK defaults | See [Fonts](#fonts). |
 
 Events: `onHeightChanged`, `onAuthNeeded`, `onOpenProfile`, and `onAction` for the
 full action stream.
@@ -199,6 +231,32 @@ full action stream.
 Props are read when the session is created, so changing `containerId`,
 `sectionUUID`, `limit` or `replyLimit` later has no effect until the view
 remounts. `darkMode` and `theme` do apply live.
+
+### Composer
+
+Asking a question, replying, or answering opens the SDK's Live Q&A composer. The
+view presents it natively on both platforms (a modal on iOS, a bottom sheet on
+Android) using the same `colors`, `fonts`, `theme`, and `sectionUUID` as the
+session, so there is nothing to wire up. There is no separate composer component.
+
+Before the composer opens, `onAction` fires with `type: 'writeNewQuestionPressed'`
+and an `actionType` of `question`, `reply`, or `answer`. For replies and answers
+`content` carries the UUID of the question being responded to. Actions the
+composer reports while open, such as `authPressed` when a guest tries to post,
+are forwarded through the same `onAction` and `onAuthNeeded` callbacks. When a
+post succeeds, `onAction` fires with `type: 'commentPosted'` for a new question
+or `type: 'replyPosted'` for a reply or answer, and `content` carries the UUID of
+the posted content on both platforms.
+
+### Customizing Live Q&A views
+
+`ViafouraCustomUI.setCustomUIStyle` accepts every `liveQuestion*` name listed in
+`CustomUIViewType`: the question cells (`liveQuestionCell*`), the host list
+(`liveQuestionsHost*`), the inline "Ask a question" prompt
+(`liveQuestionComposer*`), and the header (`liveQuestionTitleLabel`,
+`liveQuestionStatus*`, `liveQuestionBackgroundView`, `liveQuestionPoweredByView`).
+The names match on both platforms except `liveQuestionsHostCellBadgePillView` and
+`liveQuestionsHostsListBackgroundView`, which exist on iOS only.
 
 ## Ads
 

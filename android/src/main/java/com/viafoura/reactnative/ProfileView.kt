@@ -39,6 +39,7 @@ class ProfileView(context: Context) :
       applyThemeIfReady()
     }
   var colors: Map<String, Any?>? = null
+  var fonts: Map<String, Any?>? = null
 
   // Events
   private val onAuthNeeded by viafouraEvent()
@@ -99,7 +100,8 @@ class ProfileView(context: Context) :
     try {
       val resolvedTheme = resolveTheme()
       val settings = VFSettings(
-        resolveVFColors(colors, resolvedTheme)
+        resolveVFColors(colors, resolvedTheme),
+        resolveVFFonts(context, fonts)
       )
 
       val pres = when (presentationType) {

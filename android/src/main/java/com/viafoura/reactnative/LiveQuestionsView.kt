@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentContainerView
 import com.facebook.react.views.view.ReactViewGroup
 
 import com.viafourasdk.src.fragments.base.VFFragment
+import com.viafourasdk.src.fragments.livequestions.VFLiveQuestionsComposerFragment
 import com.viafourasdk.src.fragments.livequestions.VFLiveQuestionsFragment
 import com.viafourasdk.src.fragments.livequestions.VFLiveQuestionsFragmentBuilder
 import com.viafourasdk.src.interfaces.VFActionsInterface
@@ -15,10 +16,12 @@ import com.viafourasdk.src.interfaces.VFCustomUIInterface
 import com.viafourasdk.src.interfaces.VFLayoutInterface
 import com.viafourasdk.src.model.local.VFActionData
 import com.viafourasdk.src.model.local.VFActionType
+import com.viafourasdk.src.model.local.VFNewQuestionAction
 import com.viafourasdk.src.model.local.VFArticleMetadata
 import com.viafourasdk.src.model.local.VFSettings
 import com.viafourasdk.src.model.local.VFTheme
 import java.net.URL
+import java.util.UUID
 
 class LiveQuestionsView(context: Context) :
   ReactViewGroup(context), VFCustomUIInterface, VFActionsInterface, VFLayoutInterface {
@@ -46,6 +49,7 @@ class LiveQuestionsView(context: Context) :
       applyThemeIfReady()
     }
   var colors: Map<String, Any?>? = null
+  var fonts: Map<String, Any?>? = null
 
   // Events
   private val onHeightChanged by viafouraEvent()
@@ -60,6 +64,8 @@ class LiveQuestionsView(context: Context) :
   }
 
   private var fragment: VFLiveQuestionsFragment? = null
+  private var articleMetadata: VFArticleMetadata? = null
+  private var settings: VFSettings? = null
 
   private val measureAndLayout = Runnable {
     measure(
@@ -106,8 +112,12 @@ class LiveQuestionsView(context: Context) :
         URL(requireNotNull(articleThumbnailUrl))
       )
       val settings = VFSettings(
-        resolveVFColors(colors, resolvedTheme)
+        resolveVFColors(colors, resolvedTheme),
+        resolveVFFonts(context, fonts)
       )
+
+      articleMetadata = meta
+      this.settings = settings
 
       val builder = VFLiveQuestionsFragmentBuilder(requireNotNull(containerId), meta, settings)
         .actionsInterface(this)
@@ -182,9 +192,34 @@ class LiveQuestionsView(context: Context) :
         actionPayload["requireLogin"] = true
         onAuthNeeded(mapOf("requireLogin" to true))
       }
+      VFActionType.writeNewQuestionPressed -> {
+        val questionAction = action?.newQuestionAction
+        questionAction?.type?.toString()?.let { actionPayload["actionType"] = it }
+        questionAction?.content?.toString()?.let { actionPayload["content"] = it }
+        questionAction?.let { showComposer(it) }
+      }
+      VFActionType.commentPosted, VFActionType.replyPosted -> {
+        action?.contentUUID?.toString()?.let { actionPayload["content"] = it }
+      }
       else -> {}
     }
     onAction(actionPayload)
+  }
+
+  private fun showComposer(action: VFNewQuestionAction) {
+    val activity = currentActivity() ?: return
+    val meta = articleMetadata ?: return
+    val currentSettings = settings ?: return
+    val id = containerId ?: return
+    val section = sectionUUID?.takeIf { it.isNotEmpty() }?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+    val composer = if (section != null) {
+      VFLiveQuestionsComposerFragment.newInstance(action, id, meta, currentSettings, section)
+    } else {
+      VFLiveQuestionsComposerFragment.newInstance(action, id, meta, currentSettings)
+    }
+    composer.setTheme(resolveTheme())
+    composer.actionsInterface = this
+    composer.show(activity.supportFragmentManager, "${container.id}-composer")
   }
 
   override fun containerHeightUpdated(fragment: VFFragment, containerId: String, height: Int) {

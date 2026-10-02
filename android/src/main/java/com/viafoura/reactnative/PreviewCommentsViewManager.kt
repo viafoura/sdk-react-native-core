@@ -72,6 +72,11 @@ class PreviewCommentsViewManager : ViewGroupManager<PreviewCommentsView>() {
     view.colors = value?.toHashMap()
   }
 
+  @ReactProp(name = "fonts")
+  fun setFonts(view: PreviewCommentsView, value: com.facebook.react.bridge.ReadableMap?) {
+    view.fonts = value?.toHashMap()
+  }
+
   @ReactProp(name = "adInterval", defaultInt = 0)
   fun setAdInterval(view: PreviewCommentsView, value: Int) {
     view.adInterval = value

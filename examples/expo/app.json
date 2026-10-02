@@ -30,7 +30,18 @@
       "favicon": "./assets/viafoura-icon.png"
     },
     "plugins": [
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Lora-Regular.ttf",
+            "./assets/fonts/Lora-Medium.ttf",
+            "./assets/fonts/Lora-SemiBold.ttf",
+            "./assets/fonts/Lora-Bold.ttf"
+          ]
+        }
+      ]
     ]
   }
 }

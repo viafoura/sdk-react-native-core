@@ -28,6 +28,7 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
     }
   }
   @objc var colors: [String: Any] = [:]
+  @objc var fonts: [String: Any] = [:]
 
   // Events
   @objc var onHeightChanged: RCTDirectEventBlock?
@@ -36,7 +37,6 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
   @objc var onAction: RCTDirectEventBlock?
 
   // Internals
-  private let fontBold = UIFont.boldSystemFont(ofSize: 17)
   private weak var liveQuestionsViewController: VFLiveQuestionsViewController?
   private var settings: VFSettings?
   private var articleMetadata: VFArticleMetadata?
@@ -57,8 +57,7 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
       colorPrimaryLight: resolveColor(key: "colorPrimaryLight", fallbackKey: "primaryLight", fallback: UIColor(red: 0.90, green: 0.95, blue: 1.00, alpha: 1.00)),
       colorAvatars: resolveAvatarColors() ?? Constants.AvatarColors.colors
     )
-    let fonts = VFFonts(fontBold: fontBold)
-    settings = VFSettings(colors: colors, fonts: fonts)
+    settings = VFSettings(colors: colors, fonts: resolveVFFonts(fonts))
 
     guard let url = URL(string: articleUrl), let thumb = URL(string: articleThumbnailUrl) else {
       return
@@ -114,6 +113,9 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
       case .authPressed:
         self.emitAction(type: "authPressed", payload: ["requireLogin": true])
         self.onAuthNeeded?(["requireLogin": true])
+      case .writeNewQuestionPressed(let actionType):
+        self.emitAction(type: "writeNewQuestionPressed", payload: self.payloadForQuestionAction(actionType))
+        self.presentComposerViewController(actionType: actionType)
       default:
         break
       }
@@ -146,6 +148,49 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
     parentVC.present(profileVC, animated: true)
   }
 
+  private func presentComposerViewController(actionType: VFNewQuestionActionType) {
+    guard let parentVC = parentViewController, let settings, let articleMetadata else { return }
+
+    let section = sectionUUID.isEmpty ? nil : UUID(uuidString: sectionUUID)
+    let composerVC = VFLiveQuestionsComposerViewController.new(
+      newQuestionActionType: actionType,
+      containerId: containerId,
+      articleMetadata: articleMetadata,
+      loginDelegate: self,
+      settings: settings,
+      sectionUUID: section
+    )
+    let callbacks: VFActionsCallbacks = { [weak self] type in
+      guard let self else { return }
+      switch type {
+      case .commentPosted(let contentUUID):
+        self.emitAction(type: "commentPosted", payload: ["content": contentUUID.uuidString])
+      case .replyPosted(let contentUUID):
+        self.emitAction(type: "replyPosted", payload: ["content": contentUUID.uuidString])
+      case .authPressed:
+        self.emitAction(type: "authPressed", payload: ["requireLogin": true])
+        self.onAuthNeeded?(["requireLogin": true])
+      default:
+        break
+      }
+    }
+    composerVC.setTheme(theme: resolveTheme())
+    composerVC.loadViewIfNeeded()
+    composerVC.setActionCallbacks(callbacks: callbacks)
+    parentVC.present(UINavigationController(rootViewController: composerVC), animated: true)
+  }
+
+  private func payloadForQuestionAction(_ actionType: VFNewQuestionActionType) -> [String: Any] {
+    switch actionType {
+    case .question:
+      return ["actionType": "question"]
+    case .reply(let content):
+      return ["actionType": "reply", "content": content.uuidString]
+    case .answer(let content):
+      return ["actionType": "answer", "content": content.uuidString]
+    }
+  }
+
   private func emitAction(type: String, payload: [String: Any] = [:]) {
     var event = payload
     event["type"] = type
@@ -154,8 +199,91 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
 
   // MARK: VFCustomUIDelegate
   func customizeView(theme: VFTheme, view: VFCustomizableView) {
-    // Live Q&A exposes no customizable views yet; the delegate is wired so styles
-    // registered through ViafouraCustomUI apply as soon as the SDK adds them.
+    guard let resolved = resolveCustomView(view) else { return }
+    let themeKey = (theme == .dark) ? "dark" : "light"
+    guard let style = CustomUIViewRegistry.shared.style(viewType: resolved.type, theme: themeKey) else {
+      return
+    }
+    CustomUIViewRegistry.shared.applyStyle(view: resolved.view, style: style)
+  }
+
+  private func resolveCustomView(_ customView: VFCustomizableView) -> (type: String, view: UIView)? {
+    switch customView {
+    case .liveQuestionCellUserAvatar(let avatar):
+      return ("liveQuestionCellUserAvatar", avatar)
+    case .liveQuestionCellUserImage(let image):
+      return ("liveQuestionCellUserImage", image)
+    case .liveQuestionCellUserNameLabel(let label):
+      return ("liveQuestionCellUserNameLabel", label)
+    case .liveQuestionCellDateLabel(let label):
+      return ("liveQuestionCellDateLabel", label)
+    case .liveQuestionCellContentLabel(let label):
+      return ("liveQuestionCellContentLabel", label)
+    case .liveQuestionCellLikeButton(let button):
+      return ("liveQuestionCellLikeButton", button)
+    case .liveQuestionCellLikeLabel(let label):
+      return ("liveQuestionCellLikeLabel", label)
+    case .liveQuestionCellDislikeButton(let button):
+      return ("liveQuestionCellDislikeButton", button)
+    case .liveQuestionCellDislikeLabel(let label):
+      return ("liveQuestionCellDislikeLabel", label)
+    case .liveQuestionCellReplyButton(let button):
+      return ("liveQuestionCellReplyButton", button)
+    case .liveQuestionCellOptionsButton(let button):
+      return ("liveQuestionCellOptionsButton", button)
+    case .liveQuestionCellReplyingToLabel(let label):
+      return ("liveQuestionCellReplyingToLabel", label)
+    case .liveQuestionCellPinnedView(let view):
+      return ("liveQuestionCellPinnedView", view)
+    case .liveQuestionCellHostPillView(let view):
+      return ("liveQuestionCellHostPillView", view)
+    case .liveQuestionCellSeparator(let view):
+      return ("liveQuestionCellSeparator", view)
+    case .liveQuestionCellAnnouncementLabel(let label):
+      return ("liveQuestionCellAnnouncementLabel", label)
+    case .liveQuestionCellAnnouncementIcon(let image):
+      return ("liveQuestionCellAnnouncementIcon", image)
+    case .liveQuestionCellAnnouncementBackground(let view):
+      return ("liveQuestionCellAnnouncementBackground", view)
+    case .liveQuestionCellAnswerLabel(let label):
+      return ("liveQuestionCellAnswerLabel", label)
+    case .liveQuestionCellAnswerIcon(let image):
+      return ("liveQuestionCellAnswerIcon", image)
+    case .liveQuestionCellAnswerBackground(let view):
+      return ("liveQuestionCellAnswerBackground", view)
+    case .liveQuestionsHostCellNameLabel(let label):
+      return ("liveQuestionsHostCellNameLabel", label)
+    case .liveQuestionsHostCellBadgeLabel(let label):
+      return ("liveQuestionsHostCellBadgeLabel", label)
+    case .liveQuestionsHostCellBadgePillView(let view):
+      return ("liveQuestionsHostCellBadgePillView", view)
+    case .liveQuestionsHostCellContainerView(let view):
+      return ("liveQuestionsHostCellContainerView", view)
+    case .liveQuestionsHostsListBackgroundView(let view):
+      return ("liveQuestionsHostsListBackgroundView", view)
+    case .liveQuestionComposerUserAvatar(let view):
+      return ("liveQuestionComposerUserAvatar", view)
+    case .liveQuestionComposerUserImage(let image):
+      return ("liveQuestionComposerUserImage", image)
+    case .liveQuestionComposerHintLabel(let label):
+      return ("liveQuestionComposerHintLabel", label)
+    case .liveQuestionComposerPillView(let view):
+      return ("liveQuestionComposerPillView", view)
+    case .liveQuestionTitleLabel(let label):
+      return ("liveQuestionTitleLabel", label)
+    case .liveQuestionPoweredByView(let view):
+      return ("liveQuestionPoweredByView", view)
+    case .liveQuestionBackgroundView(let view):
+      return ("liveQuestionBackgroundView", view)
+    case .liveQuestionStatusChipView(let view):
+      return ("liveQuestionStatusChipView", view)
+    case .liveQuestionStatusDotView(let view):
+      return ("liveQuestionStatusDotView", view)
+    case .liveQuestionStatusLabel(let label):
+      return ("liveQuestionStatusLabel", label)
+    default:
+      return nil
+    }
   }
 
   private func resolveTheme() -> VFTheme {
