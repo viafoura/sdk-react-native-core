@@ -3,6 +3,7 @@ import { ScrollView, Button } from 'react-native';
 
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
+import { liveQuestions } from '../../viafoura';
 
 const ArticleListScreen = () => {
   const navigation = useNavigation();
@@ -23,12 +24,7 @@ const ArticleListScreen = () => {
       />
       <Button
         title="Live Q&A"
-        onPress={() =>
-          navigation.navigate(Screens.LiveQuestions, {
-            ...route.params.articles[1],
-            title: 'Live Q&A',
-          })
-        }
+        onPress={() => navigation.navigate(Screens.LiveQuestions, liveQuestions)}
       />
     </ScrollView>
   );

@@ -51,6 +51,7 @@ Layout:
 | --- | --- |
 | `src/` | TypeScript surface; `index.ts` is the public API |
 | `ios/` | Swift views + `RCTViewManager` subclasses, exported via `RCT_EXTERN_MODULE` in the `.m` files |
+| `ios/CustomUIViewResolver.swift` | The one switch over `VFCustomizableView`; every view module's `customizeView` goes through it |
 | `android/src/main/java/com/viafoura/reactnative/` | Kotlin views + `ViewManager`s, registered in `ViafouraPackage.kt` |
 | `Viafoura.podspec` | Must stay at the package root — iOS autolinking ignores `podspecPath` in `react-native.config.js` |
 | `examples/bare/` | Bare React Native sample app |
@@ -84,3 +85,8 @@ Compiling is not evidence that it works. Before calling native work done:
 Check native SDK APIs against the shipped binaries rather than against older
 code: `javap` on the Android AAR in the Gradle cache, and the
 `.swiftinterface` inside `ios/ViafouraSDK.xcframework`.
+
+The custom UI view type lists (`IOSCustomUIViewType`, `AndroidCustomUIViewType`
+in `src/Viafoura.types.ts`) and the switch in `ios/CustomUIViewResolver.swift`
+must match those binaries one to one. When the native SDK version changes, diff
+`VFCustomizableView` and `VFCustomViewType` against them and add what is missing.

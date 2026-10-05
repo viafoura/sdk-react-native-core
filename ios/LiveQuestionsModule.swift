@@ -199,7 +199,7 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
 
   // MARK: VFCustomUIDelegate
   func customizeView(theme: VFTheme, view: VFCustomizableView) {
-    guard let resolved = resolveCustomView(view) else { return }
+    guard let resolved = resolveCustomizableView(view) else { return }
     let themeKey = (theme == .dark) ? "dark" : "light"
     guard let style = CustomUIViewRegistry.shared.style(viewType: resolved.type, theme: themeKey) else {
       return
@@ -207,84 +207,6 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
     CustomUIViewRegistry.shared.applyStyle(view: resolved.view, style: style)
   }
 
-  private func resolveCustomView(_ customView: VFCustomizableView) -> (type: String, view: UIView)? {
-    switch customView {
-    case .liveQuestionCellUserAvatar(let avatar):
-      return ("liveQuestionCellUserAvatar", avatar)
-    case .liveQuestionCellUserImage(let image):
-      return ("liveQuestionCellUserImage", image)
-    case .liveQuestionCellUserNameLabel(let label):
-      return ("liveQuestionCellUserNameLabel", label)
-    case .liveQuestionCellDateLabel(let label):
-      return ("liveQuestionCellDateLabel", label)
-    case .liveQuestionCellContentLabel(let label):
-      return ("liveQuestionCellContentLabel", label)
-    case .liveQuestionCellLikeButton(let button):
-      return ("liveQuestionCellLikeButton", button)
-    case .liveQuestionCellLikeLabel(let label):
-      return ("liveQuestionCellLikeLabel", label)
-    case .liveQuestionCellDislikeButton(let button):
-      return ("liveQuestionCellDislikeButton", button)
-    case .liveQuestionCellDislikeLabel(let label):
-      return ("liveQuestionCellDislikeLabel", label)
-    case .liveQuestionCellReplyButton(let button):
-      return ("liveQuestionCellReplyButton", button)
-    case .liveQuestionCellOptionsButton(let button):
-      return ("liveQuestionCellOptionsButton", button)
-    case .liveQuestionCellReplyingToLabel(let label):
-      return ("liveQuestionCellReplyingToLabel", label)
-    case .liveQuestionCellPinnedView(let view):
-      return ("liveQuestionCellPinnedView", view)
-    case .liveQuestionCellHostPillView(let view):
-      return ("liveQuestionCellHostPillView", view)
-    case .liveQuestionCellSeparator(let view):
-      return ("liveQuestionCellSeparator", view)
-    case .liveQuestionCellAnnouncementLabel(let label):
-      return ("liveQuestionCellAnnouncementLabel", label)
-    case .liveQuestionCellAnnouncementIcon(let image):
-      return ("liveQuestionCellAnnouncementIcon", image)
-    case .liveQuestionCellAnnouncementBackground(let view):
-      return ("liveQuestionCellAnnouncementBackground", view)
-    case .liveQuestionCellAnswerLabel(let label):
-      return ("liveQuestionCellAnswerLabel", label)
-    case .liveQuestionCellAnswerIcon(let image):
-      return ("liveQuestionCellAnswerIcon", image)
-    case .liveQuestionCellAnswerBackground(let view):
-      return ("liveQuestionCellAnswerBackground", view)
-    case .liveQuestionsHostCellNameLabel(let label):
-      return ("liveQuestionsHostCellNameLabel", label)
-    case .liveQuestionsHostCellBadgeLabel(let label):
-      return ("liveQuestionsHostCellBadgeLabel", label)
-    case .liveQuestionsHostCellBadgePillView(let view):
-      return ("liveQuestionsHostCellBadgePillView", view)
-    case .liveQuestionsHostCellContainerView(let view):
-      return ("liveQuestionsHostCellContainerView", view)
-    case .liveQuestionsHostsListBackgroundView(let view):
-      return ("liveQuestionsHostsListBackgroundView", view)
-    case .liveQuestionComposerUserAvatar(let view):
-      return ("liveQuestionComposerUserAvatar", view)
-    case .liveQuestionComposerUserImage(let image):
-      return ("liveQuestionComposerUserImage", image)
-    case .liveQuestionComposerHintLabel(let label):
-      return ("liveQuestionComposerHintLabel", label)
-    case .liveQuestionComposerPillView(let view):
-      return ("liveQuestionComposerPillView", view)
-    case .liveQuestionTitleLabel(let label):
-      return ("liveQuestionTitleLabel", label)
-    case .liveQuestionPoweredByView(let view):
-      return ("liveQuestionPoweredByView", view)
-    case .liveQuestionBackgroundView(let view):
-      return ("liveQuestionBackgroundView", view)
-    case .liveQuestionStatusChipView(let view):
-      return ("liveQuestionStatusChipView", view)
-    case .liveQuestionStatusDotView(let view):
-      return ("liveQuestionStatusDotView", view)
-    case .liveQuestionStatusLabel(let label):
-      return ("liveQuestionStatusLabel", label)
-    default:
-      return nil
-    }
-  }
 
   private func resolveTheme() -> VFTheme {
     switch theme?.lowercased() {

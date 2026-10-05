@@ -9,12 +9,9 @@ public class ViafouraCustomUIModule: NSObject {
 
   @objc(setCustomUIStyle:style:theme:)
   public func setCustomUIStyle(_ viewType: String, style: NSDictionary, theme: String?) {
-    let visibility = style["visibility"] as? String
-    let backgroundColor = style["backgroundColor"] as? String
     CustomUIViewRegistry.shared.setStyle(
       viewType: viewType,
-      visibility: visibility,
-      backgroundColor: backgroundColor,
+      style: CustomUIStyle(dictionary: style),
       theme: theme
     )
   }

@@ -12,14 +12,7 @@ class ViafouraCustomUIModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun setCustomUIStyle(viewType: String, style: ReadableMap, theme: String?) {
-    val visibility = if (style.hasKey("visibility")) style.getString("visibility") else null
-    val backgroundColor =
-      if (style.hasKey("backgroundColor")) style.getString("backgroundColor") else null
-    CustomUIViewRegistry.setStyle(
-      viewType,
-      CustomUIStyle(visibility = visibility, backgroundColor = backgroundColor),
-      theme
-    )
+    CustomUIViewRegistry.setStyle(viewType, CustomUIStyle.fromReadableMap(style), theme)
   }
 
   @ReactMethod

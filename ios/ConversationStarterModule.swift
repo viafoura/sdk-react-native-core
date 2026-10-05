@@ -175,7 +175,7 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
 
   // MARK: VFCustomUIDelegate
   func customizeView(theme: VFTheme, view: VFCustomizableView) {
-    guard let resolved = resolveCustomView(view) else { return }
+    guard let resolved = resolveCustomizableView(view) else { return }
     let themeKey = (theme == .dark) ? "dark" : "light"
     guard let style = CustomUIViewRegistry.shared.style(viewType: resolved.type, theme: themeKey) else {
       return
@@ -183,24 +183,6 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
     CustomUIViewRegistry.shared.applyStyle(view: resolved.view, style: style)
   }
 
-  private func resolveCustomView(_ customView: VFCustomizableView) -> (type: String, view: UIView)? {
-    switch customView {
-    case .conversationStarterBackgroundView(let view):
-      return ("conversationStarterBackgroundView", view)
-    case .conversationStarterHeaderLabel(let label):
-      return ("conversationStarterHeaderLabel", label)
-    case .conversationStarterTitleLabel(let label):
-      return ("conversationStarterTitleLabel", label)
-    case .conversationStarterDescriptionLabel(let label):
-      return ("conversationStarterDescriptionLabel", label)
-    case .conversationStarterFeaturedCommentLabel(let label):
-      return ("conversationStarterFeaturedCommentLabel", label)
-    case .conversationStarterActionButton(let button):
-      return ("conversationStarterActionButton", button)
-    default:
-      return nil
-    }
-  }
 
   private func resolveTheme() -> VFTheme {
     switch theme?.lowercased() {

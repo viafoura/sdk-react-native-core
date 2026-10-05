@@ -24,7 +24,7 @@ internal fun resolveVFFonts(context: Context, fonts: Map<String, Any?>?): VFFont
   }
 }
 
-private fun loadTypeface(context: Context, value: Any?): Typeface? {
+internal fun loadTypeface(context: Context, value: Any?): Typeface? {
   val name = (value as? String)?.trim()
   if (name.isNullOrEmpty()) return null
   for (extension in FONT_ASSET_EXTENSIONS) {

@@ -11,6 +11,24 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
   },
+  containerDark: {
+    flex: 1,
+    backgroundColor: '#121212',
+  },
+  lightText: {
+    color: '#1b2430',
+  },
+  darkText: {
+    color: '#f2f4f7',
+  },
+  toolbar: {
+    gap: 12,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   title: {
     fontSize: 24,
     fontWeight: '600',

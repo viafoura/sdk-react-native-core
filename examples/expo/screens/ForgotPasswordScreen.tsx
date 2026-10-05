@@ -14,13 +14,13 @@ import Viafoura from '@viafoura/sdk-react-native';
 import type { RootStackParamList } from '../navigation/types';
 import { styles } from '../styles';
 
-type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
+type ForgotPasswordScreenProps = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
 
-export default function LoginScreen({ navigation, route }: LoginScreenProps) {
+export default function ForgotPasswordScreen({ navigation }: ForgotPasswordScreenProps) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -28,10 +28,10 @@ export default function LoginScreen({ navigation, route }: LoginScreenProps) {
         style={styles.loginContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Text style={styles.loginTitle}>Sign in to continue</Text>
-        {route.params?.reason ? (
-          <Text style={styles.loginSubtitle}>{route.params.reason}</Text>
-        ) : null}
+        <Text style={styles.loginTitle}>Reset your password</Text>
+        <Text style={styles.loginSubtitle}>
+          We will email you a link to choose a new password.
+        </Text>
         <View style={styles.loginField}>
           <Text style={styles.loginLabel}>Email</Text>
           <TextInput
@@ -43,59 +43,34 @@ export default function LoginScreen({ navigation, route }: LoginScreenProps) {
             onChangeText={setEmail}
           />
         </View>
-        <View style={styles.loginField}>
-          <Text style={styles.loginLabel}>Password</Text>
-          <TextInput
-            style={styles.loginInput}
-            placeholder="••••••••"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
         {error ? <Text style={styles.loginError}>{error}</Text> : null}
+        {sent ? <Text style={styles.loginSubtitle}>Check your inbox.</Text> : null}
         <Pressable
           style={[styles.loginPrimaryButton, submitting && styles.loginPrimaryButtonDisabled]}
           disabled={submitting}
           onPress={async () => {
-            if (!email || !password) {
-              setError('Enter your email and password.');
+            if (!email) {
+              setError('Enter your email.');
               return;
             }
             setSubmitting(true);
             setError(null);
             try {
-              await Viafoura.login(email, password);
-              navigation.goBack();
+              await Viafoura.resetPassword(email);
+              setSent(true);
             } catch (err) {
-              const message = err instanceof Error ? err.message : String(err);
-              setError(message);
+              setError(err instanceof Error ? err.message : String(err));
             } finally {
               setSubmitting(false);
             }
           }}
         >
           <Text style={styles.loginPrimaryButtonText}>
-            {submitting ? 'Signing In…' : 'Sign In'}
+            {submitting ? 'Sending…' : 'Send reset email'}
           </Text>
         </Pressable>
-        <Pressable
-          style={styles.loginSecondaryButton}
-          onPress={() => navigation.navigate('SignUp')}
-        >
-          <Text style={styles.loginSecondaryButtonText}>Create an account</Text>
-        </Pressable>
-        <Pressable
-          style={styles.loginSecondaryButton}
-          onPress={() => navigation.navigate('ForgotPassword')}
-        >
-          <Text style={styles.loginSecondaryButtonText}>Forgot my password</Text>
-        </Pressable>
-        <Pressable
-          style={styles.loginSecondaryButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.loginSecondaryButtonText}>Cancel</Text>
+        <Pressable style={styles.loginSecondaryButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.loginSecondaryButtonText}>Back to sign in</Text>
         </Pressable>
       </KeyboardAvoidingView>
     </SafeAreaView>

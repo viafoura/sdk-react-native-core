@@ -13,11 +13,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Screens } from './src/navigation/screens';
 import Viafoura from '@viafoura/sdk-react-native';
+import { SITE_DOMAIN, SITE_UUID, articles } from './src/viafoura';
+import { applyCustomUI } from './src/customUI';
 
 const Stack = createNativeStackNavigator();
 
-const SITE_UUID = '00000000-0000-4000-8000-c8cddfd7b365';
-const SITE_DOMAIN = 'viafoura-mobile-demo.vercel.app';
+applyCustomUI();
 
 const App = () => {
   React.useEffect(() => {
@@ -31,32 +32,7 @@ const App = () => {
       <Stack.Navigator>
         <Stack.Screen
           name={Screens.ArticleList}
-          initialParams={{
-            articles: [
-              {
-                containerId: '101113541',
-                authorId: '7548800024996',
-                articleTitle: 'Moving Staff to Cover the Coronavirus',
-                articleDesc:
-                  'Here Are What Media Companies Are Doing to Deal With COVID-19 Information Overload',
-                articleUrl:
-                  'https://viafoura-mobile-demo.vercel.app/posts/here-are-what-media-companies-are-doing-with-covid-19-overload',
-                articleThumbnailUrl:
-                  'https://www.datocms-assets.com/55856/1636753460-information-overload.jpg?crop=focalpoint&fit=crop&fm=webp&fp-x=0.86&fp-y=0.47&h=428&w=856',
-              },
-              {
-                containerId: '1254',
-                authorId: '7548800024996',
-                articleTitle: 'Moving Staff to Cover the Coronavirus',
-                articleDesc:
-                  'Here Are What Media Companies Are Doing to Deal With COVID-19 Information Overload',
-                articleUrl:
-                  'https://viafoura-mobile-demo.vercel.app/posts/here-are-what-media-companies-are-doing-with-covid-19-overload',
-                articleThumbnailUrl:
-                  'https://www.datocms-assets.com/55856/1636753460-information-overload.jpg?crop=focalpoint&fit=crop&fm=webp&fp-x=0.86&fp-y=0.47&h=428&w=856',
-              },
-            ],
-          }}
+          initialParams={{ articles }}
           component={ArticleListScreen}
         />
         <Stack.Screen name={Screens.Article} component={ArticleScreen} />
