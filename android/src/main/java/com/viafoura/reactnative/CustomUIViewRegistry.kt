@@ -14,6 +14,7 @@ import android.widget.TextView
 import androidx.core.widget.ImageViewCompat
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.ReadableType
+import kotlin.math.roundToInt
 
 data class CustomUIStyle(
   val visibility: String? = null,
@@ -142,7 +143,8 @@ object CustomUIViewRegistry {
     backgroundColor?.let { drawable.setColor(it) }
     style.cornerRadius?.let { drawable.cornerRadius = it * density }
     if (style.borderWidth != null || borderColor != null) {
-      val width = ((style.borderWidth ?: 1f) * density).toInt()
+      val requested = style.borderWidth ?: 1f
+      val width = if (requested > 0f) (requested * density).roundToInt().coerceAtLeast(1) else 0
       drawable.setStroke(width, borderColor ?: Color.TRANSPARENT)
     }
     view.background = drawable

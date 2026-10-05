@@ -50,6 +50,7 @@ struct CustomUIStyle {
 final class CustomUIViewRegistry {
   static let shared = CustomUIViewRegistry()
   private var stylePolicies: [String: CustomUIStyle] = [:]
+  private let lock = NSLock()
 
   private init() {}
 
@@ -60,14 +61,20 @@ final class CustomUIViewRegistry {
 
   func setStyle(viewType: String, style: CustomUIStyle, theme: String?) {
     let key = policyKey(viewType: viewType, theme: theme)
+    lock.lock()
+    defer { lock.unlock() }
     stylePolicies[key] = style.merged(over: stylePolicies[key])
   }
 
   func clearStyle(viewType: String, theme: String?) {
+    lock.lock()
+    defer { lock.unlock() }
     stylePolicies.removeValue(forKey: policyKey(viewType: viewType, theme: theme))
   }
 
   func style(viewType: String, theme: String?) -> CustomUIStyle? {
+    lock.lock()
+    defer { lock.unlock() }
     if let theme {
       if let themed = stylePolicies[policyKey(viewType: viewType, theme: theme)] {
         return themed
@@ -107,6 +114,9 @@ final class CustomUIViewRegistry {
     }
     if let borderColor = style.borderColor, let color = colorFromHex(borderColor) {
       view.layer.borderColor = color.cgColor
+      if style.borderWidth == nil && view.layer.borderWidth == 0 {
+        view.layer.borderWidth = 1
+      }
     }
     if let borderWidth = style.borderWidth {
       view.layer.borderWidth = borderWidth

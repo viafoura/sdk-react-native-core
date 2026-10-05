@@ -526,7 +526,7 @@ ViafouraCustomUI.clearCustomUIStyle(viewType, theme?);
 
 | Property | Type | Applies to | Notes |
 | --- | --- | --- | --- |
-| `visibility` | `'visible' \| 'hidden'` | any view | Hidden views are removed from layout (`isHidden` on iOS, `GONE` on Android). |
+| `visibility` | `'visible' \| 'hidden'` | any view | `GONE` on Android, so the view leaves the layout. `isHidden` on iOS, which keeps the view's frame unless it sits in a stack view, so a hidden view can leave blank space. |
 | `backgroundColor` | `#RRGGBB` / `#AARRGGBB` | any view | |
 | `textColor` | colour | labels, text inputs, buttons | |
 | `tintColor` | colour | image views | Icons are recoloured. On iOS it also sets `tintColor` on any view. |
@@ -595,7 +595,7 @@ ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellNameLabel, { textC
   merges the new properties over the old ones. Use `clearCustomUIStyle` to
   remove a style entirely.
 - **Themes.** The lookup is `viewType + theme` first, then `viewType` without a
-  theme. `clearCustomUIStyle(viewType)` clears only the untheme entry; pass the
+  theme. `clearCustomUIStyle(viewType)` clears only the unthemed entry; pass the
   theme to clear a themed one.
 - **Scope.** Styles apply inside every Viafoura view in the app, including the
   profile and comment composer the iOS SDK presents on its own.
