@@ -3,6 +3,20 @@
 An Expo app that consumes `@viafoura/sdk-react-native` from the package at the
 repository root, so it always runs the source in this checkout.
 
+## What it demonstrates
+
+| Screen | Shows |
+| --- | --- |
+| Comments | `ConversationStarterView` above `PreviewCommentsView`, both sized from `onHeightChanged`, with React-rendered ads (`renderAd`), `colors`, `fonts`, a dark-mode switch driving `theme`, and `onAction` logging |
+| Live Q&A | `LiveQuestionsView` sized from `onHeightChanged`, with the native composer and `onAction` logging |
+| Profile, New comment | `ProfileView` and `NewCommentView`, reached only on Android (iOS presents them natively) |
+| Login, Sign up, Reset password | `Viafoura.login`, `Viafoura.signup`, `Viafoura.resetPassword` with error handling |
+
+`customUI.ts` runs at startup and shows `ViafouraCustomUI`: hiding the
+"powered by" footers, rounding the starter button, restyling the Live Q&A title
+and host pill, and a per-theme text colour on comment author names using both
+the iOS and Android view-type names.
+
 ## Requirements
 
 - Node >= 20.19.4 (Expo SDK 54 / React Native 0.81)
@@ -34,7 +48,8 @@ Update the placeholders in `viafouraConfig.ts` with real Viafoura values:
 
 - `siteUUID`
 - `siteDomain`
-- `containerId`
+- `containerId` and `liveQuestionsContainerId`
 - `articleUrl`
 - `articleTitle`
 - `articleThumbnailUrl`
+- `colors` and `fonts`

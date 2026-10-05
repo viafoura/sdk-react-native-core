@@ -14,9 +14,10 @@ import Viafoura from '@viafoura/sdk-react-native';
 import type { RootStackParamList } from '../navigation/types';
 import { styles } from '../styles';
 
-type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
+type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
-export default function LoginScreen({ navigation, route }: LoginScreenProps) {
+export default function SignUpScreen({ navigation }: SignUpScreenProps) {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -28,10 +29,16 @@ export default function LoginScreen({ navigation, route }: LoginScreenProps) {
         style={styles.loginContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Text style={styles.loginTitle}>Sign in to continue</Text>
-        {route.params?.reason ? (
-          <Text style={styles.loginSubtitle}>{route.params.reason}</Text>
-        ) : null}
+        <Text style={styles.loginTitle}>Create an account</Text>
+        <View style={styles.loginField}>
+          <Text style={styles.loginLabel}>Name</Text>
+          <TextInput
+            style={styles.loginInput}
+            placeholder="Your name"
+            value={name}
+            onChangeText={setName}
+          />
+        </View>
         <View style={styles.loginField}>
           <Text style={styles.loginLabel}>Email</Text>
           <TextInput
@@ -58,44 +65,28 @@ export default function LoginScreen({ navigation, route }: LoginScreenProps) {
           style={[styles.loginPrimaryButton, submitting && styles.loginPrimaryButtonDisabled]}
           disabled={submitting}
           onPress={async () => {
-            if (!email || !password) {
-              setError('Enter your email and password.');
+            if (!name || !email || !password) {
+              setError('Enter your name, email and password.');
               return;
             }
             setSubmitting(true);
             setError(null);
             try {
-              await Viafoura.login(email, password);
-              navigation.goBack();
+              await Viafoura.signup(name, email, password);
+              navigation.popToTop();
             } catch (err) {
-              const message = err instanceof Error ? err.message : String(err);
-              setError(message);
+              setError(err instanceof Error ? err.message : String(err));
             } finally {
               setSubmitting(false);
             }
           }}
         >
           <Text style={styles.loginPrimaryButtonText}>
-            {submitting ? 'Signing In…' : 'Sign In'}
+            {submitting ? 'Creating…' : 'Sign Up'}
           </Text>
         </Pressable>
-        <Pressable
-          style={styles.loginSecondaryButton}
-          onPress={() => navigation.navigate('SignUp')}
-        >
-          <Text style={styles.loginSecondaryButtonText}>Create an account</Text>
-        </Pressable>
-        <Pressable
-          style={styles.loginSecondaryButton}
-          onPress={() => navigation.navigate('ForgotPassword')}
-        >
-          <Text style={styles.loginSecondaryButtonText}>Forgot my password</Text>
-        </Pressable>
-        <Pressable
-          style={styles.loginSecondaryButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.loginSecondaryButtonText}>Cancel</Text>
+        <Pressable style={styles.loginSecondaryButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.loginSecondaryButtonText}>Back to sign in</Text>
         </Pressable>
       </KeyboardAvoidingView>
     </SafeAreaView>
