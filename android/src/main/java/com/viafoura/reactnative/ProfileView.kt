@@ -75,6 +75,11 @@ class ProfileView(context: Context) :
     post(measureAndLayout)
   }
 
+  override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+    super.onSizeChanged(w, h, oldw, oldh)
+    post(measureAndLayout)
+  }
+
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
     // Defer to after any in-flight FragmentManager transaction. When this view is reached
