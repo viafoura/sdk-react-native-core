@@ -22,7 +22,10 @@
     "viafoura-sdk",
     "Viafoura"
   ],
-  "repository": "https://github.com/viafoura/sdk-react-native-core",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viafoura/sdk-react-native-core.git"
+  },
   "bugs": {
     "url": "https://github.com/viafoura/sdk-react-native-core/issues"
   },
