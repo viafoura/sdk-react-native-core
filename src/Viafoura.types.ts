@@ -590,6 +590,7 @@ export type ViafouraAdSlotRenderInfo = {
 export type PreviewCommentsViewProps = {
   containerId: string;
   authorId?: string;
+  authorIds?: string[];
   articleUrl: string;
   articleTitle: string;
   articleSubtitle?: string;
@@ -697,7 +698,6 @@ export type LiveQuestionsOpenProfilePayload = {
 
 export type LiveQuestionsViewProps = {
   containerId: string;
-  authorId?: string;
   articleUrl: string;
   articleTitle: string;
   articleSubtitle?: string;
