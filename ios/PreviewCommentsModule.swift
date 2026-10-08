@@ -64,7 +64,7 @@ final class AdSlotBinding {
 class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate, VFCustomUIDelegate {
   // Props
   @objc var containerId: String = ""
-  @objc var authorId: String = ""
+  @objc var authorIds: [String] = []
   @objc var articleUrl: String = ""
   @objc var articleTitle: String = ""
   @objc var syndicationKey: String = ""
@@ -164,7 +164,7 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
     vc.setActionCallbacks(callbacks: callbacks)
     vc.setLayoutDelegate(layoutDelegate: self)
     vc.setCustomUIDelegate(customUIDelegate: self)
-    if !authorId.isEmpty { vc.setAuthorsIds(authors: [authorId]) }
+    if !authorIds.isEmpty { vc.setAuthorsIds(authors: authorIds) }
     vc.setAdDelegate(adDelegate: self)
 
     parentVC.addChild(vc)

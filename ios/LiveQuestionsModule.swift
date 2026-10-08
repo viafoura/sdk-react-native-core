@@ -7,7 +7,6 @@ import ViafouraSDK
 class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDelegate {
   // Props
   @objc var containerId: String = ""
-  @objc var authorId: String = ""
   @objc var articleUrl: String = ""
   @objc var articleTitle: String = ""
   @objc var articleSubtitle: String = ""

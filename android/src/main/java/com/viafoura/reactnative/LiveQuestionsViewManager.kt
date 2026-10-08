@@ -23,11 +23,6 @@ class LiveQuestionsViewManager : SimpleViewManager<LiveQuestionsView>() {
     view.containerId = value
   }
 
-  @ReactProp(name = "authorId")
-  fun setAuthorId(view: LiveQuestionsView, value: String?) {
-    view.authorId = value
-  }
-
   @ReactProp(name = "articleUrl")
   fun setArticleUrl(view: LiveQuestionsView, value: String?) {
     view.articleUrl = value
