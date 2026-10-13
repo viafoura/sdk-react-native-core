@@ -1,5 +1,6 @@
 package com.viafoura.reactnative
 
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -133,6 +134,16 @@ class ViafouraModule(private val reactContext: ReactApplicationContext) :
         promise.reject("E_VF_COOKIE", err.message ?: "Cookie login failed", null)
       }
     })
+  }
+
+  @ReactMethod
+  fun getUserLoginStatus(promise: Promise) {
+    ViafouraSDK.auth().getUserLoginStatus { userIsLoggedIn, userUUID ->
+      val status = Arguments.createMap()
+      status.putBoolean("isLoggedIn", userIsLoggedIn)
+      userUUID?.let { status.putString("userUUID", it) }
+      promise.resolve(status)
+    }
   }
 
   @ReactMethod

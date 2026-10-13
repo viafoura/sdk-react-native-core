@@ -38,6 +38,9 @@ RCT_EXTERN_METHOD(resetPassword:(NSString *)email
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(getUserLoginStatus:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(initialize:(NSString *)siteUUID
                   siteDomain:(NSString *)siteDomain
                   enableLogging:(nullable NSNumber *)enableLogging

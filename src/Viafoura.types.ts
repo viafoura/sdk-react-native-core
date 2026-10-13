@@ -1,6 +1,11 @@
 import type * as React from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 
+export type ViafouraLoginStatus = {
+  isLoggedIn: boolean;
+  userUUID?: string;
+};
+
 export type ViafouraModuleEvents = {
   onChange: (params: ChangeEventPayload) => void;
 };

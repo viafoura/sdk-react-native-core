@@ -191,7 +191,11 @@ await Viafoura.openIdLogin(token);
 await Viafoura.cookieLogin(token);
 await Viafoura.resetPassword(email);
 await Viafoura.logout();
+const { isLoggedIn, userUUID } = await Viafoura.getUserLoginStatus();
 ```
+
+`getUserLoginStatus` reports the session the native SDK currently holds.
+`userUUID` is only present when `isLoggedIn` is true.
 
 A minimal login screen, as used by both sample apps:
 

@@ -120,6 +120,17 @@ struct VFAuthAdapter {
       }
     }
   }
+
+  func getUserLoginStatus(completion: @escaping ([String: Any]) -> Void) {
+    authService.getUserLoginStatus { result in
+      switch result {
+      case .success(.loggedIn(let userUUID)):
+        completion(["isLoggedIn": true, "userUUID": userUUID.uuidString])
+      case .success(.notLoggedIn):
+        completion(["isLoggedIn": false])
+      }
+    }
+  }
 }
 
 struct VFCoreAdapter {
@@ -225,6 +236,10 @@ struct VFAuthAdapter {
 
   func resetPassword(email: String, completion: @escaping (Result<Void, Error>) -> Void) {
     completion(.failure(VFAdapterError.sdkUnavailable))
+  }
+
+  func getUserLoginStatus(completion: @escaping ([String: Any]) -> Void) {
+    completion(["isLoggedIn": false])
   }
 }
 
@@ -340,6 +355,14 @@ public class ViafouraModule: NSObject {
     rejecter reject: @escaping RCTPromiseRejectBlock
   ) {
     auth.resetPassword(email: email) { self.settle($0, resolve, reject) }
+  }
+
+  @objc(getUserLoginStatus:rejecter:)
+  public func getUserLoginStatus(
+    _ resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    auth.getUserLoginStatus { resolve($0) }
   }
 
   @objc(initialize:siteDomain:enableLogging:resolver:rejecter:)
