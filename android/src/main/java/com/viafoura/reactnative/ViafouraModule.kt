@@ -199,4 +199,10 @@ class ViafouraModule(private val reactContext: ReactApplicationContext) :
       promise.reject("E_VF_INIT", e.message ?: "Viafoura initialization failed", e)
     }
   }
+
+  @ReactMethod
+  fun setDataTrackingEnabled(enabled: Boolean, promise: Promise) {
+    ViafouraSDK.setDataTrackingEnabled(enabled)
+    promise.resolve(null)
+  }
 }

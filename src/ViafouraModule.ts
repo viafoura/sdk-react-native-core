@@ -23,6 +23,7 @@ export interface ViafouraNativeModule {
     siteDomain: string,
     enableLogging?: boolean
   ): Promise<void>;
+  setDataTrackingEnabled(enabled: boolean): Promise<void>;
 }
 
 const ViafouraModule: ViafouraNativeModule =

@@ -16,6 +16,7 @@ app.
 - [Quick start](#quick-start)
 - [Platform support](#platform-support)
 - [Authentication](#authentication)
+- [Data tracking and consent](#data-tracking-and-consent)
 - [Views](#views)
   - [Shared props](#shared-props)
   - [PreviewCommentsView](#previewcommentsview)
@@ -214,6 +215,36 @@ async function submit() {
 
 The session lives in the native SDK, so there is no token to pass to the views.
 Both sample apps simply navigate back once `login` resolves.
+
+## Data tracking and consent
+
+```ts
+await Viafoura.setDataTrackingEnabled(false);
+```
+
+Turns the SDK's analytics events on or off on both platforms. While disabled,
+no page view, engagement, interaction or ad-tracking event is sent, and on iOS
+the advertising identifier is not read. The API calls that load and post
+comments and authenticate users are unaffected.
+
+The setting defaults to `true` and lives in memory only. Apply it on every
+launch, and call it **before** `initialize`: initialization starts lifecycle
+tracking, and the first engagement event fires when the app next comes to the
+foreground. Calling it later still takes effect immediately for every event
+after that.
+
+With a consent manager, read the consent state first and re-apply the setting
+whenever it changes:
+
+```ts
+async function applyConsent(analyticsAllowed: boolean) {
+  await Viafoura.setDataTrackingEnabled(analyticsAllowed);
+}
+
+await applyConsent(await consent.isAllowed('analytics'));
+await Viafoura.initialize(siteUUID, siteDomain);
+consent.onChange('analytics', applyConsent);
+```
 
 ## Views
 

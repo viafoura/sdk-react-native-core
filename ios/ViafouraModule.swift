@@ -162,6 +162,10 @@ struct VFCoreAdapter {
     Self.initializedKey = key
   }
 
+  func setDataTrackingEnabled(_ enabled: Bool) {
+    ViafouraSDK.setDataTrackingEnabled(enabled)
+  }
+
   private static func initializationKey(siteUUID: String, siteDomain: String) -> String? {
     let trimmedSiteUUID = siteUUID.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedSiteDomain = siteDomain.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -245,6 +249,10 @@ struct VFAuthAdapter {
 
 struct VFCoreAdapter {
   func initialize(siteUUID: String, siteDomain: String, enableLogging: Bool?) throws {
+    // no-op
+  }
+
+  func setDataTrackingEnabled(_ enabled: Bool) {
     // no-op
   }
 }
@@ -388,5 +396,15 @@ public class ViafouraModule: NSObject {
     } catch {
       reject("ERR_VIAFOURA", error.localizedDescription, error)
     }
+  }
+
+  @objc(setDataTrackingEnabled:resolver:rejecter:)
+  public func setDataTrackingEnabled(
+    _ enabled: Bool,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    core.setDataTrackingEnabled(enabled)
+    resolve(nil)
   }
 }
