@@ -1,6 +1,11 @@
 import type * as React from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 
+export type ViafouraLoginStatus = {
+  isLoggedIn: boolean;
+  userUUID?: string;
+};
+
 export type ViafouraModuleEvents = {
   onChange: (params: ChangeEventPayload) => void;
 };
@@ -590,6 +595,7 @@ export type ViafouraAdSlotRenderInfo = {
 export type PreviewCommentsViewProps = {
   containerId: string;
   authorId?: string;
+  authorIds?: string[];
   articleUrl: string;
   articleTitle: string;
   articleSubtitle?: string;
@@ -697,7 +703,6 @@ export type LiveQuestionsOpenProfilePayload = {
 
 export type LiveQuestionsViewProps = {
   containerId: string;
-  authorId?: string;
   articleUrl: string;
   articleTitle: string;
   articleSubtitle?: string;

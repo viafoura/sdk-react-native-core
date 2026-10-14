@@ -1,5 +1,7 @@
 import { NativeModules, Platform } from 'react-native';
 
+import type { ViafouraLoginStatus } from './Viafoura.types';
+
 const LINKING_ERROR =
   `The package '@viafoura/sdk-react-native' doesn't seem to be linked. Make sure:\n\n` +
   Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
@@ -15,6 +17,7 @@ export interface ViafouraNativeModule {
   openIdLogin(token: string): Promise<void>;
   cookieLogin(token: string): Promise<void>;
   resetPassword(email: string): Promise<void>;
+  getUserLoginStatus(): Promise<ViafouraLoginStatus>;
   initialize(
     siteUUID: string,
     siteDomain: string,

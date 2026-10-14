@@ -28,7 +28,6 @@ class LiveQuestionsView(context: Context) :
 
   // Props
   var containerId: String? = null
-  var authorId: String? = null
   var articleUrl: String? = null
   var articleTitle: String? = null
   var articleSubtitle: String? = null

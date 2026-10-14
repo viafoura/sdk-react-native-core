@@ -31,7 +31,7 @@ class PreviewCommentsView(context: Context) :
 
   // Props
   var containerId: String? = null
-  var authorId: String? = null
+  var authorIds: List<String> = emptyList()
   var articleUrl: String? = null
   var articleTitle: String? = null
   var articleSubtitle: String? = null
@@ -146,7 +146,7 @@ class PreviewCommentsView(context: Context) :
       frag.setCustomUICallback(this)
       frag.setAdInterface(this)
       frag.setTheme(resolvedTheme)
-      authorId?.let { if (it.isNotEmpty()) frag.setAuthorIds(listOf(it)) }
+      if (authorIds.isNotEmpty()) frag.setAuthorIds(authorIds)
 
       // Add the fragment "headless" (no container view id). When a container id is
       // supplied, the FragmentManager — running under the React/Fabric view host — resolves

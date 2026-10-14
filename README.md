@@ -191,7 +191,11 @@ await Viafoura.openIdLogin(token);
 await Viafoura.cookieLogin(token);
 await Viafoura.resetPassword(email);
 await Viafoura.logout();
+const { isLoggedIn, userUUID } = await Viafoura.getUserLoginStatus();
 ```
+
+`getUserLoginStatus` reports the session the native SDK currently holds.
+`userUUID` is only present when `isLoggedIn` is true.
 
 A minimal login screen, as used by both sample apps:
 
@@ -253,7 +257,7 @@ import { PreviewCommentsView } from '@viafoura/sdk-react-native';
   articleTitle="Title"
   articleSubtitle="Subtitle"
   articleThumbnailUrl="https://example.com/thumb.jpg"
-  authorId="AUTHOR_ID"
+  authorIds={["AUTHOR_ID", "CO_AUTHOR_ID"]}
   theme="light"
   colors={{ colorPrimary: '#1D5EFF', colorPrimaryLight: '#E8F0FF' }}
   style={{ height }}
@@ -268,7 +272,8 @@ import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 
 | Prop | Default | Meaning |
 | --- | --- | --- |
-| `authorId` | — | Marks comments by this user with the author badge. |
+| `authorId` | — | Marks comments by this user with the author badge. Shorthand for a one-element `authorIds`. |
+| `authorIds` | `[]` | Marks comments by any of these users with the author badge. Merged with `authorId`. Values are Viafoura user ids; Android also accepts a social login id or email. |
 | `adInterval`, `firstAdPosition`, `adHeight`, `renderAd`, `onAdSlotRequested` | ads off | See [Ads](#ads). |
 
 | Event | Payload | Fires when |
@@ -336,7 +341,6 @@ import { LiveQuestionsView } from '@viafoura/sdk-react-native';
 
 | Prop | Default | Meaning |
 | --- | --- | --- |
-| `authorId` | — | Optional author identifier. |
 | `title` | SDK default | Heading shown above the session. |
 | `sectionUUID` | — | Scopes the session to a section. Must be a UUID. |
 | `focusedContentUUID` | — | Opens with this question focused. Must be a UUID. |

@@ -1662,7 +1662,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - Viafoura (0.1.22):
+  - Viafoura (0.1.23):
     - React-Core
   - Yoga (0.0.0)
 

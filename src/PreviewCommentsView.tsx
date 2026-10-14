@@ -10,6 +10,8 @@ const DEFAULT_AD_HEIGHT = 250;
 const DEFAULT_FIRST_AD_POSITION = 2;
 
 export default function PreviewCommentsView({
+  authorId,
+  authorIds,
   renderAd,
   adInterval = 0,
   firstAdPosition = DEFAULT_FIRST_AD_POSITION,
@@ -18,6 +20,10 @@ export default function PreviewCommentsView({
   ...props
 }: PreviewCommentsViewProps) {
   const [slots, setSlots] = React.useState<number[]>([]);
+  const resolvedAuthorIds = React.useMemo(
+    () => [...(authorId ? [authorId] : []), ...(authorIds ?? [])],
+    [authorId, authorIds],
+  );
   const adsEnabled = Boolean(renderAd) && adInterval > 0;
 
   React.useEffect(() => {
@@ -40,6 +46,7 @@ export default function PreviewCommentsView({
   return (
     <NativeView
       {...props}
+      authorIds={resolvedAuthorIds}
       adInterval={adsEnabled ? adInterval : 0}
       firstAdPosition={firstAdPosition}
       onAdSlotRequested={handleAdSlotRequested}

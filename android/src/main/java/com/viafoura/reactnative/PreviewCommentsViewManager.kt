@@ -1,6 +1,7 @@
 package com.viafoura.reactnative
 
 import android.view.View
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
@@ -27,9 +28,9 @@ class PreviewCommentsViewManager : ViewGroupManager<PreviewCommentsView>() {
     view.containerId = value
   }
 
-  @ReactProp(name = "authorId")
-  fun setAuthorId(view: PreviewCommentsView, value: String?) {
-    view.authorId = value
+  @ReactProp(name = "authorIds")
+  fun setAuthorIds(view: PreviewCommentsView, value: ReadableArray?) {
+    view.authorIds = value?.toArrayList()?.mapNotNull { it as? String } ?: emptyList()
   }
 
   @ReactProp(name = "articleUrl")
