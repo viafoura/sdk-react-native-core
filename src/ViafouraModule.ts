@@ -26,12 +26,41 @@ export interface ViafouraNativeModule {
   setDataTrackingEnabled(enabled: boolean): Promise<void>;
 }
 
-const ViafouraModule: ViafouraNativeModule =
+interface NativeViafouraModule
+  extends Omit<ViafouraNativeModule, 'socialLogin' | 'loginRadiusLogin' | 'initialize'> {
+  socialLogin(token: string, provider: string | null): Promise<void>;
+  loginRadiusLogin(token: string, provider: string | null): Promise<void>;
+  initialize(
+    siteUUID: string,
+    siteDomain: string,
+    enableLogging: boolean | null
+  ): Promise<void>;
+}
+
+const nativeModule: NativeViafouraModule =
   NativeModules.Viafoura ??
-  new Proxy({} as ViafouraNativeModule, {
+  new Proxy({} as NativeViafouraModule, {
     get() {
       throw new Error(LINKING_ERROR);
     },
   });
+
+// The new architecture's interop layer rejects calls whose argument count differs
+// from the native signature, so optional trailing arguments are always sent as null.
+const ViafouraModule: ViafouraNativeModule = {
+  logout: () => nativeModule.logout(),
+  login: (email, password) => nativeModule.login(email, password),
+  signup: (name, email, password) => nativeModule.signup(name, email, password),
+  socialLogin: (token, provider) => nativeModule.socialLogin(token, provider ?? null),
+  loginRadiusLogin: (token, provider) =>
+    nativeModule.loginRadiusLogin(token, provider ?? null),
+  openIdLogin: (token) => nativeModule.openIdLogin(token),
+  cookieLogin: (token) => nativeModule.cookieLogin(token),
+  resetPassword: (email) => nativeModule.resetPassword(email),
+  getUserLoginStatus: () => nativeModule.getUserLoginStatus(),
+  initialize: (siteUUID, siteDomain, enableLogging) =>
+    nativeModule.initialize(siteUUID, siteDomain, enableLogging ?? null),
+  setDataTrackingEnabled: (enabled) => nativeModule.setDataTrackingEnabled(enabled),
+};
 
 export default ViafouraModule;

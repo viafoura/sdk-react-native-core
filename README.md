@@ -7,7 +7,7 @@ app.
 | Bundled native SDK | Version |
 | --- | --- |
 | iOS `ViafouraSDK.xcframework` | 1.3.12 |
-| Android `com.viafoura:android` | 2.1.16 |
+| Android `com.viafoura:android` | 2.1.19 |
 
 ## Contents
 
