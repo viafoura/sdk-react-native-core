@@ -29,12 +29,12 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
   @objc var fonts: [String: Any] = [:]
 
   // Events
-  @objc var onHeightChanged: RCTDirectEventBlock?
-  @objc var onAuthNeeded: RCTDirectEventBlock?
-  @objc var onOpenProfile: RCTDirectEventBlock?
-  @objc var onNewComment: RCTDirectEventBlock?
-  @objc var onSeeMoreComments: RCTDirectEventBlock?
-  @objc var onAction: RCTDirectEventBlock?
+  @objc(onViafouraHeightChanged) var onHeightChanged: RCTDirectEventBlock?
+  @objc(onViafouraAuthNeeded) var onAuthNeeded: RCTDirectEventBlock?
+  @objc(onViafouraOpenProfile) var onOpenProfile: RCTDirectEventBlock?
+  @objc(onViafouraNewComment) var onNewComment: RCTDirectEventBlock?
+  @objc(onViafouraSeeMoreComments) var onSeeMoreComments: RCTDirectEventBlock?
+  @objc(onViafouraAction) var onAction: RCTDirectEventBlock?
   // Internals
   private weak var conversationStarterViewController: VFConversationStarterViewController?
   private var settings: VFSettings?

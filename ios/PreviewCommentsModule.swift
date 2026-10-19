@@ -86,13 +86,13 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
   @objc var firstAdPosition: Int = 2
 
   // Events
-  @objc var onHeightChanged: RCTDirectEventBlock?
-  @objc var onAuthNeeded: RCTDirectEventBlock?
-  @objc var onOpenProfile: RCTDirectEventBlock?
-  @objc var onNewComment: RCTDirectEventBlock?
-  @objc var onArticlePressed: RCTDirectEventBlock?
-  @objc var onAction: RCTDirectEventBlock?
-  @objc var onAdSlotRequested: RCTDirectEventBlock?
+  @objc(onViafouraHeightChanged) var onHeightChanged: RCTDirectEventBlock?
+  @objc(onViafouraAuthNeeded) var onAuthNeeded: RCTDirectEventBlock?
+  @objc(onViafouraOpenProfile) var onOpenProfile: RCTDirectEventBlock?
+  @objc(onViafouraNewComment) var onNewComment: RCTDirectEventBlock?
+  @objc(onViafouraArticlePressed) var onArticlePressed: RCTDirectEventBlock?
+  @objc(onViafouraAction) var onAction: RCTDirectEventBlock?
+  @objc(onViafouraAdSlotRequested) var onAdSlotRequested: RCTDirectEventBlock?
   // Internals
   weak var previewCommentsViewController: VFPreviewCommentsViewController?
   var settings: VFSettings?

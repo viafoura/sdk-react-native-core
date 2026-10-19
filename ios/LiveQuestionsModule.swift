@@ -30,10 +30,10 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
   @objc var fonts: [String: Any] = [:]
 
   // Events
-  @objc var onHeightChanged: RCTDirectEventBlock?
-  @objc var onAuthNeeded: RCTDirectEventBlock?
-  @objc var onOpenProfile: RCTDirectEventBlock?
-  @objc var onAction: RCTDirectEventBlock?
+  @objc(onViafouraHeightChanged) var onHeightChanged: RCTDirectEventBlock?
+  @objc(onViafouraAuthNeeded) var onAuthNeeded: RCTDirectEventBlock?
+  @objc(onViafouraOpenProfile) var onOpenProfile: RCTDirectEventBlock?
+  @objc(onViafouraAction) var onAction: RCTDirectEventBlock?
 
   // Internals
   private weak var liveQuestionsViewController: VFLiveQuestionsViewController?

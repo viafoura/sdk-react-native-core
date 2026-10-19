@@ -274,6 +274,16 @@ read once when the native view is created. Changing them later has no effect
 until the view remounts; give the view a `key` if you need to swap containers.
 `theme` and `darkMode` are the exception and apply live.
 
+On the native side every event is registered under a Viafoura-specific name:
+`onHeightChanged` travels as `topViafouraHeightChanged` with registration name
+`onViafouraHeightChanged`, and so on for the rest. React Native keeps a single
+process-wide map of view-manager event names, so a generic `topHeightChanged`
+would be overwritten by any other linked library that exports the same name and
+whichever registered first would silently stop receiving events. The wrappers in
+`src/` translate the public prop names, so this only matters if you render the
+native components yourself through `requireNativeComponent`: pass the
+`onViafoura*` props there.
+
 ### PreviewCommentsView
 
 The comment list for an article: header, sort control, comment cells with
