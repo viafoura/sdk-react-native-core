@@ -16,13 +16,13 @@ RCT_EXPORT_VIEW_PROPERTY(fonts, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(adInterval, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(firstAdPosition, NSInteger)
 
-RCT_EXPORT_VIEW_PROPERTY(onHeightChanged, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onAuthNeeded, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onOpenProfile, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onNewComment, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onArticlePressed, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onAction, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onAdSlotRequested, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraHeightChanged, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAuthNeeded, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraOpenProfile, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraNewComment, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraArticlePressed, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAction, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAdSlotRequested, RCTDirectEventBlock)
 
 @end
 
@@ -42,12 +42,12 @@ RCT_EXPORT_VIEW_PROPERTY(theme, NSString)
 RCT_EXPORT_VIEW_PROPERTY(colors, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(fonts, NSDictionary)
 
-RCT_EXPORT_VIEW_PROPERTY(onHeightChanged, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onAuthNeeded, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onOpenProfile, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onNewComment, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onSeeMoreComments, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onAction, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraHeightChanged, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAuthNeeded, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraOpenProfile, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraNewComment, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraSeeMoreComments, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAction, RCTDirectEventBlock)
 
 @end
 
@@ -75,9 +75,9 @@ RCT_EXPORT_VIEW_PROPERTY(theme, NSString)
 RCT_EXPORT_VIEW_PROPERTY(colors, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(fonts, NSDictionary)
 
-RCT_EXPORT_VIEW_PROPERTY(onHeightChanged, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onAuthNeeded, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onOpenProfile, RCTDirectEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onAction, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraHeightChanged, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAuthNeeded, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraOpenProfile, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAction, RCTDirectEventBlock)
 
 @end

@@ -2,9 +2,10 @@ import { requireNativeComponent } from 'react-native';
 import * as React from 'react';
 
 import NativeAdSlotView from './AdSlotView';
+import { NativeViewProps, toNativeEventProps } from './nativeEvents';
 import { PreviewCommentsAdSlotRequestedPayload, PreviewCommentsViewProps } from './Viafoura.types';
 
-const NativeView: React.ComponentType<any> = requireNativeComponent('PreviewComments');
+const NativeView: React.ComponentType<NativeViewProps> = requireNativeComponent('PreviewComments');
 
 const DEFAULT_AD_HEIGHT = 250;
 const DEFAULT_FIRST_AD_POSITION = 2;
@@ -45,11 +46,10 @@ export default function PreviewCommentsView({
 
   return (
     <NativeView
-      {...props}
+      {...toNativeEventProps({ ...props, onAdSlotRequested: handleAdSlotRequested })}
       authorIds={resolvedAuthorIds}
       adInterval={adsEnabled ? adInterval : 0}
       firstAdPosition={firstAdPosition}
-      onAdSlotRequested={handleAdSlotRequested}
     >
       {adsEnabled
         ? slots.map((position) => (

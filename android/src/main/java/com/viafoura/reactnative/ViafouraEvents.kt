@@ -63,17 +63,24 @@ class ViafouraEventEmitterDelegate(private val view: View) {
     thisRef: Any?,
     property: KProperty<*>
   ): ReadOnlyProperty<Any?, ViafouraEventEmitter> {
-    val emitter = ViafouraEventEmitter(view, property.name)
+    val emitter = ViafouraEventEmitter(view, nativeEventName(property.name))
     return ReadOnlyProperty { _, _ -> emitter }
   }
 }
 
 fun View.viafouraEvent() = ViafouraEventEmitterDelegate(this)
 
+private const val NATIVE_EVENT_PREFIX = "topViafoura"
+private const val REGISTRATION_NAME_PREFIX = "onViafoura"
+
+fun nativeEventName(name: String) = NATIVE_EVENT_PREFIX + name.removePrefix("on")
+
+fun registrationName(name: String) = REGISTRATION_NAME_PREFIX + name.removePrefix("on")
+
 fun eventNamesToDirectEventTypes(vararg names: String): MutableMap<String, Any> {
   val map = mutableMapOf<String, Any>()
   names.forEach { name ->
-    map[name] = mapOf("registrationName" to name)
+    map[nativeEventName(name)] = mapOf("registrationName" to registrationName(name))
   }
   return map
 }
