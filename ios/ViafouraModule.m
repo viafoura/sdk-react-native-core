@@ -43,7 +43,7 @@ RCT_EXTERN_METHOD(getUserLoginStatus:(RCTPromiseResolveBlock)resolve
 
 RCT_EXTERN_METHOD(initialize:(NSString *)siteUUID
                   siteDomain:(NSString *)siteDomain
-                  enableLogging:(nullable NSNumber *)enableLogging
+                  enableLogging:(BOOL)enableLogging
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 

@@ -137,7 +137,7 @@ struct VFCoreAdapter {
   private static let initLock = NSLock()
   private static var initializedKey: String?
 
-  func initialize(siteUUID: String, siteDomain: String, enableLogging: Bool?) throws {
+  func initialize(siteUUID: String, siteDomain: String, enableLogging: Bool) throws {
     guard let key = Self.initializationKey(siteUUID: siteUUID, siteDomain: siteDomain) else {
       throw VFAdapterError.invalidInitialization
     }
@@ -149,15 +149,11 @@ struct VFCoreAdapter {
       guard initializedKey == key else {
         throw VFAdapterError.alreadyInitializedWithDifferentSite
       }
-      if let enableLogging {
-        ViafouraSDK.setLoggingEnabled(enableLogging)
-      }
+      ViafouraSDK.setLoggingEnabled(enableLogging)
       return
     }
 
-    if let enableLogging {
-      ViafouraSDK.setLoggingEnabled(enableLogging)
-    }
+    ViafouraSDK.setLoggingEnabled(enableLogging)
     ViafouraSDK.initialize(siteUUID: siteUUID, siteDomain: siteDomain)
     Self.initializedKey = key
   }
@@ -248,7 +244,7 @@ struct VFAuthAdapter {
 }
 
 struct VFCoreAdapter {
-  func initialize(siteUUID: String, siteDomain: String, enableLogging: Bool?) throws {
+  func initialize(siteUUID: String, siteDomain: String, enableLogging: Bool) throws {
     // no-op
   }
 
@@ -377,7 +373,7 @@ public class ViafouraModule: NSObject {
   public func initialize(
     _ siteUUID: String,
     siteDomain: String,
-    enableLogging: NSNumber?,
+    enableLogging: Bool,
     resolver resolve: @escaping RCTPromiseResolveBlock,
     rejecter reject: @escaping RCTPromiseRejectBlock
   ) {
@@ -390,7 +386,7 @@ public class ViafouraModule: NSObject {
       try core.initialize(
         siteUUID: siteUUID,
         siteDomain: siteDomain,
-        enableLogging: enableLogging?.boolValue
+        enableLogging: enableLogging
       )
       resolve(nil)
     } catch {
