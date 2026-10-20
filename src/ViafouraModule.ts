@@ -33,7 +33,7 @@ interface NativeViafouraModule
   initialize(
     siteUUID: string,
     siteDomain: string,
-    enableLogging: boolean | null
+    enableLogging: boolean
   ): Promise<void>;
 }
 
@@ -59,7 +59,7 @@ const ViafouraModule: ViafouraNativeModule = {
   resetPassword: (email) => nativeModule.resetPassword(email),
   getUserLoginStatus: () => nativeModule.getUserLoginStatus(),
   initialize: (siteUUID, siteDomain, enableLogging) =>
-    nativeModule.initialize(siteUUID, siteDomain, enableLogging ?? null),
+    nativeModule.initialize(siteUUID, siteDomain, enableLogging ?? false),
   setDataTrackingEnabled: (enabled) => nativeModule.setDataTrackingEnabled(enabled),
 };
 

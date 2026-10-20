@@ -162,7 +162,7 @@ class ViafouraModule(private val reactContext: ReactApplicationContext) :
   fun initialize(
     siteUUID: String,
     siteDomain: String,
-    enableLogging: Boolean?,
+    enableLogging: Boolean,
     promise: Promise
   ) {
     val context = reactContext.applicationContext
@@ -186,11 +186,11 @@ class ViafouraModule(private val reactContext: ReactApplicationContext) :
           if (currentKey != initKey) {
             throw IllegalStateException("ViafouraSDK is already initialized with a different site")
           }
-          enableLogging?.let { ViafouraSDK.isLoggingEnabled = it }
+          ViafouraSDK.isLoggingEnabled = enableLogging
           return@synchronized
         }
 
-        enableLogging?.let { ViafouraSDK.isLoggingEnabled = it }
+        ViafouraSDK.isLoggingEnabled = enableLogging
         ViafouraSDK.initialize(context, siteUUID, siteDomain)
         initializedKey = initKey
       }
