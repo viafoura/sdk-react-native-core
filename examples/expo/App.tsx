@@ -9,6 +9,7 @@ import { viafouraConfig } from './viafouraConfig';
 import { applyCustomUI } from './customUI';
 import CommentsScreen from './screens/CommentsScreen';
 import LiveQuestionsScreen from './screens/LiveQuestionsScreen';
+import PollScreen from './screens/PollScreen';
 import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
@@ -45,6 +46,7 @@ export default function App() {
           component={LiveQuestionsScreen}
           options={{ title: viafouraConfig.liveQuestionsTitle }}
         />
+        <Stack.Screen name="Poll" component={PollScreen} options={{ title: 'Poll' }} />
         <Stack.Screen name="NewComment" options={{ title: 'New Comment' }}>
           {(props) => <NewCommentScreen {...props} />}
         </Stack.Screen>

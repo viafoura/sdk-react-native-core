@@ -7,9 +7,10 @@ package at the repository root, so it always runs the source in this checkout.
 
 | Screen | Shows |
 | --- | --- |
-| Article list | Entry points for two articles and a Live Q&A session |
+| Article list | Entry points for two articles, a Live Q&A session and a poll |
 | Article | `ConversationStarterView` above `PreviewCommentsView`, both sized from `onHeightChanged`, with React-rendered ads (`renderAd`), `colors`, `fonts`, a dark-mode switch driving `theme`, and `onAction` logging |
 | Live Q&A | `LiveQuestionsView` sized from `onHeightChanged`, with the native composer and `onAction` logging |
+| Poll | `PollView` by container id, sized from `onHeightChanged`, with `onAction` logging |
 | Profile, New comment | `ProfileView` and `NewCommentView`, reached only on Android (iOS presents them natively) |
 | Login, Sign up, Forgot password | `Viafoura.login`, `Viafoura.signup`, `Viafoura.resetPassword` |
 

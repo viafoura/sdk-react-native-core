@@ -97,6 +97,12 @@ export default function CommentsScreen({ initError, navigation }: CommentsScreen
             >
               <Text style={styles.actionButtonText}>Open Live Q&A</Text>
             </Pressable>
+            <Pressable
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Poll')}
+            >
+              <Text style={styles.actionButtonText}>Open poll</Text>
+            </Pressable>
           </View>
         </View>
         {initError ? (
