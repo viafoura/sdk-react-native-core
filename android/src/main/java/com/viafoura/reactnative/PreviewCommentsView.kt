@@ -184,7 +184,7 @@ class PreviewCommentsView(context: Context) :
       activity.supportFragmentManager
         .beginTransaction()
         .remove(frag)
-        .commit()
+        .commitAllowingStateLoss()
     }
     fragment = null
   }

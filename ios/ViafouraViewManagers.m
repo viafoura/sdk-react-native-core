@@ -81,3 +81,19 @@ RCT_EXPORT_VIEW_PROPERTY(onViafouraOpenProfile, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onViafouraAction, RCTDirectEventBlock)
 
 @end
+
+@interface RCT_EXTERN_MODULE(ViafouraPollManager, RCTViewManager)
+
+RCT_EXPORT_VIEW_PROPERTY(containerId, NSString)
+RCT_EXPORT_VIEW_PROPERTY(contentContainerUUID, NSString)
+RCT_EXPORT_VIEW_PROPERTY(sectionUUID, NSString)
+RCT_EXPORT_VIEW_PROPERTY(darkMode, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(theme, NSString)
+RCT_EXPORT_VIEW_PROPERTY(colors, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(fonts, NSDictionary)
+
+RCT_EXPORT_VIEW_PROPERTY(onViafouraHeightChanged, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAuthNeeded, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAction, RCTDirectEventBlock)
+
+@end

@@ -28,3 +28,7 @@ export const liveQuestions = {
   ...articles[1],
   title: 'Live Q&A',
 };
+
+export const poll = {
+  containerId: 'standalone-poll',
+};

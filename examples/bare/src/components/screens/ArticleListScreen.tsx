@@ -3,7 +3,7 @@ import { ScrollView, Button } from 'react-native';
 
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
-import { liveQuestions } from '../../viafoura';
+import { liveQuestions, poll } from '../../viafoura';
 
 const ArticleListScreen = () => {
   const navigation = useNavigation();
@@ -25,6 +25,10 @@ const ArticleListScreen = () => {
       <Button
         title="Live Q&A"
         onPress={() => navigation.navigate(Screens.LiveQuestions, liveQuestions)}
+      />
+      <Button
+        title="Poll"
+        onPress={() => navigation.navigate(Screens.Poll, poll)}
       />
     </ScrollView>
   );

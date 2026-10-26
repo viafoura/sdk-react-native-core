@@ -722,3 +722,28 @@ export type LiveQuestionsViewProps = {
   onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
   style?: StyleProp<ViewStyle>;
 };
+
+export type PollHeightChangedPayload = {
+  newHeight: number;
+  containerId: string;
+};
+
+export type PollAuthNeededPayload = {
+  requireLogin: boolean;
+};
+
+export type PollTarget =
+  | { containerId: string; contentContainerUUID?: undefined }
+  | { contentContainerUUID: string; containerId?: undefined };
+
+export type PollViewProps = PollTarget & {
+  sectionUUID?: string;
+  darkMode?: boolean;
+  theme?: VFCustomUITheme;
+  colors?: ViafouraColors;
+  fonts?: ViafouraFonts;
+  onHeightChanged?: (event: { nativeEvent: PollHeightChangedPayload }) => void;
+  onAuthNeeded?: (event: { nativeEvent: PollAuthNeededPayload }) => void;
+  onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
+  style?: StyleProp<ViewStyle>;
+};

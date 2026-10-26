@@ -174,6 +174,23 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
     self.previewCommentsViewController = vc
   }
 
+  override func removeFromSuperview() {
+    detachEmbeddedViewController()
+    super.removeFromSuperview()
+  }
+
+  deinit {
+    detachEmbeddedViewController()
+  }
+
+  private func detachEmbeddedViewController() {
+    guard let vc = previewCommentsViewController else { return }
+    vc.willMove(toParent: nil)
+    vc.view.removeFromSuperview()
+    vc.removeFromParent()
+    previewCommentsViewController = nil
+  }
+
   private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType) {
     guard let parentVC = parentViewController, let settings else { return }
     let profileVC = VFProfileViewController.new(

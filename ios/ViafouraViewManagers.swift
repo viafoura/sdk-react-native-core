@@ -45,3 +45,14 @@ class LiveQuestionsManager: RCTViewManager {
     return true
   }
 }
+
+@objc(ViafouraPollManager)
+class ViafouraPollManager: RCTViewManager {
+  override func view() -> UIView! {
+    return RNPoll()
+  }
+
+  override static func requiresMainQueueSetup() -> Bool {
+    return true
+  }
+}

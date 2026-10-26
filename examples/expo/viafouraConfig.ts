@@ -4,6 +4,7 @@ export const viafouraConfig = {
   containerId: '1994-7e39-5de6-8a3c-9a643ddc103d',
   liveQuestionsContainerId: '1254',
   liveQuestionsTitle: 'Live Q&A',
+  pollContainerId: 'standalone-poll',
   articleUrl:
     'https://viafoura-mobile-demo.vercel.app/posts/here-are-what-media-companies-are-doing-with-covid-19-overload',
   articleTitle: 'Moving Staff to Cover the Coronavirus',

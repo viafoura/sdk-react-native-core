@@ -131,6 +131,23 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
     self.liveQuestionsViewController = vc
   }
 
+  override func removeFromSuperview() {
+    detachEmbeddedViewController()
+    super.removeFromSuperview()
+  }
+
+  deinit {
+    detachEmbeddedViewController()
+  }
+
+  private func detachEmbeddedViewController() {
+    guard let vc = liveQuestionsViewController else { return }
+    vc.willMove(toParent: nil)
+    vc.view.removeFromSuperview()
+    vc.removeFromParent()
+    liveQuestionsViewController = nil
+  }
+
   private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType) {
     guard let parentVC = parentViewController, let settings else { return }
 

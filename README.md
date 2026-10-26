@@ -22,6 +22,7 @@ app.
   - [PreviewCommentsView](#previewcommentsview)
   - [ConversationStarterView](#conversationstarterview)
   - [LiveQuestionsView](#livequestionsview)
+  - [PollView](#pollview)
   - [ProfileView](#profileview-android-only)
   - [NewCommentView](#newcommentview-android-only)
 - [Action events](#action-events)
@@ -134,6 +135,7 @@ export function Article() {
 | `PreviewCommentsView` | yes | yes |
 | `ConversationStarterView` | yes | yes |
 | `LiveQuestionsView` | yes | yes |
+| `PollView` | yes | yes |
 | `ViafouraAdSlot` | yes | yes |
 | `ViafouraCustomUI` | yes | yes |
 | `ProfileView` | renders empty | yes |
@@ -251,7 +253,9 @@ consent.onChange('analytics', applyConsent);
 ### Shared props
 
 Every view takes these. Article metadata identifies the page the comments belong
-to and is required wherever it appears.
+to and is required wherever it appears. `PollView` is the exception: a poll is
+tied to its container rather than to an article, so it takes no article
+metadata and no `syndicationKey`.
 
 | Prop | Type | Meaning |
 | --- | --- | --- |
@@ -405,6 +409,39 @@ are forwarded through the same `onAction` and `onAuthNeeded` callbacks. When a
 post succeeds, `onAction` fires with `type: 'commentPosted'` for a new question
 or `type: 'replyPosted'` for a reply or answer, and `content` carries the UUID of
 the posted content on both platforms.
+
+### PollView
+
+A standalone poll, the mobile counterpart of the `vf-poll` web widget. Both
+platforms.
+
+```tsx
+import { PollView } from '@viafoura/sdk-react-native';
+
+<PollView
+  containerId="YOUR_POLL_CONTAINER_ID"
+  style={{ height }}
+  onHeightChanged={({ nativeEvent }) => setHeight(nativeEvent.newHeight)}
+  onAuthNeeded={() => navigateToLogin()}
+  onAction={({ nativeEvent }) => console.log(nativeEvent)}
+/>
+```
+
+| Prop | Default | Meaning |
+| --- | --- | --- |
+| `containerId` | — | The poll's container id, the same value the `vf-poll` web widget takes. Required unless `contentContainerUUID` is set. |
+| `contentContainerUUID` | — | Opens a poll by its content container UUID instead of resolving it from a container id. Required unless `containerId` is set. Pass exactly one of the two; the `PollViewProps` type rejects both. |
+| `sectionUUID` | — | Scopes the poll to a section. Must be a UUID. |
+
+Events: `onHeightChanged`, `onAuthNeeded`, and `onAction`.
+
+Until a poll exists for the container the view reports a height of `0` to
+readers, so it takes no space on the page. Moderators see a create prompt
+instead, and creating, editing, closing and deleting the poll all happen inside
+the view, which resizes through `onHeightChanged` as each state renders. Voting
+as a guest fires `onAuthNeeded` and an `onAction` with `type: 'authPressed'`.
+The poll has no profile or composer of its own, so there is nothing else to
+present.
 
 ### ProfileView (Android only)
 
@@ -660,7 +697,7 @@ prefix:
 | `report*`, `bottomPicker*` | Report flow and the bottom sheet picker |
 | `trending*` | Trending carousel and vertical list |
 | `notification*` | Notification bell and list |
-| `poll*` | Polls |
+| `poll*` | `PollView`: card, question, options, header, menu and confirmation views |
 | `chat*` | Live chat |
 
 iOS and Android name some views differently. Labels usually end in `Label` on
@@ -735,8 +772,8 @@ sample's directory.
 
 Both cover the same surface: `PreviewCommentsView` with ads, colours, fonts and a
 dark-mode switch; `ConversationStarterView`; `LiveQuestionsView` with the native
-composer; `ProfileView` and `NewCommentView` on Android; login, signup and
-password reset; and a `customUI.ts` that exercises `ViafouraCustomUI`.
+composer; `PollView`; `ProfileView` and `NewCommentView` on Android; login,
+signup and password reset; and a `customUI.ts` that exercises `ViafouraCustomUI`.
 
 ## Development
 

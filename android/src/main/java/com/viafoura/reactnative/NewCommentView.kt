@@ -178,7 +178,7 @@ class NewCommentView(context: Context) :
       activity.supportFragmentManager
         .beginTransaction()
         .remove(frag)
-        .commit()
+        .commitAllowingStateLoss()
     }
     fragment = null
   }

@@ -5,6 +5,7 @@ export enum Screens {
   LiveQuestions = 'LiveQuestions',
   Login = 'Login',
   NewComment = 'NewComment',
+  Poll = 'Poll',
   Profile = 'Profile',
   Signup = 'Signup',
 }
