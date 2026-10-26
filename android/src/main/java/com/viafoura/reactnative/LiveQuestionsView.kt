@@ -166,7 +166,7 @@ class LiveQuestionsView(context: Context) :
       activity.supportFragmentManager
         .beginTransaction()
         .remove(frag)
-        .commit()
+        .commitAllowingStateLoss()
     }
     fragment = null
   }

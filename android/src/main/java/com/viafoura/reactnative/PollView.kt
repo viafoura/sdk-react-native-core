@@ -1,6 +1,7 @@
 package com.viafoura.reactnative
 
 import android.content.Context
+import android.util.Log
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentActivity
@@ -105,7 +106,7 @@ class PollView(context: Context) :
         val id = containerId?.takeIf { it.isNotEmpty() } ?: return
         VFPollFragmentBuilder(id, settings)
       }
-      sectionUUID?.takeIf { it.isNotEmpty() }?.let { builder.sectionUUID(UUID.fromString(it)) }
+      sectionUUID?.takeIf { it.isNotEmpty() }?.let { runCatching { UUID.fromString(it) }.getOrNull() }?.let { builder.sectionUUID(it) }
       val frag = builder.build()
       frag.setActionCallback(this)
       frag.setLayoutCallback(this)
@@ -130,7 +131,8 @@ class PollView(context: Context) :
           )
         )
       }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+      Log.w("PollView", "Could not create poll fragment", e)
     }
   }
 
@@ -142,7 +144,7 @@ class PollView(context: Context) :
       activity.supportFragmentManager
         .beginTransaction()
         .remove(frag)
-        .commit()
+        .commitAllowingStateLoss()
     }
     fragment = null
   }

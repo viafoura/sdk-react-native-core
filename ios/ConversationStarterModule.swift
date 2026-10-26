@@ -119,6 +119,23 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
     self.conversationStarterViewController = vc
   }
 
+  override func removeFromSuperview() {
+    detachEmbeddedViewController()
+    super.removeFromSuperview()
+  }
+
+  deinit {
+    detachEmbeddedViewController()
+  }
+
+  private func detachEmbeddedViewController() {
+    guard let vc = conversationStarterViewController else { return }
+    vc.willMove(toParent: nil)
+    vc.view.removeFromSuperview()
+    vc.removeFromParent()
+    conversationStarterViewController = nil
+  }
+
   private func presentNewCommentViewController(actionType: VFNewCommentActionType) {
     guard let parentVC = parentViewController, let settings, let articleMetadata else { return }
 

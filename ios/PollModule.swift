@@ -85,6 +85,23 @@ class RNPoll: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDelegate {
     self.pollViewController = vc
   }
 
+  override func removeFromSuperview() {
+    detachEmbeddedViewController()
+    super.removeFromSuperview()
+  }
+
+  deinit {
+    detachEmbeddedViewController()
+  }
+
+  private func detachEmbeddedViewController() {
+    guard let vc = pollViewController else { return }
+    vc.willMove(toParent: nil)
+    vc.view.removeFromSuperview()
+    vc.removeFromParent()
+    pollViewController = nil
+  }
+
   private func emitAction(type: String, payload: [String: Any] = [:]) {
     var event = payload
     event["type"] = type
@@ -139,7 +156,7 @@ class RNPoll: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDelegate {
   }
 
   func containerHeightUpdated(viewController: VFUIViewController, height: CGFloat) {
-    onHeightChanged?(["newHeight": height, "containerId": containerId])
+    onHeightChanged?(["newHeight": height, "containerId": containerId.isEmpty ? contentContainerUUID : containerId])
   }
 
   func startLogin() {

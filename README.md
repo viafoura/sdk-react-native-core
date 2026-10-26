@@ -430,7 +430,7 @@ import { PollView } from '@viafoura/sdk-react-native';
 | Prop | Default | Meaning |
 | --- | --- | --- |
 | `containerId` | — | The poll's container id, the same value the `vf-poll` web widget takes. Required unless `contentContainerUUID` is set. |
-| `contentContainerUUID` | — | Opens a poll by its content container UUID instead of resolving it from a container id. Required unless `containerId` is set, and wins when both are given. |
+| `contentContainerUUID` | — | Opens a poll by its content container UUID instead of resolving it from a container id. Required unless `containerId` is set. Pass exactly one of the two; the `PollViewProps` type rejects both. |
 | `sectionUUID` | — | Scopes the poll to a section. Must be a UUID. |
 
 Events: `onHeightChanged`, `onAuthNeeded`, and `onAction`.
