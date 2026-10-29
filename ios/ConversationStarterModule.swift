@@ -26,6 +26,7 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
     }
   }
   @objc var colors: [String: Any] = [:]
+  @objc var profileStyle: String? = nil
   @objc var fonts: [String: Any] = [:]
 
   // Events
@@ -175,7 +176,8 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
       userUUID: userUUID,
       presentationType: presentationType,
       loginDelegate: self,
-      settings: settings
+      settings: settings,
+      style: resolveProfileStyle()
     )
 
     profileVC.setTheme(theme: resolveTheme())
@@ -250,6 +252,10 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
     @unknown default:
       return "create"
     }
+  }
+
+  private func resolveProfileStyle() -> VFProfileStyle {
+    profileStyle?.lowercased() == "drawer" ? .drawer : .default
   }
 
   private func stringForPresentationType(_ presentationType: VFProfilePresentationType) -> String {

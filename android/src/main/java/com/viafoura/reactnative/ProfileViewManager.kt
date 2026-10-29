@@ -23,6 +23,11 @@ class ProfileViewManager : SimpleViewManager<ProfileView>() {
     view.presentationType = value
   }
 
+  @ReactProp(name = "profileStyle")
+  fun setProfileStyle(view: ProfileView, value: String?) {
+    view.profileStyle = value
+  }
+
   @ReactProp(name = "darkMode")
   fun setDarkMode(view: ProfileView, value: Boolean) {
     view.darkMode = value

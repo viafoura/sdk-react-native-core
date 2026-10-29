@@ -178,6 +178,31 @@ import { Platform } from 'react-native';
 Login is the exception: neither platform ships a login screen. `onAuthNeeded`
 fires on both and your app shows its own UI backed by the [auth API](#authentication).
 
+#### Profile style
+
+Both native SDKs ship two profile layouts, selected with `profileStyle`:
+
+| Value | Layout |
+| --- | --- |
+| `default` | The full-screen profile with Feed, Profile and Community segments. |
+| `drawer` | The profile tray that matches the Viafoura web experience: a menu switches between Notifications, Community and Profile, other users open on their own member screen, and the logged-in user can edit their profile in place. |
+
+Because of the split above, the prop lives in two places. On iOS pass it to the
+view that opens the profile (`PreviewCommentsView`, `ConversationStarterView`,
+`LiveQuestionsView`), since the SDK presents the profile from there. On Android
+pass it to `ProfileView`. Setting it on both costs nothing: each platform ignores
+the one it does not use.
+
+```tsx
+<PreviewCommentsView {...articleProps} profileStyle="drawer" onOpenProfile={openProfile} />
+
+<ProfileView userUUID={userUUID} profileStyle="drawer" style={{ flex: 1 }} />
+```
+
+`profileStyle` is read when the profile is created, so it applies to the next
+profile opened. Changing it on a mounted Android `ProfileView` has no effect
+until the view remounts.
+
 ## Authentication
 
 All methods return a promise and reject with an `Error` on failure.
@@ -320,6 +345,7 @@ import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 | `authorId` | — | Marks comments by this user with the author badge. Shorthand for a one-element `authorIds`. |
 | `authorIds` | `[]` | Marks comments by any of these users with the author badge. Merged with `authorId`. Values are Viafoura user ids; Android also accepts a social login id or email. |
 | `adInterval`, `firstAdPosition`, `adHeight`, `renderAd`, `onAdSlotRequested` | ads off | See [Ads](#ads). |
+| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
 | Event | Payload | Fires when |
 | --- | --- | --- |
@@ -358,6 +384,7 @@ import { ConversationStarterView } from '@viafoura/sdk-react-native';
 | `title` | SDK default | Headline. |
 | `description` | SDK default | Body text under the headline. |
 | `minimumCommentCount` | SDK default | Hide the featured comment until the container has this many comments. |
+| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
 Events: `onSeeMoreComments` (the call to action), `onOpenProfile`,
 `onNewComment` and `onAction`. Start it at `height: 0` and let `onHeightChanged`
@@ -391,6 +418,7 @@ import { LiveQuestionsView } from '@viafoura/sdk-react-native';
 | `focusedContentUUID` | — | Opens with this question focused. Must be a UUID. |
 | `limit` | `10` | Questions fetched per page. |
 | `replyLimit` | `2` | Replies fetched per question. |
+| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
 Events: `onHeightChanged`, `onAuthNeeded`, `onOpenProfile`, and `onAction`.
 
@@ -465,6 +493,7 @@ import { ProfileView } from '@viafoura/sdk-react-native';
 | --- | --- | --- |
 | `userUUID` | — | Required. The user to show. |
 | `presentationType` | `profile` | `profile` or `feed`. |
+| `profileStyle` | `default` | `default` or `drawer`. See [Profile style](#profile-style). |
 
 Events: `onCloseProfile`, `onAuthNeeded`, `onAction`. The view fills whatever
 height you give it; it does not report its own.

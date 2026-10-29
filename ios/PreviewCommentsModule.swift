@@ -81,6 +81,7 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
     }
   }
   @objc var colors: [String: Any] = [:]
+  @objc var profileStyle: String? = nil
   @objc var fonts: [String: Any] = [:]
   @objc var adInterval: Int = 0
   @objc var firstAdPosition: Int = 2
@@ -197,7 +198,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
       userUUID: userUUID,
       presentationType: presentationType,
       loginDelegate: self,
-      settings: settings
+      settings: settings,
+      style: resolveProfileStyle()
     )
 
     let callbacks: VFActionsCallbacks = { [weak self] type in
@@ -327,6 +329,10 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
     @unknown default:
       return "create"
     }
+  }
+
+  private func resolveProfileStyle() -> VFProfileStyle {
+    profileStyle?.lowercased() == "drawer" ? .drawer : .default
   }
 
   private func stringForPresentationType(_ presentationType: VFProfilePresentationType) -> String {
