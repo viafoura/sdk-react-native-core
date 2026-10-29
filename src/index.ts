@@ -9,3 +9,4 @@ export { default as NewCommentView } from './NewCommentView';
 export { default as ConversationStarterView } from './ConversationStarterView';
 export { default as LiveQuestionsView } from './LiveQuestionsView';
 export { default as PollView } from './PollView';
+export { default as NotificationBellView } from './NotificationBellView';

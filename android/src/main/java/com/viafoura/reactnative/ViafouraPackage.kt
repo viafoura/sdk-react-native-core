@@ -22,6 +22,7 @@ class ViafouraPackage : ReactPackage {
       ConversationStarterViewManager(),
       LiveQuestionsViewManager(),
       PollViewManager(),
+      NotificationBellViewManager(),
       AdSlotViewManager()
     )
 }

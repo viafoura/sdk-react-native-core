@@ -497,7 +497,8 @@ export type ActionCallbackType =
   | 'closeProfilePressed'
   | 'commentLiked'
   | 'commentDisliked'
-  | 'writeNewQuestionPressed';
+  | 'writeNewQuestionPressed'
+  | 'bellPressed';
 
 export type ActionCallbackPayload =
   | {
@@ -557,6 +558,10 @@ export type ActionCallbackPayload =
       type: 'writeNewQuestionPressed';
       actionType?: 'question' | 'reply' | 'answer';
       content?: string;
+    }
+  | {
+      type: 'bellPressed';
+      userUUID?: string;
     };
 
 export type PreviewCommentsHeightChangedPayload = {
@@ -741,6 +746,28 @@ export type PollAuthNeededPayload = {
 export type PollTarget =
   | { containerId: string; contentContainerUUID?: undefined }
   | { contentContainerUUID: string; containerId?: undefined };
+
+export type NotificationBellPressedPayload = {
+  userUUID: string;
+};
+
+export type NotificationBellAuthNeededPayload = {
+  requireLogin?: boolean;
+};
+
+export type NotificationBellViewProps = {
+  darkMode?: boolean;
+  theme?: VFCustomUITheme;
+  colors?: ViafouraColors;
+  fonts?: ViafouraFonts;
+  profileStyle?: ViafouraProfileStyle;
+  elevationEnabled?: boolean;
+  backgroundColorEnabled?: boolean;
+  onBellPressed?: (event: { nativeEvent: NotificationBellPressedPayload }) => void;
+  onAuthNeeded?: (event: { nativeEvent: NotificationBellAuthNeededPayload }) => void;
+  onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
+  style?: StyleProp<ViewStyle>;
+};
 
 export type PollViewProps = PollTarget & {
   sectionUUID?: string;
