@@ -497,7 +497,8 @@ export type ActionCallbackType =
   | 'closeProfilePressed'
   | 'commentLiked'
   | 'commentDisliked'
-  | 'writeNewQuestionPressed';
+  | 'writeNewQuestionPressed'
+  | 'bellPressed';
 
 export type ActionCallbackPayload =
   | {
@@ -557,6 +558,10 @@ export type ActionCallbackPayload =
       type: 'writeNewQuestionPressed';
       actionType?: 'question' | 'reply' | 'answer';
       content?: string;
+    }
+  | {
+      type: 'bellPressed';
+      userUUID?: string;
     };
 
 export type PreviewCommentsHeightChangedPayload = {
@@ -592,6 +597,8 @@ export type ViafouraAdSlotRenderInfo = {
   position: number;
 };
 
+export type ViafouraProfileStyle = 'default' | 'drawer';
+
 export type PreviewCommentsViewProps = {
   containerId: string;
   authorId?: string;
@@ -605,6 +612,7 @@ export type PreviewCommentsViewProps = {
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;
   fonts?: ViafouraFonts;
+  profileStyle?: ViafouraProfileStyle;
   onHeightChanged?: (event: { nativeEvent: PreviewCommentsHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: PreviewCommentsAuthNeededPayload }) => void;
   onOpenProfile?: (event: { nativeEvent: PreviewCommentsOpenProfilePayload }) => void;
@@ -626,6 +634,7 @@ export type ProfileAuthNeededPayload = {
 export type ProfileViewProps = {
   userUUID: string;
   presentationType?: 'profile' | 'feed';
+  profileStyle?: ViafouraProfileStyle;
   darkMode?: boolean;
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;
@@ -678,6 +687,7 @@ export type ConversationStarterViewProps = {
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;
   fonts?: ViafouraFonts;
+  profileStyle?: ViafouraProfileStyle;
   onHeightChanged?: (event: { nativeEvent: ConversationStarterHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: ConversationStarterAuthNeededPayload }) => void;
   onOpenProfile?: (event: { nativeEvent: ConversationStarterOpenProfilePayload }) => void;
@@ -716,6 +726,7 @@ export type LiveQuestionsViewProps = {
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;
   fonts?: ViafouraFonts;
+  profileStyle?: ViafouraProfileStyle;
   onHeightChanged?: (event: { nativeEvent: LiveQuestionsHeightChangedPayload }) => void;
   onAuthNeeded?: (event: { nativeEvent: LiveQuestionsAuthNeededPayload }) => void;
   onOpenProfile?: (event: { nativeEvent: LiveQuestionsOpenProfilePayload }) => void;
@@ -735,6 +746,28 @@ export type PollAuthNeededPayload = {
 export type PollTarget =
   | { containerId: string; contentContainerUUID?: undefined }
   | { contentContainerUUID: string; containerId?: undefined };
+
+export type NotificationBellPressedPayload = {
+  userUUID: string;
+};
+
+export type NotificationBellAuthNeededPayload = {
+  requireLogin?: boolean;
+};
+
+export type NotificationBellViewProps = {
+  darkMode?: boolean;
+  theme?: VFCustomUITheme;
+  colors?: ViafouraColors;
+  fonts?: ViafouraFonts;
+  profileStyle?: ViafouraProfileStyle;
+  elevationEnabled?: boolean;
+  backgroundColorEnabled?: boolean;
+  onBellPressed?: (event: { nativeEvent: NotificationBellPressedPayload }) => void;
+  onAuthNeeded?: (event: { nativeEvent: NotificationBellAuthNeededPayload }) => void;
+  onAction?: (event: { nativeEvent: ActionCallbackPayload }) => void;
+  style?: StyleProp<ViewStyle>;
+};
 
 export type PollViewProps = PollTarget & {
   sectionUUID?: string;

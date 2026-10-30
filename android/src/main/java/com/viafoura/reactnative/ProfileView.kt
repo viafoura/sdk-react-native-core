@@ -19,6 +19,7 @@ import com.viafourasdk.src.model.local.VFActionData
 import com.viafourasdk.src.model.local.VFActionType
 import com.viafourasdk.src.model.local.VFSettings
 import com.viafourasdk.src.model.local.VFProfilePresentationType
+import com.viafourasdk.src.model.local.VFProfileStyle
 import com.viafourasdk.src.model.local.VFTheme
 import java.util.UUID
 
@@ -28,6 +29,7 @@ class ProfileView(context: Context) :
   // Props
   var userUUID: String? = null
   var presentationType: String? = null // "profile" | "feed"
+  var profileStyle: String? = null // "default" | "drawer"
   var darkMode: Boolean = false
     set(value) {
       field = value
@@ -114,8 +116,13 @@ class ProfileView(context: Context) :
         else -> VFProfilePresentationType.profile
       }
 
+      val style = when (profileStyle?.lowercase()) {
+        "drawer" -> VFProfileStyle.drawer
+        else -> VFProfileStyle.standard
+      }
+
       val uuid = UUID.fromString(requireNotNull(userUUID))
-      val frag = VFProfileFragmentBuilder(uuid, pres, settings).build()
+      val frag = VFProfileFragmentBuilder(uuid, pres, settings).style(style).build()
       frag.setActionCallback(this)
       frag.setCustomUICallback(this)
       frag.setTheme(resolvedTheme)

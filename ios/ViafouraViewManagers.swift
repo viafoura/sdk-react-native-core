@@ -46,6 +46,17 @@ class LiveQuestionsManager: RCTViewManager {
   }
 }
 
+@objc(ViafouraNotificationBellManager)
+class ViafouraNotificationBellManager: RCTViewManager {
+  override func view() -> UIView! {
+    return RNNotificationBell()
+  }
+
+  override static func requiresMainQueueSetup() -> Bool {
+    return true
+  }
+}
+
 @objc(ViafouraPollManager)
 class ViafouraPollManager: RCTViewManager {
   override func view() -> UIView! {

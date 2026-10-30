@@ -11,6 +11,7 @@ export const VIAFOURA_EVENT_PROPS: readonly string[] = [
   'onAdSlotRequested',
   'onCloseProfile',
   'onCloseNewComment',
+  'onBellPressed',
 ];
 
 export type NativeViewProps = Record<string, unknown>;

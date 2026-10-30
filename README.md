@@ -23,6 +23,7 @@ app.
   - [ConversationStarterView](#conversationstarterview)
   - [LiveQuestionsView](#livequestionsview)
   - [PollView](#pollview)
+  - [NotificationBellView](#notificationbellview)
   - [ProfileView](#profileview-android-only)
   - [NewCommentView](#newcommentview-android-only)
 - [Action events](#action-events)
@@ -136,6 +137,7 @@ export function Article() {
 | `ConversationStarterView` | yes | yes |
 | `LiveQuestionsView` | yes | yes |
 | `PollView` | yes | yes |
+| `NotificationBellView` | yes | yes |
 | `ViafouraAdSlot` | yes | yes |
 | `ViafouraCustomUI` | yes | yes |
 | `ProfileView` | renders empty | yes |
@@ -152,6 +154,9 @@ differently, and your navigation code has to account for it:
   you will show the screen twice.
 - **Android** only emits the events. Your app navigates to a screen that renders
   `ProfileView` or `NewCommentView`.
+
+`NotificationBellView` follows the same split: iOS presents the profile when the
+bell is tapped, Android emits `onBellPressed` for you to navigate on.
 
 ```tsx
 import { Platform } from 'react-native';
@@ -177,6 +182,31 @@ import { Platform } from 'react-native';
 
 Login is the exception: neither platform ships a login screen. `onAuthNeeded`
 fires on both and your app shows its own UI backed by the [auth API](#authentication).
+
+#### Profile style
+
+Both native SDKs ship two profile layouts, selected with `profileStyle`:
+
+| Value | Layout |
+| --- | --- |
+| `default` | The full-screen profile with Feed, Profile and Community segments. |
+| `drawer` | The profile tray that matches the Viafoura web experience: a menu switches between Notifications, Community and Profile, other users open on their own member screen, and the logged-in user can edit their profile in place. |
+
+Because of the split above, the prop lives in two places. On iOS pass it to the
+view that opens the profile (`PreviewCommentsView`, `ConversationStarterView`,
+`LiveQuestionsView`, `NotificationBellView`), since the SDK presents the profile
+from there. On Android pass it to `ProfileView`. Setting it on both costs nothing: each platform ignores
+the one it does not use.
+
+```tsx
+<PreviewCommentsView {...articleProps} profileStyle="drawer" onOpenProfile={openProfile} />
+
+<ProfileView userUUID={userUUID} profileStyle="drawer" style={{ flex: 1 }} />
+```
+
+`profileStyle` is read when the profile is created, so it applies to the next
+profile opened. Changing it on a mounted Android `ProfileView` has no effect
+until the view remounts.
 
 ## Authentication
 
@@ -320,6 +350,7 @@ import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 | `authorId` | — | Marks comments by this user with the author badge. Shorthand for a one-element `authorIds`. |
 | `authorIds` | `[]` | Marks comments by any of these users with the author badge. Merged with `authorId`. Values are Viafoura user ids; Android also accepts a social login id or email. |
 | `adInterval`, `firstAdPosition`, `adHeight`, `renderAd`, `onAdSlotRequested` | ads off | See [Ads](#ads). |
+| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
 | Event | Payload | Fires when |
 | --- | --- | --- |
@@ -358,6 +389,7 @@ import { ConversationStarterView } from '@viafoura/sdk-react-native';
 | `title` | SDK default | Headline. |
 | `description` | SDK default | Body text under the headline. |
 | `minimumCommentCount` | SDK default | Hide the featured comment until the container has this many comments. |
+| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
 Events: `onSeeMoreComments` (the call to action), `onOpenProfile`,
 `onNewComment` and `onAction`. Start it at `height: 0` and let `onHeightChanged`
@@ -391,6 +423,7 @@ import { LiveQuestionsView } from '@viafoura/sdk-react-native';
 | `focusedContentUUID` | — | Opens with this question focused. Must be a UUID. |
 | `limit` | `10` | Questions fetched per page. |
 | `replyLimit` | `2` | Replies fetched per question. |
+| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
 Events: `onHeightChanged`, `onAuthNeeded`, `onOpenProfile`, and `onAction`.
 
@@ -443,6 +476,43 @@ as a guest fires `onAuthNeeded` and an `onAction` with `type: 'authPressed'`.
 The poll has no profile or composer of its own, so there is nothing else to
 present.
 
+### NotificationBellView
+
+The notification bell: a bell icon with an unread count that updates live while
+the user is logged in. Both platforms. Put it in a header or toolbar and give it
+a size; the bell fills whatever frame it gets and reports no height of its own.
+
+```tsx
+import { NotificationBellView } from '@viafoura/sdk-react-native';
+
+<NotificationBellView
+  style={{ width: 40, height: 40 }}
+  colors={{ colorPrimary: '#1D5EFF', colorPrimaryLight: '#E8F0FF' }}
+  profileStyle="drawer"
+  onBellPressed={({ nativeEvent }) => {
+    if (Platform.OS !== 'android') return;
+    navigation.navigate('Profile', { userUUID: nativeEvent.userUUID, presentationType: 'profile' });
+  }}
+  onAuthNeeded={() => navigation.navigate('Login')}
+/>
+```
+
+| Prop | Default | Meaning |
+| --- | --- | --- |
+| `elevationEnabled` | `false` | Draws a shadow under the bell. |
+| `backgroundColorEnabled` | `true` | Fills the bell's circle with the theme background. Turn off to draw only the icon and count. |
+| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on tap. See [Profile style](#profile-style). |
+
+| Event | Payload | Fires when |
+| --- | --- | --- |
+| `onBellPressed` | `{ userUUID }` | A logged-in user taps the bell. iOS also presents that user's profile on its notifications; Android leaves navigation to you. |
+| `onAuthNeeded` | `{ requireLogin }` | A guest taps the bell. |
+| `onAction` | see [Action events](#action-events) | `bellPressed` and `authPressed` on both platforms; on iOS also `notificationPressed` and `trendingArticlePressed` from the presented profile. |
+
+The bell takes no article metadata or `containerId`. It needs the SDK
+initialized and reads the session, so the count appears once a user is logged in
+and clears on logout.
+
 ### ProfileView (Android only)
 
 The user profile and activity feed. On iOS this component renders nothing,
@@ -465,6 +535,7 @@ import { ProfileView } from '@viafoura/sdk-react-native';
 | --- | --- | --- |
 | `userUUID` | — | Required. The user to show. |
 | `presentationType` | `profile` | `profile` or `feed`. |
+| `profileStyle` | `default` | `default` or `drawer`. See [Profile style](#profile-style). |
 
 Events: `onCloseProfile`, `onAuthNeeded`, `onAction`. The view fills whatever
 height you give it; it does not report its own.
@@ -517,6 +588,7 @@ in TypeScript):
 | `commentPosted`, `replyPosted` | `content` (new UUID) | Posted from a composer. |
 | `commentLiked`, `commentDisliked` | `content` | Reaction in the conversation starter. |
 | `authPressed` | `requireLogin` | Login or signup needed. Also fires `onAuthNeeded`. |
+| `bellPressed` | `userUUID` | The notification bell was tapped by a logged-in user. Also fires `onBellPressed`. |
 | `closeNewCommentPressed`, `closeProfilePressed` | — | Android: the user closed the composer or profile. |
 
 ## Theming

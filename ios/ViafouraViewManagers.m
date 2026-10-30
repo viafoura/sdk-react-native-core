@@ -13,6 +13,7 @@ RCT_EXPORT_VIEW_PROPERTY(darkMode, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(theme, NSString)
 RCT_EXPORT_VIEW_PROPERTY(colors, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(fonts, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(profileStyle, NSString)
 RCT_EXPORT_VIEW_PROPERTY(adInterval, NSInteger)
 RCT_EXPORT_VIEW_PROPERTY(firstAdPosition, NSInteger)
 
@@ -41,6 +42,7 @@ RCT_EXPORT_VIEW_PROPERTY(darkMode, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(theme, NSString)
 RCT_EXPORT_VIEW_PROPERTY(colors, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(fonts, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(profileStyle, NSString)
 
 RCT_EXPORT_VIEW_PROPERTY(onViafouraHeightChanged, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onViafouraAuthNeeded, RCTDirectEventBlock)
@@ -74,10 +76,27 @@ RCT_EXPORT_VIEW_PROPERTY(darkMode, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(theme, NSString)
 RCT_EXPORT_VIEW_PROPERTY(colors, NSDictionary)
 RCT_EXPORT_VIEW_PROPERTY(fonts, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(profileStyle, NSString)
 
 RCT_EXPORT_VIEW_PROPERTY(onViafouraHeightChanged, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onViafouraAuthNeeded, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onViafouraOpenProfile, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAction, RCTDirectEventBlock)
+
+@end
+
+@interface RCT_EXTERN_MODULE(ViafouraNotificationBellManager, RCTViewManager)
+
+RCT_EXPORT_VIEW_PROPERTY(darkMode, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(theme, NSString)
+RCT_EXPORT_VIEW_PROPERTY(colors, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(fonts, NSDictionary)
+RCT_EXPORT_VIEW_PROPERTY(profileStyle, NSString)
+RCT_EXPORT_VIEW_PROPERTY(elevationEnabled, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(backgroundColorEnabled, BOOL)
+
+RCT_EXPORT_VIEW_PROPERTY(onViafouraBellPressed, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onViafouraAuthNeeded, RCTDirectEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onViafouraAction, RCTDirectEventBlock)
 
 @end
