@@ -29,7 +29,7 @@ class ProfileView(context: Context) :
   // Props
   var userUUID: String? = null
   var presentationType: String? = null // "profile" | "feed"
-  var profileStyle: String? = null // "default" | "drawer"
+  var profileStyle: String? = null // "legacy" | "unity"
   var darkMode: Boolean = false
     set(value) {
       field = value
@@ -117,8 +117,8 @@ class ProfileView(context: Context) :
       }
 
       val style = when (profileStyle?.lowercase()) {
-        "drawer" -> VFProfileStyle.drawer
-        else -> VFProfileStyle.standard
+        "unity" -> VFProfileStyle.unity
+        else -> VFProfileStyle.legacy
       }
 
       val uuid = UUID.fromString(requireNotNull(userUUID))
