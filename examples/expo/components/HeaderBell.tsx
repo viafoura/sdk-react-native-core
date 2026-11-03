@@ -5,6 +5,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { viafouraConfig } from '../viafouraConfig';
 import { handleProfileAction } from '../notifications';
+import { useLoggedIn } from '../authState';
 
 const styles = StyleSheet.create({
   bell: { width: 40, height: 40 },
@@ -15,8 +16,10 @@ type HeaderBellProps = {
 };
 
 export default function HeaderBell({ navigation }: HeaderBellProps) {
+  const loggedIn = useLoggedIn();
   return (
     <NotificationBellView
+      key={String(loggedIn)}
       style={styles.bell}
       colors={{ ...viafouraConfig.colors }}
       fonts={{ ...viafouraConfig.fonts }}

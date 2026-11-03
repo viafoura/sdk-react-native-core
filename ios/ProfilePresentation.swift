@@ -38,29 +38,42 @@ func trendingPayload(metadata: VFArticleMetadata, containerId: String) -> [Strin
 
 func profileCallbacks(
   for profileVC: VFProfileViewController,
+  root: UIViewController?,
   presentMember: @escaping (UUID, UIViewController) -> Void,
   emit: @escaping (String, [String: Any]) -> Void,
   onArticlePressed: @escaping ([String: Any]) -> Void = { _ in }
 ) -> VFActionsCallbacks {
-  return { [weak profileVC] type in
+  return { [weak profileVC, weak root] type in
     guard let profileVC else { return }
     switch type {
     case .trendingArticlePressed(let metadata, let containerId):
-      profileVC.dismiss(animated: true)
       let payload = trendingPayload(metadata: metadata, containerId: containerId)
-      emit("trendingArticlePressed", payload)
-      onArticlePressed(payload)
+      dismissPresentedStack(from: root ?? profileVC.presentingViewController) {
+        emit("trendingArticlePressed", payload)
+        onArticlePressed(payload)
+      }
     case .notificationPressed(let presentation):
+      let payload = notificationPayload(presentation)
       if case .profile(let userUUID) = presentation {
         presentMember(userUUID, profileVC)
+        emit("notificationPressed", payload)
       } else {
-        profileVC.dismiss(animated: true)
+        dismissPresentedStack(from: root ?? profileVC.presentingViewController) {
+          emit("notificationPressed", payload)
+        }
       }
-      emit("notificationPressed", notificationPayload(presentation))
     default:
       break
     }
   }
+}
+
+private func dismissPresentedStack(from presenter: UIViewController?, completion: @escaping () -> Void) {
+  guard let presenter, presenter.presentedViewController != nil else {
+    completion()
+    return
+  }
+  presenter.dismiss(animated: true, completion: completion)
 }
 
 #endif

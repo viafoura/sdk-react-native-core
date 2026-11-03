@@ -162,6 +162,7 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
 
     let callbacks = profileCallbacks(
       for: profileVC,
+      root: parentViewController,
       presentMember: { [weak self] userUUID, presenter in
         self?.presentProfileViewController(userUUID: userUUID, presentationType: .profile, from: presenter)
       },

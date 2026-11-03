@@ -519,7 +519,9 @@ initialized and reads the session. The native SDKs load the unread count when
 the bell is created, and again after a notification is deleted; they do not yet
 refresh it on login or when a new notification arrives. Mount the bell once the
 user is logged in, or give it a `key` tied to the login state so it remounts,
-and the count is current when the screen opens.
+and the count is current when the screen opens. Both samples do the latter:
+`authState.ts` holds the login state, the login and sign-up screens set it, and
+`HeaderBell` keys the bell on it.
 
 ### ProfileView (Android only)
 
@@ -541,8 +543,8 @@ import { ProfileView } from '@viafoura/sdk-react-native';
 
 | Prop | Default | Meaning |
 | --- | --- | --- |
-| `userUUID` | — | Required. The user to show. |
-| `presentationType` | `profile` | `profile` or `feed`. `feed` opens on the notifications, which is what the bell should navigate to. |
+| `userUUID` | — | Required. The user to show. Read when the view is created; to show another user, push a new screen rather than changing the prop. |
+| `presentationType` | `profile` | `profile` or `feed`. `feed` opens on the notifications, which is what the bell should navigate to. Read when the view is created. |
 | `profileStyle` | `legacy` | `legacy` or `unity`. See [Profile style](#profile-style). |
 
 Events: `onCloseProfile`, `onAuthNeeded`, `onAction`. The view fills whatever
@@ -613,14 +615,15 @@ navigates. `presentationType` says what to open:
 | --- | --- | --- |
 | `content` | `containerId`, `articleUrl`, `articleTitle`, `containerUUID`, `contentUUID` | The article's conversation. `contentUUID` is the comment the notification is about. |
 | `liveQuestions` | `containerId`, `articleUrl`, `articleTitle`, `containerUUID`, `contentUUID` | The Live Q&A for that container. Pass `contentUUID` as `focusedContentUUID` to open on the answer. |
-| `profile` | `userUUID` | That member's profile. iOS stacks it on the open profile itself; Android navigates to `ProfileView`. |
+| `profile` | `userUUID` | That member's profile. iOS stacks it on the open profile itself; Android pushes a new `ProfileView` screen, since the one emitting the event reads `userUUID` only when created. |
 | `url` | `url` | A broadcast link. Open it in the browser or your own deep-link handler. |
 
 Where the event arrives follows the platform split: on iOS the SDK presents the
 profile, so listen on the `onAction` of the view that opened it
 (`NotificationBellView`, `PreviewCommentsView`, `ConversationStarterView`,
-`LiveQuestionsView`), and the profile is dismissed before the event fires so
-your navigation is visible. On Android the profile is your own `ProfileView`
+`LiveQuestionsView`). The SDK dismisses the whole profile stack first and fires
+the event once that dismissal has finished, so you can present or navigate
+from the handler straight away. On Android the profile is your own `ProfileView`
 screen, so listen on its `onAction`. One handler covers both:
 
 ```tsx
@@ -642,7 +645,7 @@ const openNotification = (event: ActionCallbackPayload) => {
     }
     case 'profile':
       if (Platform.OS === 'android' && event.userUUID) {
-        navigation.navigate('Profile', { userUUID: event.userUUID, presentationType: 'profile' });
+        navigation.push('Profile', { userUUID: event.userUUID, presentationType: 'profile' });
       }
       return;
     case 'url':

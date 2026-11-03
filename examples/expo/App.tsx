@@ -7,6 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from './navigation/types';
 import { viafouraConfig } from './viafouraConfig';
 import { applyCustomUI } from './customUI';
+import { refreshLoginStatus } from './authState';
 import CommentsScreen from './screens/CommentsScreen';
 import LiveQuestionsScreen from './screens/LiveQuestionsScreen';
 import PollScreen from './screens/PollScreen';
@@ -26,6 +27,7 @@ export default function App() {
   useEffect(() => {
     let isMounted = true;
     Viafoura.initialize(viafouraConfig.siteUUID, viafouraConfig.siteDomain, true)
+      .then(refreshLoginStatus)
       .catch((err) => {
         if (!isMounted) return;
         const message = err instanceof Error ? err.message : String(err);

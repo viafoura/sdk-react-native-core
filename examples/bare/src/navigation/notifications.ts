@@ -1,9 +1,11 @@
 import { Linking, Platform } from 'react-native';
 import type { ActionCallbackPayload } from '@viafoura/sdk-react-native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { ParamListBase } from '@react-navigation/native';
 import { Screens } from './screens';
 import { articles, liveQuestions } from '../viafoura';
 
-export type Navigation = { navigate: (screen: Screens, params?: object) => void };
+export type Navigation = NativeStackNavigationProp<ParamListBase>;
 
 export const handleProfileAction = (
   navigation: Navigation,
@@ -31,7 +33,7 @@ export const handleProfileAction = (
       return;
     case 'profile':
       if (Platform.OS === 'android' && event.userUUID) {
-        navigation.navigate(Screens.Profile, {
+        navigation.push(Screens.Profile, {
           userUUID: event.userUUID,
           presentationType: 'profile',
         });

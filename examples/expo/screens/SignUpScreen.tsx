@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { setLoggedIn } from '../authState';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -73,6 +74,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
             setError(null);
             try {
               await Viafoura.signup(name, email, password);
+              setLoggedIn(true);
               navigation.popToTop();
             } catch (err) {
               setError(err instanceof Error ? err.message : String(err));

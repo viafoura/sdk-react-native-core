@@ -182,6 +182,7 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
 
     let callbacks = profileCallbacks(
       for: profileVC,
+      root: parentViewController,
       presentMember: { [weak self] userUUID, presenter in
         self?.presentProfileViewController(userUUID: userUUID, presentationType: .profile, from: presenter)
       },

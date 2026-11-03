@@ -24,7 +24,7 @@ export function handleProfileAction(navigation: Navigation, event: ActionCallbac
       return;
     case 'profile':
       if (Platform.OS === 'android' && event.userUUID) {
-        navigation.navigate('Profile', { userUUID: event.userUUID, presentationType: 'profile' });
+        navigation.push('Profile', { userUUID: event.userUUID, presentationType: 'profile' });
       }
       return;
     case 'url':

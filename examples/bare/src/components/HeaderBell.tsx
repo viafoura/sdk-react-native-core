@@ -5,13 +5,17 @@ import { Screens } from '../navigation/screens';
 import { handleProfileAction, type Navigation } from '../navigation/notifications';
 import { viafouraFonts } from '../fonts';
 import { viafouraColors } from '../viafoura';
+import { useLoggedIn } from '../authState';
 
 const styles = StyleSheet.create({
   bell: { width: 40, height: 40 },
 });
 
-const HeaderBell = ({ navigation }: { navigation: Navigation }) => (
+const HeaderBell = ({ navigation }: { navigation: Navigation }) => {
+  const loggedIn = useLoggedIn();
+  return (
   <NotificationBellView
+    key={String(loggedIn)}
     style={styles.bell}
     colors={viafouraColors}
     fonts={viafouraFonts}
@@ -25,6 +29,7 @@ const HeaderBell = ({ navigation }: { navigation: Navigation }) => (
     onAuthNeeded={() => navigation.navigate(Screens.Login)}
     onAction={({ nativeEvent }) => handleProfileAction(navigation, nativeEvent)}
   />
-);
+  );
+};
 
 export default HeaderBell;

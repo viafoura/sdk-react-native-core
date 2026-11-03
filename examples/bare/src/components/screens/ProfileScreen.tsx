@@ -2,7 +2,7 @@ import React from 'react';
 import { ProfileView } from '@viafoura/sdk-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
-import { handleProfileAction } from '../../navigation/notifications';
+import { handleProfileAction, type Navigation } from '../../navigation/notifications';
 import { viafouraFonts } from '../../fonts';
 import { StyleSheet } from 'react-native';
 
@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
 });
 
 const ProfileScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<Navigation>();
   const route = useRoute();
 
   return (
