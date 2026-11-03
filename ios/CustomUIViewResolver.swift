@@ -283,6 +283,14 @@ func resolveCustomizableView(_ customView: VFCustomizableView) -> (type: String,
     return ("conversationStarterFeaturedCommentLabel", label)
   case .conversationStarterActionButton(let button):
     return ("conversationStarterActionButton", button)
+  case .conversationStarterMenuButton(let button):
+    return ("conversationStarterMenuButton", button)
+  case .conversationStarterLikeButton(let button):
+    return ("conversationStarterLikeButton", button)
+  case .conversationStarterDislikeButton(let button):
+    return ("conversationStarterDislikeButton", button)
+  case .conversationStarterReplyButton(let button):
+    return ("conversationStarterReplyButton", button)
   case .liveQuestionCellUserAvatar(let avatar):
     return ("liveQuestionCellUserAvatar", avatar)
   case .liveQuestionCellUserImage(let image):

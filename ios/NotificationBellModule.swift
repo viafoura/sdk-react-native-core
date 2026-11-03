@@ -144,7 +144,7 @@ class RNNotificationBell: UIView, VFLoginDelegate, VFCustomUIDelegate {
   }
 
   private func resolveProfileStyle() -> VFProfileStyle {
-    profileStyle?.lowercased() == "drawer" ? .drawer : .default
+    profileStyle?.lowercased() == "unity" ? .unity : .legacy
   }
 
   private func applyThemeIfReady() {

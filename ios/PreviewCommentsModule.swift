@@ -332,7 +332,7 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
   }
 
   private func resolveProfileStyle() -> VFProfileStyle {
-    profileStyle?.lowercased() == "drawer" ? .drawer : .default
+    profileStyle?.lowercased() == "unity" ? .unity : .legacy
   }
 
   private func stringForPresentationType(_ presentationType: VFProfilePresentationType) -> String {

@@ -597,7 +597,7 @@ export type ViafouraAdSlotRenderInfo = {
   position: number;
 };
 
-export type ViafouraProfileStyle = 'default' | 'drawer';
+export type ViafouraProfileStyle = 'legacy' | 'unity';
 
 export type PreviewCommentsViewProps = {
   containerId: string;

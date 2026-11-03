@@ -6,8 +6,8 @@ app.
 
 | Bundled native SDK | Version |
 | --- | --- |
-| iOS `ViafouraSDK.xcframework` | 1.3.12 |
-| Android `com.viafoura:android` | 2.1.20 |
+| iOS `ViafouraSDK.xcframework` | 1.3.18 |
+| Android `com.viafoura:android` | 2.1.25 |
 
 ## Contents
 
@@ -189,8 +189,8 @@ Both native SDKs ship two profile layouts, selected with `profileStyle`:
 
 | Value | Layout |
 | --- | --- |
-| `default` | The full-screen profile with Feed, Profile and Community segments. |
-| `drawer` | The profile tray that matches the Viafoura web experience: a menu switches between Notifications, Community and Profile, other users open on their own member screen, and the logged-in user can edit their profile in place. |
+| `legacy` | The full-screen profile with Feed, Profile and Community segments. |
+| `unity` | The profile tray that matches the Viafoura web experience: a menu switches between Notifications, Community and Profile, other users open on their own member screen, and the logged-in user can edit their profile in place. |
 
 Because of the split above, the prop lives in two places. On iOS pass it to the
 view that opens the profile (`PreviewCommentsView`, `ConversationStarterView`,
@@ -199,9 +199,9 @@ from there. On Android pass it to `ProfileView`. Setting it on both costs nothin
 the one it does not use.
 
 ```tsx
-<PreviewCommentsView {...articleProps} profileStyle="drawer" onOpenProfile={openProfile} />
+<PreviewCommentsView {...articleProps} profileStyle="unity" onOpenProfile={openProfile} />
 
-<ProfileView userUUID={userUUID} profileStyle="drawer" style={{ flex: 1 }} />
+<ProfileView userUUID={userUUID} profileStyle="unity" style={{ flex: 1 }} />
 ```
 
 `profileStyle` is read when the profile is created, so it applies to the next
@@ -350,7 +350,7 @@ import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 | `authorId` | — | Marks comments by this user with the author badge. Shorthand for a one-element `authorIds`. |
 | `authorIds` | `[]` | Marks comments by any of these users with the author badge. Merged with `authorId`. Values are Viafoura user ids; Android also accepts a social login id or email. |
 | `adInterval`, `firstAdPosition`, `adHeight`, `renderAd`, `onAdSlotRequested` | ads off | See [Ads](#ads). |
-| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
+| `profileStyle` | `legacy` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
 | Event | Payload | Fires when |
 | --- | --- | --- |
@@ -389,7 +389,7 @@ import { ConversationStarterView } from '@viafoura/sdk-react-native';
 | `title` | SDK default | Headline. |
 | `description` | SDK default | Body text under the headline. |
 | `minimumCommentCount` | SDK default | Hide the featured comment until the container has this many comments. |
-| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
+| `profileStyle` | `legacy` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
 Events: `onSeeMoreComments` (the call to action), `onOpenProfile`,
 `onNewComment` and `onAction`. Start it at `height: 0` and let `onHeightChanged`
@@ -423,7 +423,7 @@ import { LiveQuestionsView } from '@viafoura/sdk-react-native';
 | `focusedContentUUID` | — | Opens with this question focused. Must be a UUID. |
 | `limit` | `10` | Questions fetched per page. |
 | `replyLimit` | `2` | Replies fetched per question. |
-| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
+| `profileStyle` | `legacy` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
 Events: `onHeightChanged`, `onAuthNeeded`, `onOpenProfile`, and `onAction`.
 
@@ -488,7 +488,7 @@ import { NotificationBellView } from '@viafoura/sdk-react-native';
 <NotificationBellView
   style={{ width: 40, height: 40 }}
   colors={{ colorPrimary: '#1D5EFF', colorPrimaryLight: '#E8F0FF' }}
-  profileStyle="drawer"
+  profileStyle="unity"
   onBellPressed={({ nativeEvent }) => {
     if (Platform.OS !== 'android') return;
     navigation.navigate('Profile', { userUUID: nativeEvent.userUUID, presentationType: 'profile' });
@@ -501,7 +501,7 @@ import { NotificationBellView } from '@viafoura/sdk-react-native';
 | --- | --- | --- |
 | `elevationEnabled` | `false` | Draws a shadow under the bell. |
 | `backgroundColorEnabled` | `true` | Fills the bell's circle with the theme background. Turn off to draw only the icon and count. |
-| `profileStyle` | `default` | iOS only. Layout of the profile the SDK presents on tap. See [Profile style](#profile-style). |
+| `profileStyle` | `legacy` | iOS only. Layout of the profile the SDK presents on tap. See [Profile style](#profile-style). |
 
 | Event | Payload | Fires when |
 | --- | --- | --- |
@@ -535,7 +535,7 @@ import { ProfileView } from '@viafoura/sdk-react-native';
 | --- | --- | --- |
 | `userUUID` | — | Required. The user to show. |
 | `presentationType` | `profile` | `profile` or `feed`. |
-| `profileStyle` | `default` | `default` or `drawer`. See [Profile style](#profile-style). |
+| `profileStyle` | `legacy` | `legacy` or `unity`. See [Profile style](#profile-style). |
 
 Events: `onCloseProfile`, `onAuthNeeded`, `onAction`. The view fills whatever
 height you give it; it does not report its own.
