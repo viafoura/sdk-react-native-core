@@ -192,8 +192,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
     previewCommentsViewController = nil
   }
 
-  private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType) {
-    guard let parentVC = parentViewController, let settings else { return }
+  private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType, from presenter: UIViewController? = nil) {
+    guard let presenter = presenter ?? parentViewController, let settings else { return }
     let profileVC = VFProfileViewController.new(
       userUUID: userUUID,
       presentationType: presentationType,
@@ -202,37 +202,19 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
       style: resolveProfileStyle()
     )
 
-    let callbacks: VFActionsCallbacks = { [weak self] type in
-      guard let self else { return }
-      switch type {
-      case .trendingArticlePressed(let metadata, let containerId):
-        profileVC.dismiss(animated: true)
-        self.emitAction(type: "trendingArticlePressed", payload: ["containerId": containerId, "articleUrl": metadata.url.absoluteString])
-        self.onArticlePressed?(["containerId": containerId, "articleUrl": metadata.url.absoluteString])
-      case .notificationPressed(let presentation):
-        var payload: [String: Any] = [:]
-        switch presentation {
-        case .profile(let userUUID):
-          payload["presentationType"] = "profile"
-          payload["userUUID"] = userUUID.uuidString
-        case .content(let containerUUID, let contentUUID, let containerId, let articleMetadata):
-          payload["presentationType"] = "content"
-          payload["containerUUID"] = containerUUID.uuidString
-          payload["contentUUID"] = contentUUID.uuidString
-          payload["containerId"] = containerId
-          payload["articleUrl"] = articleMetadata.url.absoluteString
-        @unknown default:
-          break
-        }
-        self.emitAction(type: "notificationPressed", payload: payload)
-      default: break
-      }
-    }
+    let callbacks = profileCallbacks(
+      for: profileVC,
+      presentMember: { [weak self] userUUID, presenter in
+        self?.presentProfileViewController(userUUID: userUUID, presentationType: .profile, from: presenter)
+      },
+      emit: { [weak self] type, payload in self?.emitAction(type: type, payload: payload) },
+      onArticlePressed: { [weak self] payload in self?.onArticlePressed?(payload) }
+    )
     profileVC.setTheme(theme: resolveTheme())
     profileVC.loadViewIfNeeded()
     profileVC.setActionCallbacks(callbacks: callbacks)
     profileVC.setCustomUIDelegate(customUIDelegate: self)
-    parentVC.present(profileVC, animated: true)
+    presenter.present(profileVC, animated: true)
   }
 
   private func presentNewCommentViewController(actionType: VFNewCommentActionType) {

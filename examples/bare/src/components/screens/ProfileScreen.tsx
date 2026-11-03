@@ -2,6 +2,7 @@ import React from 'react';
 import { ProfileView } from '@viafoura/sdk-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
+import { handleProfileAction } from '../../navigation/notifications';
 import { viafouraFonts } from '../../fonts';
 import { StyleSheet } from 'react-native';
 
@@ -26,6 +27,7 @@ const ProfileScreen = () => {
       onAuthNeeded={() => {
         navigation.navigate(Screens.Login);
       }}
+      onAction={({ nativeEvent }) => handleProfileAction(navigation, nativeEvent)}
     />
   );
 };

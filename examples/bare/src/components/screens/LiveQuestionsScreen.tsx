@@ -41,6 +41,7 @@ const LiveQuestionsScreen = () => {
         articleThumbnailUrl={route.params.articleThumbnailUrl}
         title={route.params.title}
         sectionUUID={route.params.sectionUUID}
+        focusedContentUUID={route.params.focusedContentUUID}
         theme={darkMode ? 'dark' : 'light'}
         colors={viafouraColors}
         fonts={viafouraFonts}

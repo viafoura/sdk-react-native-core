@@ -15,6 +15,7 @@ import SignUpScreen from './screens/SignUpScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import NewCommentScreen from './screens/NewCommentScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import HeaderBell from './components/HeaderBell';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -38,7 +39,13 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Comments" options={{ title: 'Viafoura' }}>
+        <Stack.Screen
+          name="Comments"
+          options={({ navigation }) => ({
+            title: 'Viafoura',
+            headerRight: () => <HeaderBell navigation={navigation} />,
+          })}
+        >
           {(props) => <CommentsScreen {...props} initError={initError} />}
         </Stack.Screen>
         <Stack.Screen
