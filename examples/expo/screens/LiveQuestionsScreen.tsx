@@ -9,7 +9,7 @@ import { styles } from '../styles';
 
 type LiveQuestionsScreenProps = NativeStackScreenProps<RootStackParamList, 'LiveQuestions'>;
 
-export default function LiveQuestionsScreen({ navigation }: LiveQuestionsScreenProps) {
+export default function LiveQuestionsScreen({ navigation, route }: LiveQuestionsScreenProps) {
   const [darkMode, setDarkMode] = useState(false);
   const [height, setHeight] = useState<number>(600);
 
@@ -26,6 +26,7 @@ export default function LiveQuestionsScreen({ navigation }: LiveQuestionsScreenP
           articleTitle={viafouraConfig.articleTitle}
           articleThumbnailUrl={viafouraConfig.articleThumbnailUrl}
           title={viafouraConfig.liveQuestionsTitle}
+          focusedContentUUID={route.params?.focusedContentUUID}
           theme={darkMode ? 'dark' : 'light'}
           colors={{ ...viafouraConfig.colors }}
           fonts={{ ...viafouraConfig.fonts }}

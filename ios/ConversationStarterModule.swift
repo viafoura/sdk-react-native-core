@@ -169,8 +169,8 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
     parentVC.present(newCommentVC, animated: true)
   }
 
-  private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType) {
-    guard let parentVC = parentViewController, let settings else { return }
+  private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType, from presenter: UIViewController? = nil) {
+    guard let presenter = presenter ?? parentViewController, let settings else { return }
 
     let profileVC = VFProfileViewController.new(
       userUUID: userUUID,
@@ -180,10 +180,19 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
       style: resolveProfileStyle()
     )
 
+    let callbacks = profileCallbacks(
+      for: profileVC,
+      root: parentViewController,
+      presentMember: { [weak self] userUUID, presenter in
+        self?.presentProfileViewController(userUUID: userUUID, presentationType: .profile, from: presenter)
+      },
+      emit: { [weak self] type, payload in self?.emitAction(type: type, payload: payload) }
+    )
     profileVC.setTheme(theme: resolveTheme())
     profileVC.loadViewIfNeeded()
+    profileVC.setActionCallbacks(callbacks: callbacks)
     profileVC.setCustomUIDelegate(customUIDelegate: self)
-    parentVC.present(profileVC, animated: true)
+    presenter.present(profileVC, animated: true)
   }
 
   private func emitAction(type: String, payload: [String: Any] = [:]) {

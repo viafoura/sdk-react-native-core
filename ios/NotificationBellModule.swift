@@ -62,7 +62,7 @@ class RNNotificationBell: UIView, VFLoginDelegate, VFCustomUIDelegate {
       guard let self else { return }
       self.emitAction(type: "bellPressed", payload: ["userUUID": userUUID.uuidString])
       self.onBellPressed?(["userUUID": userUUID.uuidString])
-      self.presentProfileViewController(userUUID: userUUID)
+      self.presentProfileViewController(userUUID: userUUID, presentationType: .feed)
     })
     bell.isElevationEnabled = elevationEnabled
     bell.isBackgroundColorEnabled = backgroundColorEnabled
@@ -74,47 +74,29 @@ class RNNotificationBell: UIView, VFLoginDelegate, VFCustomUIDelegate {
     bellView = bell
   }
 
-  private func presentProfileViewController(userUUID: UUID) {
-    guard let parentVC = parentViewController, let settings else { return }
+  private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType, from presenter: UIViewController? = nil) {
+    guard let presenter = presenter ?? parentViewController, let settings else { return }
     let profileVC = VFProfileViewController.new(
       userUUID: userUUID,
-      presentationType: .profile,
+      presentationType: presentationType,
       loginDelegate: self,
       settings: settings,
       style: resolveProfileStyle()
     )
 
-    let callbacks: VFActionsCallbacks = { [weak self] type in
-      guard let self else { return }
-      switch type {
-      case .trendingArticlePressed(let metadata, let containerId):
-        profileVC.dismiss(animated: true)
-        self.emitAction(type: "trendingArticlePressed", payload: ["containerId": containerId, "articleUrl": metadata.url.absoluteString])
-      case .notificationPressed(let presentation):
-        var payload: [String: Any] = [:]
-        switch presentation {
-        case .profile(let userUUID):
-          payload["presentationType"] = "profile"
-          payload["userUUID"] = userUUID.uuidString
-        case .content(let containerUUID, let contentUUID, let containerId, let articleMetadata):
-          payload["presentationType"] = "content"
-          payload["containerUUID"] = containerUUID.uuidString
-          payload["contentUUID"] = contentUUID.uuidString
-          payload["containerId"] = containerId
-          payload["articleUrl"] = articleMetadata.url.absoluteString
-        @unknown default:
-          break
-        }
-        self.emitAction(type: "notificationPressed", payload: payload)
-      default:
-        break
-      }
-    }
+    let callbacks = profileCallbacks(
+      for: profileVC,
+      root: parentViewController,
+      presentMember: { [weak self] userUUID, presenter in
+        self?.presentProfileViewController(userUUID: userUUID, presentationType: .profile, from: presenter)
+      },
+      emit: { [weak self] type, payload in self?.emitAction(type: type, payload: payload) }
+    )
     profileVC.setTheme(theme: resolveTheme())
     profileVC.loadViewIfNeeded()
     profileVC.setActionCallbacks(callbacks: callbacks)
     profileVC.setCustomUIDelegate(customUIDelegate: self)
-    parentVC.present(profileVC, animated: true)
+    presenter.present(profileVC, animated: true)
   }
 
   private func emitAction(type: String, payload: [String: Any] = [:]) {

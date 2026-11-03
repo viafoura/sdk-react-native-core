@@ -7,6 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { RootStackParamList } from './navigation/types';
 import { viafouraConfig } from './viafouraConfig';
 import { applyCustomUI } from './customUI';
+import { refreshLoginStatus } from './authState';
 import CommentsScreen from './screens/CommentsScreen';
 import LiveQuestionsScreen from './screens/LiveQuestionsScreen';
 import PollScreen from './screens/PollScreen';
@@ -15,6 +16,7 @@ import SignUpScreen from './screens/SignUpScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import NewCommentScreen from './screens/NewCommentScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import HeaderBell from './components/HeaderBell';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -25,6 +27,7 @@ export default function App() {
   useEffect(() => {
     let isMounted = true;
     Viafoura.initialize(viafouraConfig.siteUUID, viafouraConfig.siteDomain, true)
+      .then(refreshLoginStatus)
       .catch((err) => {
         if (!isMounted) return;
         const message = err instanceof Error ? err.message : String(err);
@@ -38,7 +41,13 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Comments" options={{ title: 'Viafoura' }}>
+        <Stack.Screen
+          name="Comments"
+          options={({ navigation }) => ({
+            title: 'Viafoura',
+            headerRight: () => <HeaderBell navigation={navigation} />,
+          })}
+        >
           {(props) => <CommentsScreen {...props} initError={initError} />}
         </Stack.Screen>
         <Stack.Screen

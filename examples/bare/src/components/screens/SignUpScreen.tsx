@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Button, View, TextInput } from 'react-native';
 import Viafoura from '@viafoura/sdk-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { setLoggedIn } from '../../authState';
 
 const styles = StyleSheet.create({
   buttonContainer: {
@@ -82,6 +83,7 @@ const SignUpScreen = () => {
           onPress={() => {
             Viafoura.signup(name, email, password)
               .then(() => {
+                setLoggedIn(true);
                 navigation.goBack();
                 navigation.goBack();
               })

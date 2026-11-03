@@ -148,6 +148,10 @@ export const IOSCustomUIViewType = {
   conversationStarterDescriptionLabel: 'conversationStarterDescriptionLabel',
   conversationStarterFeaturedCommentLabel: 'conversationStarterFeaturedCommentLabel',
   conversationStarterActionButton: 'conversationStarterActionButton',
+  conversationStarterMenuButton: 'conversationStarterMenuButton',
+  conversationStarterLikeButton: 'conversationStarterLikeButton',
+  conversationStarterDislikeButton: 'conversationStarterDislikeButton',
+  conversationStarterReplyButton: 'conversationStarterReplyButton',
   previewCommentsBottomSeparator: 'previewCommentsBottomSeparator',
   previewEmptyCommentsView: 'previewEmptyCommentsView',
   previewSeeMoreCommentsButton: 'previewSeeMoreCommentsButton',
@@ -363,6 +367,16 @@ export const AndroidCustomUIViewType = {
   conversationStarterDescriptionLabel: 'conversationStarterDescriptionLabel',
   conversationStarterFeaturedCommentLabel: 'conversationStarterFeaturedCommentLabel',
   conversationStarterActionButton: 'conversationStarterActionButton',
+  conversationStarterMenuButton: 'conversationStarterMenuButton',
+  conversationStarterLikeButton: 'conversationStarterLikeButton',
+  conversationStarterLikeImage: 'conversationStarterLikeImage',
+  conversationStarterLikeLabel: 'conversationStarterLikeLabel',
+  conversationStarterDislikeButton: 'conversationStarterDislikeButton',
+  conversationStarterDislikeImage: 'conversationStarterDislikeImage',
+  conversationStarterDislikeLabel: 'conversationStarterDislikeLabel',
+  conversationStarterReplyButton: 'conversationStarterReplyButton',
+  conversationStarterReplyImage: 'conversationStarterReplyImage',
+  conversationStarterReplyLabel: 'conversationStarterReplyLabel',
   previewCommentsBottomSeparator: 'previewCommentsBottomSeparator',
   previewEmptyCommentsView: 'previewEmptyCommentsView',
   previewTitleText: 'previewTitleText',
@@ -521,12 +535,14 @@ export type ActionCallbackPayload =
     }
   | {
       type: 'notificationPressed';
-      presentationType?: 'profile' | 'content';
+      presentationType?: 'profile' | 'content' | 'liveQuestions' | 'url';
       userUUID?: string;
       containerUUID?: string;
       contentUUID?: string;
       containerId?: string;
       articleUrl?: string;
+      articleTitle?: string;
+      url?: string;
     }
   | {
       type: 'commentPosted';

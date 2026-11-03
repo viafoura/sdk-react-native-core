@@ -9,6 +9,7 @@ import NewCommentScreen from './src/components/screens/NewCommentScreen';
 import LoginScreen from './src/components/screens/LoginScreen';
 import SignUpScreen from './src/components/screens/SignUpScreen';
 import ForgotPasswordScreen from './src/components/screens/ForgotPasswordScreen';
+import HeaderBell from './src/components/HeaderBell';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -16,6 +17,7 @@ import { Screens } from './src/navigation/screens';
 import Viafoura from '@viafoura/sdk-react-native';
 import { SITE_DOMAIN, SITE_UUID, articles } from './src/viafoura';
 import { applyCustomUI } from './src/customUI';
+import { refreshLoginStatus } from './src/authState';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,9 +25,11 @@ applyCustomUI();
 
 const App = () => {
   React.useEffect(() => {
-    Viafoura.initialize(SITE_UUID, SITE_DOMAIN, true).catch((error) => {
-      console.log(error);
-    });
+    Viafoura.initialize(SITE_UUID, SITE_DOMAIN, true)
+      .then(refreshLoginStatus)
+      .catch((error) => {
+        console.log(error);
+      });
   }, []);
 
   return (
@@ -35,6 +39,9 @@ const App = () => {
           name={Screens.ArticleList}
           initialParams={{ articles }}
           component={ArticleListScreen}
+          options={({ navigation }) => ({
+            headerRight: () => <HeaderBell navigation={navigation} />,
+          })}
         />
         <Stack.Screen name={Screens.Article} component={ArticleScreen} />
         <Stack.Screen
