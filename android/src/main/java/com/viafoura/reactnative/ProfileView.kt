@@ -177,8 +177,9 @@ class ProfileView(context: Context) :
         onCloseProfile(emptyMap<String, Any>())
       }
       VFActionType.authPressed -> {
-        actionPayload["requireLogin"] = true
-        onAuthNeeded(mapOf("requireLogin" to true))
+        val payload = authNeededPayload(action)
+        actionPayload.putAll(payload)
+        onAuthNeeded(payload)
       }
       VFActionType.notificationPressed -> {
         action?.notificationPresentationAction?.let { actionPayload.putAll(notificationPayload(it)) }

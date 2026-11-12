@@ -32,6 +32,7 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
   // Events
   @objc(onViafouraHeightChanged) var onHeightChanged: RCTDirectEventBlock?
   @objc(onViafouraAuthNeeded) var onAuthNeeded: RCTDirectEventBlock?
+  private let authPrompt = AuthPromptTracker()
   @objc(onViafouraOpenProfile) var onOpenProfile: RCTDirectEventBlock?
   @objc(onViafouraNewComment) var onNewComment: RCTDirectEventBlock?
   @objc(onViafouraSeeMoreComments) var onSeeMoreComments: RCTDirectEventBlock?
@@ -101,9 +102,8 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
         self.emitAction(type: "commentLiked", payload: ["content": contentUUID.uuidString])
       case .commentDisliked(let contentUUID):
         self.emitAction(type: "commentDisliked", payload: ["content": contentUUID.uuidString])
-      case .authPressed:
-        self.emitAction(type: "authPressed", payload: ["requireLogin": true])
-        self.onAuthNeeded?(["requireLogin": true])
+      case .authPressed(let promptType):
+        self.authPrompt.promptReceived(promptType)
       default:
         break
       }
@@ -285,8 +285,9 @@ class RNConversationStarter: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustom
 
   // MARK: VFLoginDelegate
   func startLogin() {
-    emitAction(type: "authPressed", payload: ["requireLogin": true])
-    onAuthNeeded?(["requireLogin": true])
+    let payload = authPrompt.loginRequested()
+    emitAction(type: "authPressed", payload: payload)
+    onAuthNeeded?(payload)
   }
 }
 

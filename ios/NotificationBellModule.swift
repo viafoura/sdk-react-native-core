@@ -31,6 +31,7 @@ class RNNotificationBell: UIView, VFLoginDelegate, VFCustomUIDelegate {
 
   @objc(onViafouraBellPressed) var onBellPressed: RCTDirectEventBlock?
   @objc(onViafouraAuthNeeded) var onAuthNeeded: RCTDirectEventBlock?
+  private let authPrompt = AuthPromptTracker()
   @objc(onViafouraAction) var onAction: RCTDirectEventBlock?
 
   private var bellView: VFNotificationBellView?
@@ -90,7 +91,8 @@ class RNNotificationBell: UIView, VFLoginDelegate, VFCustomUIDelegate {
       presentMember: { [weak self] userUUID, presenter in
         self?.presentProfileViewController(userUUID: userUUID, presentationType: .profile, from: presenter)
       },
-      emit: { [weak self] type, payload in self?.emitAction(type: type, payload: payload) }
+      emit: { [weak self] type, payload in self?.emitAction(type: type, payload: payload) },
+      onAuthPrompt: { [weak self] promptType in self?.authPrompt.promptReceived(promptType) }
     )
     profileVC.setTheme(theme: resolveTheme())
     profileVC.loadViewIfNeeded()
@@ -157,8 +159,9 @@ class RNNotificationBell: UIView, VFLoginDelegate, VFCustomUIDelegate {
   }
 
   func startLogin() {
-    emitAction(type: "authPressed", payload: ["requireLogin": true])
-    onAuthNeeded?(["requireLogin": true])
+    let payload = authPrompt.loginRequested()
+    emitAction(type: "authPressed", payload: payload)
+    onAuthNeeded?(payload)
   }
 }
 

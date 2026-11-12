@@ -41,7 +41,8 @@ func profileCallbacks(
   root: UIViewController?,
   presentMember: @escaping (UUID, UIViewController) -> Void,
   emit: @escaping (String, [String: Any]) -> Void,
-  onArticlePressed: @escaping ([String: Any]) -> Void = { _ in }
+  onArticlePressed: @escaping ([String: Any]) -> Void = { _ in },
+  onAuthPrompt: @escaping (VFAuthPromptType) -> Void = { _ in }
 ) -> VFActionsCallbacks {
   return { [weak profileVC, weak root] type in
     guard let profileVC else { return }
@@ -62,6 +63,8 @@ func profileCallbacks(
           emit("notificationPressed", payload)
         }
       }
+    case .authPressed(let promptType):
+      onAuthPrompt(promptType)
     default:
       break
     }

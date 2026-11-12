@@ -18,6 +18,9 @@ import com.viafourasdk.src.model.network.authentication.signup.SignUpResponse
 import com.viafourasdk.src.model.network.authentication.socialLogin.SocialLoginResponse
 import com.viafourasdk.src.model.network.error.NetworkError
 import com.viafourasdk.src.services.auth.VFAuthService
+import com.viafourasdk.src.model.local.VFTrendingSortType
+import com.viafourasdk.src.model.network.comments.trending.TrendingResponse
+import com.viafourasdk.src.services.liveComments.VFLiveCommentsService
 
 class ViafouraModule(private val reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
@@ -204,5 +207,70 @@ class ViafouraModule(private val reactContext: ReactApplicationContext) :
   fun setDataTrackingEnabled(enabled: Boolean, promise: Promise) {
     ViafouraSDK.setDataTrackingEnabled(enabled)
     promise.resolve(null)
+  }
+
+  @ReactMethod
+  fun getCommentCount(containerId: String, syndicationKey: String?, promise: Promise) {
+    if (containerId.isBlank()) {
+      promise.reject("E_VF_COMMENT_COUNT", "Invalid Viafoura container id", null)
+      return
+    }
+    val siteUUID = try {
+      UUID.fromString(ViafouraSDK.siteUUID)
+    } catch (e: Exception) {
+      promise.reject("E_VF_COMMENT_COUNT", "ViafouraSDK is not initialized", null)
+      return
+    }
+    ViafouraSDK.liveComments().getCommentCount(
+      siteUUID,
+      containerId,
+      syndicationKey,
+      object : VFLiveCommentsService.CommentCountCallback {
+        override fun onSuccess(commentCount: Int?) {
+          promise.resolve(commentCount ?: 0)
+        }
+        override fun onError(err: NetworkError) {
+          promise.reject("E_VF_COMMENT_COUNT", err.message ?: "Comment count failed", null)
+        }
+      }
+    )
+  }
+
+  @ReactMethod
+  fun getTrendingArticles(limit: Int, trendWindow: Int, daysPublished: Int?, promise: Promise) {
+    val siteUUID = try {
+      UUID.fromString(ViafouraSDK.siteUUID)
+    } catch (e: Exception) {
+      promise.reject("E_VF_TRENDING", "ViafouraSDK is not initialized", null)
+      return
+    }
+    ViafouraSDK.liveComments().getTrendingContent(
+      siteUUID,
+      limit,
+      daysPublished,
+      trendWindow,
+      VFTrendingSortType.comments,
+      object : VFLiveCommentsService.TrendingContentCallback {
+        override fun onSuccess(trendingResponse: TrendingResponse) {
+          val articles = Arguments.createArray()
+          trendingResponse.trending.orEmpty().forEach { article ->
+            val map = Arguments.createMap()
+            map.putString("containerId", article.containerId)
+            map.putString("contentContainerUUID", article.contentContainerUUID)
+            map.putString("title", article.originTitle)
+            map.putString("url", article.originUrl)
+            map.putInt("commentCount", article.totalVisibleContents?.toInt() ?: 0)
+            map.putDouble("datePublished", article.datePublished?.toDouble() ?: 0.0)
+            article.originSummary?.let { map.putString("summary", it) }
+            article.originImageUrl?.let { map.putString("imageUrl", it) }
+            articles.pushMap(map)
+          }
+          promise.resolve(articles)
+        }
+        override fun onError(err: NetworkError) {
+          promise.reject("E_VF_TRENDING", err.message ?: "Trending articles failed", null)
+        }
+      }
+    )
   }
 }

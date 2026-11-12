@@ -6,6 +6,40 @@ export type ViafouraLoginStatus = {
   userUUID?: string;
 };
 
+export type ViafouraAuthPromptType =
+  | 'like'
+  | 'dislike'
+  | 'header'
+  | 'postContent'
+  | 'followConversation'
+  | 'followUser'
+  | 'muteUser'
+  | 'flag'
+  | 'bellPressed'
+  | 'standaloneBellPressed';
+
+export type ViafouraAuthNeededPayload = {
+  requireLogin?: boolean;
+  promptType?: ViafouraAuthPromptType;
+};
+
+export type ViafouraTrendingOptions = {
+  limit?: number;
+  trendWindow?: number;
+  daysPublished?: number;
+};
+
+export type ViafouraTrendingArticle = {
+  containerId: string;
+  contentContainerUUID: string;
+  title: string;
+  summary?: string;
+  url: string;
+  imageUrl?: string;
+  commentCount: number;
+  datePublished: number;
+};
+
 export type ViafouraModuleEvents = {
   onChange: (params: ChangeEventPayload) => void;
 };
@@ -555,6 +589,7 @@ export type ActionCallbackPayload =
   | {
       type: 'authPressed';
       requireLogin?: boolean;
+      promptType?: ViafouraAuthPromptType;
     }
   | {
       type: 'closeNewCommentPressed';
@@ -585,9 +620,7 @@ export type PreviewCommentsHeightChangedPayload = {
   containerId: string;
 };
 
-export type PreviewCommentsAuthNeededPayload = {
-  requireLogin?: boolean;
-};
+export type PreviewCommentsAuthNeededPayload = ViafouraAuthNeededPayload;
 
 export type PreviewCommentsOpenProfilePayload = {
   userUUID: string;
@@ -643,9 +676,7 @@ export type PreviewCommentsViewProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-export type ProfileAuthNeededPayload = {
-  requireLogin?: boolean;
-};
+export type ProfileAuthNeededPayload = ViafouraAuthNeededPayload;
 
 export type ProfileViewProps = {
   userUUID: string;
@@ -718,9 +749,7 @@ export type LiveQuestionsHeightChangedPayload = {
   containerId: string;
 };
 
-export type LiveQuestionsAuthNeededPayload = {
-  requireLogin: boolean;
-};
+export type LiveQuestionsAuthNeededPayload = ViafouraAuthNeededPayload;
 
 export type LiveQuestionsOpenProfilePayload = {
   userUUID: string;
@@ -755,9 +784,7 @@ export type PollHeightChangedPayload = {
   containerId: string;
 };
 
-export type PollAuthNeededPayload = {
-  requireLogin: boolean;
-};
+export type PollAuthNeededPayload = ViafouraAuthNeededPayload;
 
 export type PollTarget =
   | { containerId: string; contentContainerUUID?: undefined }
@@ -767,9 +794,7 @@ export type NotificationBellPressedPayload = {
   userUUID: string;
 };
 
-export type NotificationBellAuthNeededPayload = {
-  requireLogin?: boolean;
-};
+export type NotificationBellAuthNeededPayload = ViafouraAuthNeededPayload;
 
 export type NotificationBellViewProps = {
   darkMode?: boolean;

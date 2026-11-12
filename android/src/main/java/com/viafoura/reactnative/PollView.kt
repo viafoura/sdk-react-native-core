@@ -164,8 +164,9 @@ class PollView(context: Context) :
     val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
     when (actionType) {
       VFActionType.authPressed -> {
-        actionPayload["requireLogin"] = true
-        onAuthNeeded(mapOf("requireLogin" to true))
+        val payload = authNeededPayload(action)
+        actionPayload.putAll(payload)
+        onAuthNeeded(payload)
       }
       else -> {}
     }

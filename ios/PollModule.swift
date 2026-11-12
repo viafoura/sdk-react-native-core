@@ -23,6 +23,7 @@ class RNPoll: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDelegate {
 
   @objc(onViafouraHeightChanged) var onHeightChanged: RCTDirectEventBlock?
   @objc(onViafouraAuthNeeded) var onAuthNeeded: RCTDirectEventBlock?
+  private let authPrompt = AuthPromptTracker()
   @objc(onViafouraAction) var onAction: RCTDirectEventBlock?
 
   private weak var pollViewController: VFPollViewController?
@@ -66,9 +67,8 @@ class RNPoll: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDelegate {
     let callbacks: VFActionsCallbacks = { [weak self] type in
       guard let self else { return }
       switch type {
-      case .authPressed:
-        self.emitAction(type: "authPressed", payload: ["requireLogin": true])
-        self.onAuthNeeded?(["requireLogin": true])
+      case .authPressed(let promptType):
+        self.authPrompt.promptReceived(promptType)
       default:
         break
       }
@@ -160,8 +160,9 @@ class RNPoll: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDelegate {
   }
 
   func startLogin() {
-    emitAction(type: "authPressed", payload: ["requireLogin": true])
-    onAuthNeeded?(["requireLogin": true])
+    let payload = authPrompt.loginRequested()
+    emitAction(type: "authPressed", payload: payload)
+    onAuthNeeded?(payload)
   }
 }
 

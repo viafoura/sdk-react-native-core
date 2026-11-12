@@ -17,6 +17,8 @@ app.
 - [Platform support](#platform-support)
 - [Authentication](#authentication)
 - [Data tracking and consent](#data-tracking-and-consent)
+- [Comment count](#comment-count)
+- [Trending articles](#trending-articles)
 - [Views](#views)
   - [Shared props](#shared-props)
   - [PreviewCommentsView](#previewcommentsview)
@@ -280,6 +282,43 @@ await Viafoura.initialize(siteUUID, siteDomain);
 consent.onChange('analytics', applyConsent);
 ```
 
+## Comment count
+
+```ts
+const count = await Viafoura.getCommentCount(containerId, syndicationKey?);
+```
+
+Returns the number of visible comments on an article's container without
+rendering a view, for article lists, teasers and badges. `containerId` is the
+same value you pass to the views, and `syndicationKey` is only needed for
+syndicated containers. Call it after `initialize`.
+
+A container that has no comments yet resolves to `0`. The promise rejects when
+the container id is empty, the SDK is not initialized, or on Android when the
+request fails. iOS resolves to `0` when the request fails.
+
+## Trending articles
+
+```ts
+const articles = await Viafoura.getTrendingArticles({
+  limit: 5,
+  trendWindow: 3,
+  daysPublished: 7,
+});
+```
+
+Returns the site's most-commented articles, sorted by comment count, for a
+"most discussed" list or recirculation module. Each entry has `containerId`,
+`contentContainerUUID`, `title`, `url`, `commentCount` and `datePublished`
+(Unix milliseconds), plus `summary` and `imageUrl` when the article has them.
+`containerId` can be passed straight to the views or to `getCommentCount`.
+
+All options are optional and default to the values shown, which match the web
+trending component. `trendWindow` is the number of hours of comment activity
+to rank on, between 1 and 48. `daysPublished` only considers articles published
+within that many days; pass `0` to rank articles of any age. The promise rejects
+when the SDK is not initialized or the request fails.
+
 ## Views
 
 ### Shared props
@@ -301,7 +340,7 @@ metadata and no `syndicationKey`.
 | `fonts` | `ViafouraFonts` | Font family per weight. See [Fonts](#fonts). |
 | `style` | `ViewStyle` | Give the view a `height`; see `onHeightChanged`. |
 | `onHeightChanged` | event | `{ newHeight, containerId }`. Fires whenever the native content height changes. |
-| `onAuthNeeded` | event | `{ requireLogin }`. The user tried something that needs an account. |
+| `onAuthNeeded` | event | `{ requireLogin, promptType? }`. The user tried something that needs an account. See [Sign-in prompts](#sign-in-prompts). |
 | `onAction` | event | Every native action as one stream. See [Action events](#action-events). |
 
 Props that configure the native session (`containerId`, article metadata,
@@ -511,7 +550,7 @@ import { NotificationBellView } from '@viafoura/sdk-react-native';
 | Event | Payload | Fires when |
 | --- | --- | --- |
 | `onBellPressed` | `{ userUUID }` | A logged-in user taps the bell. iOS also opens that user's notifications; Android leaves navigation to you, so render a `ProfileView` with `presentationType="feed"`. |
-| `onAuthNeeded` | `{ requireLogin }` | A guest taps the bell. |
+| `onAuthNeeded` | `{ requireLogin, promptType? }` | A guest taps the bell. |
 | `onAction` | see [Action events](#action-events) | `bellPressed` and `authPressed` on both platforms; on iOS also `notificationPressed` and `trendingArticlePressed` from the notifications it opened. See [Opening a notification](#opening-a-notification). |
 
 The bell takes no article metadata or `containerId`. It needs the SDK
@@ -599,9 +638,39 @@ in TypeScript):
 | `notificationPressed` | `presentationType` (`profile`/`content`/`liveQuestions`/`url`) and the fields for that type, see [Opening a notification](#opening-a-notification) | A notification was tapped inside the profile. |
 | `commentPosted`, `replyPosted` | `content` (new UUID) | Posted from a composer. |
 | `commentLiked`, `commentDisliked` | `content` | Reaction in the conversation starter. |
-| `authPressed` | `requireLogin` | Login or signup needed. Also fires `onAuthNeeded`. |
+| `authPressed` | `requireLogin`, `promptType` | Login or signup needed. Also fires `onAuthNeeded`. See [Sign-in prompts](#sign-in-prompts). |
 | `bellPressed` | `userUUID` | The notification bell was tapped by a logged-in user. Also fires `onBellPressed`. |
 | `closeNewCommentPressed`, `closeProfilePressed` | — | Android: the user closed the composer or profile. |
+
+### Sign-in prompts
+
+`onAuthNeeded` and the `authPressed` action carry a `promptType` naming the control
+the guest tapped, so analytics can attribute sign-ups to the feature that drove them
+(`ViafouraAuthPromptType` in TypeScript):
+
+| `promptType` | The guest tapped |
+| --- | --- |
+| `header` | The sign-in or sign-up button at the top of a list. |
+| `postContent` | Post, reply or the comment/question composer. |
+| `like`, `dislike` | A reaction on a comment or answer. |
+| `flag` | Report a comment. |
+| `followConversation` | Follow this conversation. |
+| `followUser`, `muteUser` | Follow or mute from a profile. |
+| `bellPressed` | The notification bell inside a comment list. |
+| `standaloneBellPressed` | `NotificationBellView`. |
+
+```tsx
+<PreviewCommentsView
+  {...articleProps}
+  onAuthNeeded={({ nativeEvent }) => {
+    analytics.track('sign_in_prompt', { source: nativeEvent.promptType ?? 'unknown' });
+    navigation.navigate('Login');
+  }}
+/>
+```
+
+`promptType` is absent for the few native paths that ask for sign-in without naming a
+control, so treat it as optional.
 
 ### Opening a notification
 

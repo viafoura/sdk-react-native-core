@@ -33,6 +33,7 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
   // Events
   @objc(onViafouraHeightChanged) var onHeightChanged: RCTDirectEventBlock?
   @objc(onViafouraAuthNeeded) var onAuthNeeded: RCTDirectEventBlock?
+  private let authPrompt = AuthPromptTracker()
   @objc(onViafouraOpenProfile) var onOpenProfile: RCTDirectEventBlock?
   @objc(onViafouraAction) var onAction: RCTDirectEventBlock?
 
@@ -110,9 +111,8 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
         self.emitAction(type: "openProfilePressed", payload: ["userUUID": userUUID.uuidString, "presentationType": presentation])
         self.onOpenProfile?(["userUUID": userUUID.uuidString, "presentationType": presentation])
         self.presentProfileViewController(userUUID: userUUID, presentationType: presentationType)
-      case .authPressed:
-        self.emitAction(type: "authPressed", payload: ["requireLogin": true])
-        self.onAuthNeeded?(["requireLogin": true])
+      case .authPressed(let promptType):
+        self.authPrompt.promptReceived(promptType)
       case .writeNewQuestionPressed(let actionType):
         self.emitAction(type: "writeNewQuestionPressed", payload: self.payloadForQuestionAction(actionType))
         self.presentComposerViewController(actionType: actionType)
@@ -194,9 +194,8 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
         self.emitAction(type: "commentPosted", payload: ["content": contentUUID.uuidString])
       case .replyPosted(let contentUUID):
         self.emitAction(type: "replyPosted", payload: ["content": contentUUID.uuidString])
-      case .authPressed:
-        self.emitAction(type: "authPressed", payload: ["requireLogin": true])
-        self.onAuthNeeded?(["requireLogin": true])
+      case .authPressed(let promptType):
+        self.authPrompt.promptReceived(promptType)
       default:
         break
       }
@@ -295,8 +294,9 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
 
   // MARK: VFLoginDelegate
   func startLogin() {
-    emitAction(type: "authPressed", payload: ["requireLogin": true])
-    onAuthNeeded?(["requireLogin": true])
+    let payload = authPrompt.loginRequested()
+    emitAction(type: "authPressed", payload: payload)
+    onAuthNeeded?(payload)
   }
 }
 

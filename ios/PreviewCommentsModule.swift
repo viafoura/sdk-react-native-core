@@ -89,6 +89,7 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
   // Events
   @objc(onViafouraHeightChanged) var onHeightChanged: RCTDirectEventBlock?
   @objc(onViafouraAuthNeeded) var onAuthNeeded: RCTDirectEventBlock?
+  private let authPrompt = AuthPromptTracker()
   @objc(onViafouraOpenProfile) var onOpenProfile: RCTDirectEventBlock?
   @objc(onViafouraNewComment) var onNewComment: RCTDirectEventBlock?
   @objc(onViafouraArticlePressed) var onArticlePressed: RCTDirectEventBlock?
@@ -157,6 +158,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
         self.presentProfileViewController(userUUID: userUUID, presentationType: presentationType)
       case .seeMoreCommentsPressed:
         self.emitAction(type: "seeMoreCommentsPressed")
+      case .authPressed(let promptType):
+        self.authPrompt.promptReceived(promptType)
       default:
         break
       }
@@ -209,7 +212,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
         self?.presentProfileViewController(userUUID: userUUID, presentationType: .profile, from: presenter)
       },
       emit: { [weak self] type, payload in self?.emitAction(type: type, payload: payload) },
-      onArticlePressed: { [weak self] payload in self?.onArticlePressed?(payload) }
+      onArticlePressed: { [weak self] payload in self?.onArticlePressed?(payload) },
+      onAuthPrompt: { [weak self] promptType in self?.authPrompt.promptReceived(promptType) }
     )
     profileVC.setTheme(theme: resolveTheme())
     profileVC.loadViewIfNeeded()
@@ -236,6 +240,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
         self.onNewComment?(["content": contentUUID.uuidString])
       case .replyPosted(let contentUUID):
         self.emitAction(type: "replyPosted", payload: ["content": contentUUID.uuidString])
+      case .authPressed(let promptType):
+        self.authPrompt.promptReceived(promptType)
       default: break
       }
     }
@@ -336,8 +342,9 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
 
   // MARK: VFLoginDelegate
   func startLogin() {
-    emitAction(type: "authPressed", payload: ["requireLogin": true])
-    onAuthNeeded?(["requireLogin": true])
+    let payload = authPrompt.loginRequested()
+    emitAction(type: "authPressed", payload: payload)
+    onAuthNeeded?(payload)
   }
 
   // MARK: VFAdDelegate
