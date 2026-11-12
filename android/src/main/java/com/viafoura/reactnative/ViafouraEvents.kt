@@ -7,6 +7,7 @@ import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.uimanager.events.Event
 import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.viafourasdk.src.model.local.VFActionData
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -69,6 +70,12 @@ class ViafouraEventEmitterDelegate(private val view: View) {
 }
 
 fun View.viafouraEvent() = ViafouraEventEmitterDelegate(this)
+
+fun authNeededPayload(action: VFActionData?): Map<String, Any> {
+  val payload = mutableMapOf<String, Any>("requireLogin" to true)
+  action?.authPromptType?.let { payload["promptType"] = it.name }
+  return payload
+}
 
 private const val NATIVE_EVENT_PREFIX = "topViafoura"
 private const val REGISTRATION_NAME_PREFIX = "onViafoura"

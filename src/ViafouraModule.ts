@@ -1,6 +1,10 @@
 import { NativeModules, Platform } from 'react-native';
 
-import type { ViafouraLoginStatus } from './Viafoura.types';
+import type {
+  ViafouraLoginStatus,
+  ViafouraTrendingArticle,
+  ViafouraTrendingOptions,
+} from './Viafoura.types';
 
 const LINKING_ERROR =
   `The package '@viafoura/sdk-react-native' doesn't seem to be linked. Make sure:\n\n` +
@@ -24,10 +28,17 @@ export interface ViafouraNativeModule {
     enableLogging?: boolean
   ): Promise<void>;
   setDataTrackingEnabled(enabled: boolean): Promise<void>;
+  getCommentCount(containerId: string, syndicationKey?: string): Promise<number>;
+  getTrendingArticles(options?: ViafouraTrendingOptions): Promise<ViafouraTrendingArticle[]>;
 }
 
+const TRENDING_DEFAULTS = { limit: 5, trendWindow: 3, daysPublished: 7 };
+
 interface NativeViafouraModule
-  extends Omit<ViafouraNativeModule, 'socialLogin' | 'loginRadiusLogin' | 'initialize'> {
+  extends Omit<
+    ViafouraNativeModule,
+    'socialLogin' | 'loginRadiusLogin' | 'initialize' | 'getCommentCount' | 'getTrendingArticles'
+  > {
   socialLogin(token: string, provider: string | null): Promise<void>;
   loginRadiusLogin(token: string, provider: string | null): Promise<void>;
   initialize(
@@ -35,6 +46,12 @@ interface NativeViafouraModule
     siteDomain: string,
     enableLogging: boolean
   ): Promise<void>;
+  getCommentCount(containerId: string, syndicationKey: string | null): Promise<number>;
+  getTrendingArticles(
+    limit: number,
+    trendWindow: number,
+    daysPublished: number | null
+  ): Promise<ViafouraTrendingArticle[]>;
 }
 
 const nativeModule: NativeViafouraModule =
@@ -61,6 +78,16 @@ const ViafouraModule: ViafouraNativeModule = {
   initialize: (siteUUID, siteDomain, enableLogging) =>
     nativeModule.initialize(siteUUID, siteDomain, enableLogging ?? false),
   setDataTrackingEnabled: (enabled) => nativeModule.setDataTrackingEnabled(enabled),
+  getCommentCount: (containerId, syndicationKey) =>
+    nativeModule.getCommentCount(containerId, syndicationKey ?? null),
+  getTrendingArticles: (options) => {
+    const { limit, trendWindow, daysPublished } = { ...TRENDING_DEFAULTS, ...options };
+    return nativeModule.getTrendingArticles(
+      limit,
+      trendWindow,
+      daysPublished > 0 ? daysPublished : null
+    );
+  },
 };
 
 export default ViafouraModule;

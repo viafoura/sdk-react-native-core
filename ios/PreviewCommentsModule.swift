@@ -89,6 +89,7 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
   // Events
   @objc(onViafouraHeightChanged) var onHeightChanged: RCTDirectEventBlock?
   @objc(onViafouraAuthNeeded) var onAuthNeeded: RCTDirectEventBlock?
+  private let authPrompt = AuthPromptTracker()
   @objc(onViafouraOpenProfile) var onOpenProfile: RCTDirectEventBlock?
   @objc(onViafouraNewComment) var onNewComment: RCTDirectEventBlock?
   @objc(onViafouraArticlePressed) var onArticlePressed: RCTDirectEventBlock?
@@ -157,6 +158,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
         self.presentProfileViewController(userUUID: userUUID, presentationType: presentationType)
       case .seeMoreCommentsPressed:
         self.emitAction(type: "seeMoreCommentsPressed")
+      case .authPressed(let promptType):
+        self.authPrompt.promptReceived(promptType)
       default:
         break
       }
@@ -192,8 +195,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
     previewCommentsViewController = nil
   }
 
-  private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType) {
-    guard let parentVC = parentViewController, let settings else { return }
+  private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType, from presenter: UIViewController? = nil) {
+    guard let presenter = presenter ?? parentViewController, let settings else { return }
     let profileVC = VFProfileViewController.new(
       userUUID: userUUID,
       presentationType: presentationType,
@@ -202,37 +205,21 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
       style: resolveProfileStyle()
     )
 
-    let callbacks: VFActionsCallbacks = { [weak self] type in
-      guard let self else { return }
-      switch type {
-      case .trendingArticlePressed(let metadata, let containerId):
-        profileVC.dismiss(animated: true)
-        self.emitAction(type: "trendingArticlePressed", payload: ["containerId": containerId, "articleUrl": metadata.url.absoluteString])
-        self.onArticlePressed?(["containerId": containerId, "articleUrl": metadata.url.absoluteString])
-      case .notificationPressed(let presentation):
-        var payload: [String: Any] = [:]
-        switch presentation {
-        case .profile(let userUUID):
-          payload["presentationType"] = "profile"
-          payload["userUUID"] = userUUID.uuidString
-        case .content(let containerUUID, let contentUUID, let containerId, let articleMetadata):
-          payload["presentationType"] = "content"
-          payload["containerUUID"] = containerUUID.uuidString
-          payload["contentUUID"] = contentUUID.uuidString
-          payload["containerId"] = containerId
-          payload["articleUrl"] = articleMetadata.url.absoluteString
-        @unknown default:
-          break
-        }
-        self.emitAction(type: "notificationPressed", payload: payload)
-      default: break
-      }
-    }
+    let callbacks = profileCallbacks(
+      for: profileVC,
+      root: parentViewController,
+      presentMember: { [weak self] userUUID, presenter in
+        self?.presentProfileViewController(userUUID: userUUID, presentationType: .profile, from: presenter)
+      },
+      emit: { [weak self] type, payload in self?.emitAction(type: type, payload: payload) },
+      onArticlePressed: { [weak self] payload in self?.onArticlePressed?(payload) },
+      onAuthPrompt: { [weak self] promptType in self?.authPrompt.promptReceived(promptType) }
+    )
     profileVC.setTheme(theme: resolveTheme())
     profileVC.loadViewIfNeeded()
     profileVC.setActionCallbacks(callbacks: callbacks)
     profileVC.setCustomUIDelegate(customUIDelegate: self)
-    parentVC.present(profileVC, animated: true)
+    presenter.present(profileVC, animated: true)
   }
 
   private func presentNewCommentViewController(actionType: VFNewCommentActionType) {
@@ -253,6 +240,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
         self.onNewComment?(["content": contentUUID.uuidString])
       case .replyPosted(let contentUUID):
         self.emitAction(type: "replyPosted", payload: ["content": contentUUID.uuidString])
+      case .authPressed(let promptType):
+        self.authPrompt.promptReceived(promptType)
       default: break
       }
     }
@@ -353,8 +342,9 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
 
   // MARK: VFLoginDelegate
   func startLogin() {
-    emitAction(type: "authPressed", payload: ["requireLogin": true])
-    onAuthNeeded?(["requireLogin": true])
+    let payload = authPrompt.loginRequested()
+    emitAction(type: "authPressed", payload: payload)
+    onAuthNeeded?(payload)
   }
 
   // MARK: VFAdDelegate

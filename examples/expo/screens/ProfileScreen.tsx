@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 import { styles } from '../styles';
 import { viafouraConfig } from '../viafouraConfig';
+import { handleProfileAction } from '../notifications';
 
 type ProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
@@ -25,6 +26,7 @@ export default function ProfileScreen({ route, navigation }: ProfileScreenProps)
           }}
           onAction={(event) => {
             console.log('Action callback', event.nativeEvent);
+            handleProfileAction(navigation, event.nativeEvent);
           }}
           style={styles.preview}
         />

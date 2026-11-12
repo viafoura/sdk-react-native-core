@@ -51,6 +51,17 @@ RCT_EXTERN_METHOD(setDataTrackingEnabled:(BOOL)enabled
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(getCommentCount:(NSString *)containerId
+                  syndicationKey:(NSString *)syndicationKey
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
+RCT_EXTERN_METHOD(getTrendingArticles:(nonnull NSNumber *)limit
+                  trendWindow:(nonnull NSNumber *)trendWindow
+                  daysPublished:(NSNumber *)daysPublished
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 + (BOOL)requiresMainQueueSetup { return NO; }
 
 @end

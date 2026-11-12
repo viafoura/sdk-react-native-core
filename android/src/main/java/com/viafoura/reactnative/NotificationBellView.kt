@@ -93,11 +93,12 @@ class NotificationBellView(context: Context) : ReactViewGroup(context) {
         onBellPressed(payload)
         onAction(payload + ("type" to "bellPressed"))
       }
-      bell.setActionCallback { actionType: VFActionType, _: VFActionData? ->
+      bell.setActionCallback { actionType: VFActionType, action: VFActionData? ->
         val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
         if (actionType == VFActionType.authPressed) {
-          actionPayload["requireLogin"] = true
-          onAuthNeeded(mapOf("requireLogin" to true))
+          val payload = authNeededPayload(action)
+          actionPayload.putAll(payload)
+          onAuthNeeded(payload)
         }
         onAction(actionPayload)
       }

@@ -17,6 +17,8 @@ app.
 - [Platform support](#platform-support)
 - [Authentication](#authentication)
 - [Data tracking and consent](#data-tracking-and-consent)
+- [Comment count](#comment-count)
+- [Trending articles](#trending-articles)
 - [Views](#views)
   - [Shared props](#shared-props)
   - [PreviewCommentsView](#previewcommentsview)
@@ -155,8 +157,10 @@ differently, and your navigation code has to account for it:
 - **Android** only emits the events. Your app navigates to a screen that renders
   `ProfileView` or `NewCommentView`.
 
-`NotificationBellView` follows the same split: iOS presents the profile when the
-bell is tapped, Android emits `onBellPressed` for you to navigate on.
+`NotificationBellView` follows the same split: iOS opens the user's notifications
+itself, Android emits `onBellPressed` for you to navigate to a `ProfileView` with
+`presentationType="feed"`. Tapping a notification is an `onAction` event on both
+platforms; see [Opening a notification](#opening-a-notification).
 
 ```tsx
 import { Platform } from 'react-native';
@@ -278,6 +282,43 @@ await Viafoura.initialize(siteUUID, siteDomain);
 consent.onChange('analytics', applyConsent);
 ```
 
+## Comment count
+
+```ts
+const count = await Viafoura.getCommentCount(containerId, syndicationKey?);
+```
+
+Returns the number of visible comments on an article's container without
+rendering a view, for article lists, teasers and badges. `containerId` is the
+same value you pass to the views, and `syndicationKey` is only needed for
+syndicated containers. Call it after `initialize`.
+
+A container that has no comments yet resolves to `0`. The promise rejects when
+the container id is empty, the SDK is not initialized, or on Android when the
+request fails. iOS resolves to `0` when the request fails.
+
+## Trending articles
+
+```ts
+const articles = await Viafoura.getTrendingArticles({
+  limit: 5,
+  trendWindow: 3,
+  daysPublished: 7,
+});
+```
+
+Returns the site's most-commented articles, sorted by comment count, for a
+"most discussed" list or recirculation module. Each entry has `containerId`,
+`contentContainerUUID`, `title`, `url`, `commentCount` and `datePublished`
+(Unix milliseconds), plus `summary` and `imageUrl` when the article has them.
+`containerId` can be passed straight to the views or to `getCommentCount`.
+
+All options are optional and default to the values shown, which match the web
+trending component. `trendWindow` is the number of hours of comment activity
+to rank on, between 1 and 48. `daysPublished` only considers articles published
+within that many days; pass `0` to rank articles of any age. The promise rejects
+when the SDK is not initialized or the request fails.
+
 ## Views
 
 ### Shared props
@@ -299,7 +340,7 @@ metadata and no `syndicationKey`.
 | `fonts` | `ViafouraFonts` | Font family per weight. See [Fonts](#fonts). |
 | `style` | `ViewStyle` | Give the view a `height`; see `onHeightChanged`. |
 | `onHeightChanged` | event | `{ newHeight, containerId }`. Fires whenever the native content height changes. |
-| `onAuthNeeded` | event | `{ requireLogin }`. The user tried something that needs an account. |
+| `onAuthNeeded` | event | `{ requireLogin, promptType? }`. The user tried something that needs an account. See [Sign-in prompts](#sign-in-prompts). |
 | `onAction` | event | Every native action as one stream. See [Action events](#action-events). |
 
 Props that configure the native session (`containerId`, article metadata,
@@ -491,9 +532,12 @@ import { NotificationBellView } from '@viafoura/sdk-react-native';
   profileStyle="unity"
   onBellPressed={({ nativeEvent }) => {
     if (Platform.OS !== 'android') return;
-    navigation.navigate('Profile', { userUUID: nativeEvent.userUUID, presentationType: 'profile' });
+    navigation.navigate('Profile', { userUUID: nativeEvent.userUUID, presentationType: 'feed' });
   }}
   onAuthNeeded={() => navigation.navigate('Login')}
+  onAction={({ nativeEvent }) => {
+    if (nativeEvent.type === 'notificationPressed') openNotification(nativeEvent);
+  }}
 />
 ```
 
@@ -505,13 +549,18 @@ import { NotificationBellView } from '@viafoura/sdk-react-native';
 
 | Event | Payload | Fires when |
 | --- | --- | --- |
-| `onBellPressed` | `{ userUUID }` | A logged-in user taps the bell. iOS also presents that user's profile on its notifications; Android leaves navigation to you. |
-| `onAuthNeeded` | `{ requireLogin }` | A guest taps the bell. |
-| `onAction` | see [Action events](#action-events) | `bellPressed` and `authPressed` on both platforms; on iOS also `notificationPressed` and `trendingArticlePressed` from the presented profile. |
+| `onBellPressed` | `{ userUUID }` | A logged-in user taps the bell. iOS also opens that user's notifications; Android leaves navigation to you, so render a `ProfileView` with `presentationType="feed"`. |
+| `onAuthNeeded` | `{ requireLogin, promptType? }` | A guest taps the bell. |
+| `onAction` | see [Action events](#action-events) | `bellPressed` and `authPressed` on both platforms; on iOS also `notificationPressed` and `trendingArticlePressed` from the notifications it opened. See [Opening a notification](#opening-a-notification). |
 
 The bell takes no article metadata or `containerId`. It needs the SDK
-initialized and reads the session, so the count appears once a user is logged in
-and clears on logout.
+initialized and reads the session. The native SDKs load the unread count when
+the bell is created, and again after a notification is deleted; they do not yet
+refresh it on login or when a new notification arrives. Mount the bell once the
+user is logged in, or give it a `key` tied to the login state so it remounts,
+and the count is current when the screen opens. Both samples do the latter:
+`authState.ts` holds the login state, the login and sign-up screens set it, and
+`HeaderBell` keys the bell on it.
 
 ### ProfileView (Android only)
 
@@ -533,12 +582,14 @@ import { ProfileView } from '@viafoura/sdk-react-native';
 
 | Prop | Default | Meaning |
 | --- | --- | --- |
-| `userUUID` | — | Required. The user to show. |
-| `presentationType` | `profile` | `profile` or `feed`. |
+| `userUUID` | — | Required. The user to show. Read when the view is created; to show another user, push a new screen rather than changing the prop. |
+| `presentationType` | `profile` | `profile` or `feed`. `feed` opens on the notifications, which is what the bell should navigate to. Read when the view is created. |
 | `profileStyle` | `legacy` | `legacy` or `unity`. See [Profile style](#profile-style). |
 
 Events: `onCloseProfile`, `onAuthNeeded`, `onAction`. The view fills whatever
-height you give it; it does not report its own.
+height you give it; it does not report its own. `onAction` is where
+`notificationPressed` and `trendingArticlePressed` arrive on Android; see
+[Opening a notification](#opening-a-notification).
 
 ### NewCommentView (Android only)
 
@@ -584,12 +635,98 @@ in TypeScript):
 | `openProfilePressed` | `userUUID`, `presentationType` | Profile requested. |
 | `seeMoreCommentsPressed` | — | "See more comments" tapped. |
 | `trendingArticlePressed` | `containerId`, `articleUrl` | Trending article tapped. |
-| `notificationPressed` | `presentationType` (`profile`/`content`), `userUUID`, `containerUUID`, `contentUUID`, `containerId`, `articleUrl` | A notification was tapped inside the profile. |
+| `notificationPressed` | `presentationType` (`profile`/`content`/`liveQuestions`/`url`) and the fields for that type, see [Opening a notification](#opening-a-notification) | A notification was tapped inside the profile. |
 | `commentPosted`, `replyPosted` | `content` (new UUID) | Posted from a composer. |
 | `commentLiked`, `commentDisliked` | `content` | Reaction in the conversation starter. |
-| `authPressed` | `requireLogin` | Login or signup needed. Also fires `onAuthNeeded`. |
+| `authPressed` | `requireLogin`, `promptType` | Login or signup needed. Also fires `onAuthNeeded`. See [Sign-in prompts](#sign-in-prompts). |
 | `bellPressed` | `userUUID` | The notification bell was tapped by a logged-in user. Also fires `onBellPressed`. |
 | `closeNewCommentPressed`, `closeProfilePressed` | — | Android: the user closed the composer or profile. |
+
+### Sign-in prompts
+
+`onAuthNeeded` and the `authPressed` action carry a `promptType` naming the control
+the guest tapped, so analytics can attribute sign-ups to the feature that drove them
+(`ViafouraAuthPromptType` in TypeScript):
+
+| `promptType` | The guest tapped |
+| --- | --- |
+| `header` | The sign-in or sign-up button at the top of a list. |
+| `postContent` | Post, reply or the comment/question composer. |
+| `like`, `dislike` | A reaction on a comment or answer. |
+| `flag` | Report a comment. |
+| `followConversation` | Follow this conversation. |
+| `followUser`, `muteUser` | Follow or mute from a profile. |
+| `bellPressed` | The notification bell inside a comment list. |
+| `standaloneBellPressed` | `NotificationBellView`. |
+
+```tsx
+<PreviewCommentsView
+  {...articleProps}
+  onAuthNeeded={({ nativeEvent }) => {
+    analytics.track('sign_in_prompt', { source: nativeEvent.promptType ?? 'unknown' });
+    navigation.navigate('Login');
+  }}
+/>
+```
+
+`promptType` is absent for the few native paths that ask for sign-in without naming a
+control, so treat it as optional.
+
+### Opening a notification
+
+A notification is a reply, a like, a new follower, a Live Q&A answer or a
+broadcast. The SDK works out what it points at and reports it as a
+`notificationPressed` action, but it does not know your screens, so the app
+maps the `containerId` back to the article or Live Q&A it belongs to and
+navigates. `presentationType` says what to open:
+
+| `presentationType` | Fields | Open |
+| --- | --- | --- |
+| `content` | `containerId`, `articleUrl`, `articleTitle`, `containerUUID`, `contentUUID` | The article's conversation. `contentUUID` is the comment the notification is about. |
+| `liveQuestions` | `containerId`, `articleUrl`, `articleTitle`, `containerUUID`, `contentUUID` | The Live Q&A for that container. Pass `contentUUID` as `focusedContentUUID` to open on the answer. |
+| `profile` | `userUUID` | That member's profile. iOS stacks it on the open profile itself; Android pushes a new `ProfileView` screen, since the one emitting the event reads `userUUID` only when created. |
+| `url` | `url` | A broadcast link. Open it in the browser or your own deep-link handler. |
+
+Where the event arrives follows the platform split: on iOS the SDK presents the
+profile, so listen on the `onAction` of the view that opened it
+(`NotificationBellView`, `PreviewCommentsView`, `ConversationStarterView`,
+`LiveQuestionsView`). The SDK dismisses the whole profile stack first and fires
+the event once that dismissal has finished, so you can present or navigate
+from the handler straight away. On Android the profile is your own `ProfileView`
+screen, so listen on its `onAction`. One handler covers both:
+
+```tsx
+import { Linking, Platform } from 'react-native';
+import type { ActionCallbackPayload } from '@viafoura/sdk-react-native';
+
+const openNotification = (event: ActionCallbackPayload) => {
+  if (event.type !== 'notificationPressed') return;
+  switch (event.presentationType) {
+    case 'content': {
+      const article = findArticleByContainerId(event.containerId);
+      if (article) navigation.navigate('Article', { ...article, focusedContentUUID: event.contentUUID });
+      return;
+    }
+    case 'liveQuestions': {
+      const session = findLiveQuestionsByContainerId(event.containerId);
+      if (session) navigation.navigate('LiveQuestions', { ...session, focusedContentUUID: event.contentUUID });
+      return;
+    }
+    case 'profile':
+      if (Platform.OS === 'android' && event.userUUID) {
+        navigation.push('Profile', { userUUID: event.userUUID, presentationType: 'profile' });
+      }
+      return;
+    case 'url':
+      if (event.url) Linking.openURL(event.url);
+      return;
+  }
+};
+```
+
+Both sample apps do this in their `HeaderBell` component and `ProfileScreen`.
+If two Live Q&As run at once, each has its own `containerId`, so the lookup
+sends the user to the right one.
 
 ## Theming
 

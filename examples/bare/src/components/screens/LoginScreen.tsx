@@ -3,6 +3,7 @@ import { StyleSheet, Button, View, Text, TextInput } from 'react-native';
 import Viafoura from '@viafoura/sdk-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Screens } from '../../navigation/screens';
+import { setLoggedIn } from '../../authState';
 
 const styles = StyleSheet.create({
   buttonContainer: {
@@ -72,6 +73,7 @@ const LoginScreen = () => {
           onPress={async () => {
             Viafoura.login(email, password)
               .then(() => {
+                setLoggedIn(true);
                 navigation.goBack();
               })
               .catch((error) => {

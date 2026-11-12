@@ -216,8 +216,9 @@ class ConversationStarterView(context: Context) :
         onOpenProfile(payload)
       }
       VFActionType.authPressed -> {
-        actionPayload["requireLogin"] = true
-        onAuthNeeded(mapOf("requireLogin" to true))
+        val payload = authNeededPayload(action)
+        actionPayload.putAll(payload)
+        onAuthNeeded(payload)
       }
       else -> {}
     }

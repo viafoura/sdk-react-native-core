@@ -9,6 +9,8 @@ enum VFAdapterError: Error, LocalizedError {
   case invalidProvider
   case invalidInitialization
   case alreadyInitializedWithDifferentSite
+  case invalidContainerId
+  case notInitialized
 
   var errorDescription: String? {
     switch self {
@@ -18,6 +20,10 @@ enum VFAdapterError: Error, LocalizedError {
       return "Invalid Viafoura initialization parameters"
     case .alreadyInitializedWithDifferentSite:
       return "ViafouraSDK is already initialized with a different site"
+    case .invalidContainerId:
+      return "Invalid Viafoura container id"
+    case .notInitialized:
+      return "ViafouraSDK is not initialized"
     }
   }
 }
@@ -136,6 +142,7 @@ struct VFAuthAdapter {
 struct VFCoreAdapter {
   private static let initLock = NSLock()
   private static var initializedKey: String?
+  private static var siteUUID: UUID?
 
   func initialize(siteUUID: String, siteDomain: String, enableLogging: Bool) throws {
     guard let key = Self.initializationKey(siteUUID: siteUUID, siteDomain: siteDomain) else {
@@ -156,10 +163,59 @@ struct VFCoreAdapter {
     ViafouraSDK.setLoggingEnabled(enableLogging)
     ViafouraSDK.initialize(siteUUID: siteUUID, siteDomain: siteDomain)
     Self.initializedKey = key
+    Self.siteUUID = UUID(uuidString: siteUUID.trimmingCharacters(in: .whitespacesAndNewlines))
   }
 
   func setDataTrackingEnabled(_ enabled: Bool) {
     ViafouraSDK.setDataTrackingEnabled(enabled)
+  }
+
+  func commentCount(containerId: String, syndicationKey: String?, completion: @escaping (Result<Int, Error>) -> Void) {
+    ViafouraSDK.comments().commentCount(sectionUUID: nil, containerId: containerId, syndicationKey: syndicationKey) { result in
+      switch result {
+      case .success(let count):
+        completion(.success(count))
+      case .failure(let error):
+        completion(.failure(error))
+      }
+    }
+  }
+
+  func trendingArticles(limit: Int, trendWindow: Int, daysPublished: Int?, completion: @escaping (Result<[[String: Any]], Error>) -> Void) {
+    Self.initLock.lock()
+    let siteUUID = Self.siteUUID
+    Self.initLock.unlock()
+    guard let siteUUID else {
+      completion(.failure(VFAdapterError.notInitialized))
+      return
+    }
+    Task {
+      let result = await ViafouraSDK.comments().trendingComments(
+        sectionUUID: siteUUID,
+        limit: limit,
+        contentContainerWindowDays: daysPublished,
+        contentContainerWindowHours: trendWindow,
+        sortedBy: .comments
+      )
+      switch result {
+      case .success(let articles):
+        completion(.success(articles.map { article in
+          var map: [String: Any] = [
+            "containerId": article.container_id,
+            "contentContainerUUID": article.content_container_uuid,
+            "title": article.origin_title,
+            "url": article.origin_url,
+            "commentCount": article.total_visible_contents,
+            "datePublished": article.date_published,
+          ]
+          if let summary = article.origin_summary { map["summary"] = summary }
+          if let imageUrl = article.origin_image_url { map["imageUrl"] = imageUrl }
+          return map
+        }))
+      case .failure(let error):
+        completion(.failure(error))
+      }
+    }
   }
 
   private static func initializationKey(siteUUID: String, siteDomain: String) -> String? {
@@ -192,6 +248,8 @@ enum VFAdapterError: Error, LocalizedError {
   case invalidProvider
   case invalidInitialization
   case alreadyInitializedWithDifferentSite
+  case invalidContainerId
+  case notInitialized
 
   var errorDescription: String? {
     switch self {
@@ -203,6 +261,10 @@ enum VFAdapterError: Error, LocalizedError {
       return "Invalid Viafoura initialization parameters"
     case .alreadyInitializedWithDifferentSite:
       return "ViafouraSDK is already initialized with a different site"
+    case .invalidContainerId:
+      return "Invalid Viafoura container id"
+    case .notInitialized:
+      return "ViafouraSDK is not initialized"
     }
   }
 }
@@ -250,6 +312,14 @@ struct VFCoreAdapter {
 
   func setDataTrackingEnabled(_ enabled: Bool) {
     // no-op
+  }
+
+  func commentCount(containerId: String, syndicationKey: String?, completion: @escaping (Result<Int, Error>) -> Void) {
+    completion(.failure(VFAdapterError.sdkUnavailable))
+  }
+
+  func trendingArticles(limit: Int, trendWindow: Int, daysPublished: Int?, completion: @escaping (Result<[[String: Any]], Error>) -> Void) {
+    completion(.failure(VFAdapterError.sdkUnavailable))
   }
 }
 
@@ -402,5 +472,49 @@ public class ViafouraModule: NSObject {
   ) {
     core.setDataTrackingEnabled(enabled)
     resolve(nil)
+  }
+
+  @objc(getCommentCount:syndicationKey:resolver:rejecter:)
+  public func getCommentCount(
+    _ containerId: String,
+    syndicationKey: String?,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    guard !containerId.isEmpty else {
+      let error = VFAdapterError.invalidContainerId
+      reject("ERR_VIAFOURA", error.localizedDescription, error)
+      return
+    }
+    core.commentCount(containerId: containerId, syndicationKey: syndicationKey) { result in
+      switch result {
+      case .success(let count):
+        resolve(count)
+      case .failure(let error):
+        reject("ERR_VIAFOURA", error.localizedDescription, error)
+      }
+    }
+  }
+
+  @objc(getTrendingArticles:trendWindow:daysPublished:resolver:rejecter:)
+  public func getTrendingArticles(
+    _ limit: NSNumber,
+    trendWindow: NSNumber,
+    daysPublished: NSNumber?,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    core.trendingArticles(
+      limit: limit.intValue,
+      trendWindow: trendWindow.intValue,
+      daysPublished: daysPublished?.intValue
+    ) { result in
+      switch result {
+      case .success(let articles):
+        resolve(articles)
+      case .failure(let error):
+        reject("ERR_VIAFOURA", error.localizedDescription, error)
+      }
+    }
   }
 }

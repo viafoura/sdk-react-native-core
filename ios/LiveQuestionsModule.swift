@@ -33,6 +33,7 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
   // Events
   @objc(onViafouraHeightChanged) var onHeightChanged: RCTDirectEventBlock?
   @objc(onViafouraAuthNeeded) var onAuthNeeded: RCTDirectEventBlock?
+  private let authPrompt = AuthPromptTracker()
   @objc(onViafouraOpenProfile) var onOpenProfile: RCTDirectEventBlock?
   @objc(onViafouraAction) var onAction: RCTDirectEventBlock?
 
@@ -110,9 +111,8 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
         self.emitAction(type: "openProfilePressed", payload: ["userUUID": userUUID.uuidString, "presentationType": presentation])
         self.onOpenProfile?(["userUUID": userUUID.uuidString, "presentationType": presentation])
         self.presentProfileViewController(userUUID: userUUID, presentationType: presentationType)
-      case .authPressed:
-        self.emitAction(type: "authPressed", payload: ["requireLogin": true])
-        self.onAuthNeeded?(["requireLogin": true])
+      case .authPressed(let promptType):
+        self.authPrompt.promptReceived(promptType)
       case .writeNewQuestionPressed(let actionType):
         self.emitAction(type: "writeNewQuestionPressed", payload: self.payloadForQuestionAction(actionType))
         self.presentComposerViewController(actionType: actionType)
@@ -149,8 +149,8 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
     liveQuestionsViewController = nil
   }
 
-  private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType) {
-    guard let parentVC = parentViewController, let settings else { return }
+  private func presentProfileViewController(userUUID: UUID, presentationType: VFProfilePresentationType, from presenter: UIViewController? = nil) {
+    guard let presenter = presenter ?? parentViewController, let settings else { return }
 
     let profileVC = VFProfileViewController.new(
       userUUID: userUUID,
@@ -160,10 +160,19 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
       style: resolveProfileStyle()
     )
 
+    let callbacks = profileCallbacks(
+      for: profileVC,
+      root: parentViewController,
+      presentMember: { [weak self] userUUID, presenter in
+        self?.presentProfileViewController(userUUID: userUUID, presentationType: .profile, from: presenter)
+      },
+      emit: { [weak self] type, payload in self?.emitAction(type: type, payload: payload) }
+    )
     profileVC.setTheme(theme: resolveTheme())
     profileVC.loadViewIfNeeded()
+    profileVC.setActionCallbacks(callbacks: callbacks)
     profileVC.setCustomUIDelegate(customUIDelegate: self)
-    parentVC.present(profileVC, animated: true)
+    presenter.present(profileVC, animated: true)
   }
 
   private func presentComposerViewController(actionType: VFNewQuestionActionType) {
@@ -185,9 +194,8 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
         self.emitAction(type: "commentPosted", payload: ["content": contentUUID.uuidString])
       case .replyPosted(let contentUUID):
         self.emitAction(type: "replyPosted", payload: ["content": contentUUID.uuidString])
-      case .authPressed:
-        self.emitAction(type: "authPressed", payload: ["requireLogin": true])
-        self.onAuthNeeded?(["requireLogin": true])
+      case .authPressed(let promptType):
+        self.authPrompt.promptReceived(promptType)
       default:
         break
       }
@@ -286,8 +294,9 @@ class RNLiveQuestions: UIView, VFLoginDelegate, VFLayoutDelegate, VFCustomUIDele
 
   // MARK: VFLoginDelegate
   func startLogin() {
-    emitAction(type: "authPressed", payload: ["requireLogin": true])
-    onAuthNeeded?(["requireLogin": true])
+    let payload = authPrompt.loginRequested()
+    emitAction(type: "authPressed", payload: payload)
+    onAuthNeeded?(payload)
   }
 }
 
