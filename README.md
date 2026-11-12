@@ -389,7 +389,7 @@ import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 | Prop | Default | Meaning |
 | --- | --- | --- |
 | `authorId` | — | Marks comments by this user with the author badge. Shorthand for a one-element `authorIds`. |
-| `authorIds` | `[]` | Marks comments by any of these users with the author badge. Merged with `authorId`. Values are Viafoura user ids; Android also accepts a social login id or email. |
+| `authorIds` | `[]` | Marks comments by any of these users with the author badge. Merged with `authorId`. Values are Viafoura user ids, or `provider:id` declarations matching the page's `vf:owner` meta (for example `oidc:<id>`), which is how a social login id is matched on Android since 2.1.26. Android also accepts an email. |
 | `adInterval`, `firstAdPosition`, `adHeight`, `renderAd`, `onAdSlotRequested` | ads off | See [Ads](#ads). |
 | `profileStyle` | `legacy` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
@@ -820,7 +820,7 @@ ViafouraCustomUI.clearCustomUIStyle(viewType, theme?);
 | `visibility` | `'visible' \| 'hidden'` | any view | `GONE` on Android, so the view leaves the layout. `isHidden` on iOS, which keeps the view's frame unless it sits in a stack view, so a hidden view can leave blank space. |
 | `backgroundColor` | `#RRGGBB` / `#AARRGGBB` | any view | |
 | `textColor` | colour | labels, text inputs, buttons | |
-| `tintColor` | colour | image views | Icons are recoloured. On iOS it also sets `tintColor` on any view. |
+| `tintColor` | colour | image views | Icons are recoloured. Applied as a colour filter on Android, the same way the SDK paints its icons, so it replaces the SDK's colour. On iOS it also sets `tintColor` on any view. |
 | `fontFamily` | `string` | labels, text inputs, buttons | Same naming as [Fonts](#fonts). Keeps the current size unless `fontSize` is also set. |
 | `fontSize` | `number` | labels, text inputs, buttons | Points on iOS, sp on Android. |
 | `cornerRadius` | `number` | any view | Points / dp. Clips the view's content. |
