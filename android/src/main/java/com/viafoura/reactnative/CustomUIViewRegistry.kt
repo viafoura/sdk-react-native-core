@@ -1,6 +1,5 @@
 package com.viafoura.reactnative
 
-import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -11,7 +10,6 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.widget.ImageViewCompat
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.ReadableType
 import kotlin.math.roundToInt
@@ -115,9 +113,7 @@ object CustomUIViewRegistry {
       parseColor(value)?.let { color -> (view as? TextView)?.setTextColor(color) }
     }
     style.tintColor?.let { value ->
-      parseColor(value)?.let { color ->
-        (view as? ImageView)?.let { ImageViewCompat.setImageTintList(it, ColorStateList.valueOf(color)) }
-      }
+      parseColor(value)?.let { color -> (view as? ImageView)?.setColorFilter(color) }
     }
     if (style.fontFamily != null || style.fontSize != null) {
       (view as? TextView)?.let { applyFont(it, style.fontFamily, style.fontSize) }
