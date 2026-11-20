@@ -5,7 +5,6 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.views.view.ReactViewGroup
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 
@@ -68,6 +67,7 @@ class NewCommentView(context: Context) :
   // interop views are never measured/laid out by React's layout system, so the hosted
   // fragment renders at 0x0 and appears blank. Force a manual measure+layout pass.
   private val measureAndLayout = Runnable {
+    if (!isAttachedToWindow || width <= 0 || height <= 0) return@Runnable
     measure(
       MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
       MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
@@ -82,12 +82,12 @@ class NewCommentView(context: Context) :
 
   override fun requestLayout() {
     super.requestLayout()
-    post(measureAndLayout)
+    repost(measureAndLayout)
   }
 
   override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
     super.onSizeChanged(w, h, oldw, oldh)
-    post(measureAndLayout)
+    repost(measureAndLayout)
   }
 
   override fun onAttachedToWindow() {
@@ -171,15 +171,8 @@ class NewCommentView(context: Context) :
   }
 
   private fun destroyFragment() {
-    val activity = currentActivity() ?: return
-    val tag = container.id.toString()
-    val frag: Fragment? = activity.supportFragmentManager.findFragmentByTag(tag)
-    if (frag != null) {
-      activity.supportFragmentManager
-        .beginTransaction()
-        .remove(frag)
-        .commitAllowingStateLoss()
-    }
+    removeCallbacks(measureAndLayout)
+    container.removeHostedFragment(currentActivity(), fragment)
     fragment = null
   }
 

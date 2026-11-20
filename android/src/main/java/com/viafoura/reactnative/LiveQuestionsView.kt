@@ -67,6 +67,7 @@ class LiveQuestionsView(context: Context) :
   private var settings: VFSettings? = null
 
   private val measureAndLayout = Runnable {
+    if (!isAttachedToWindow || width <= 0 || height <= 0) return@Runnable
     measure(
       MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
       MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
@@ -81,12 +82,12 @@ class LiveQuestionsView(context: Context) :
 
   override fun requestLayout() {
     super.requestLayout()
-    post(measureAndLayout)
+    repost(measureAndLayout)
   }
 
   override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
     super.onSizeChanged(w, h, oldw, oldh)
-    post(measureAndLayout)
+    repost(measureAndLayout)
   }
 
   override fun onAttachedToWindow() {
@@ -159,15 +160,8 @@ class LiveQuestionsView(context: Context) :
   }
 
   private fun destroyFragment() {
-    val activity = currentActivity() ?: return
-    val tag = container.id.toString()
-    val frag = activity.supportFragmentManager.findFragmentByTag(tag)
-    if (frag != null) {
-      activity.supportFragmentManager
-        .beginTransaction()
-        .remove(frag)
-        .commitAllowingStateLoss()
-    }
+    removeCallbacks(measureAndLayout)
+    container.removeHostedFragment(currentActivity(), fragment)
     fragment = null
   }
 
