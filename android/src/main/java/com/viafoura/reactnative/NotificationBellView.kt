@@ -43,6 +43,7 @@ class NotificationBellView(context: Context) : ReactViewGroup(context) {
   private var bellView: VFNotificationBellView? = null
 
   private val measureAndLayout = Runnable {
+    if (!isAttachedToWindow || width <= 0 || height <= 0) return@Runnable
     measure(
       MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
       MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
@@ -59,12 +60,12 @@ class NotificationBellView(context: Context) : ReactViewGroup(context) {
 
   override fun requestLayout() {
     super.requestLayout()
-    post(measureAndLayout)
+    repost(measureAndLayout)
   }
 
   override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
     super.onSizeChanged(w, h, oldw, oldh)
-    post(measureAndLayout)
+    repost(measureAndLayout)
   }
 
   override fun onAttachedToWindow() {
@@ -117,7 +118,7 @@ class NotificationBellView(context: Context) : ReactViewGroup(context) {
         )
       )
       bellView = bell
-      post(measureAndLayout)
+      repost(measureAndLayout)
     } catch (e: Exception) {
       Log.w("NotificationBellView", "Could not create notification bell", e)
     }
