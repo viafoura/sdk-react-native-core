@@ -77,6 +77,10 @@ func resolveCustomizableView(_ customView: VFCustomizableView) -> (type: String,
     return ("commentCellModeratorView", view)
   case .commentCellAuthorView(let view):
     return ("commentCellAuthorView", view)
+  case .commentCellAuthorLabel(let label):
+    return ("commentCellAuthorLabel", label)
+  case .commentCellAuthorImage(let image):
+    return ("commentCellAuthorImage", image)
   case .commentCellFollowView(let view):
     return ("commentCellFollowView", view)
   case .commentCellDislikeLabel(let label):
@@ -95,6 +99,8 @@ func resolveCustomizableView(_ customView: VFCustomizableView) -> (type: String,
     return ("commentCellAwaitingModerationView", view)
   case .commentCellCustomBadge(let badge):
     return ("commentCellCustomBadge", badge)
+  case .commentCellCustomBadgeLabel(let label):
+    return ("commentCellCustomBadgeLabel", label)
   case .commentCellPinnedView(let view):
     return ("commentCellPinnedView", view)
   case .commentCellEditorPickView(let view):

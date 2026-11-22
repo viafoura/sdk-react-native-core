@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import com.facebook.react.bridge.ReadableMap
@@ -16,6 +17,7 @@ import kotlin.math.roundToInt
 
 data class CustomUIStyle(
   val visibility: String? = null,
+  val text: String? = null,
   val backgroundColor: String? = null,
   val textColor: String? = null,
   val tintColor: String? = null,
@@ -30,6 +32,7 @@ data class CustomUIStyle(
     if (existing == null) return this
     return CustomUIStyle(
       visibility = visibility ?: existing.visibility,
+      text = text ?: existing.text,
       backgroundColor = backgroundColor ?: existing.backgroundColor,
       textColor = textColor ?: existing.textColor,
       tintColor = tintColor ?: existing.tintColor,
@@ -52,6 +55,7 @@ data class CustomUIStyle(
 
       return CustomUIStyle(
         visibility = string("visibility"),
+        text = string("text"),
         backgroundColor = string("backgroundColor"),
         textColor = string("textColor"),
         tintColor = string("tintColor"),
@@ -109,6 +113,9 @@ object CustomUIViewRegistry {
       view.visibility = if (value == "hidden") View.GONE else View.VISIBLE
     }
     applyBackground(view, style)
+    style.text?.let { value ->
+      (view as? TextView)?.takeUnless { it is EditText }?.text = value
+    }
     style.textColor?.let { value ->
       parseColor(value)?.let { color -> (view as? TextView)?.setTextColor(color) }
     }

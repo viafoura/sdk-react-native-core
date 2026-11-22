@@ -87,6 +87,7 @@ export type VFCustomUIColor = `#${string}`;
 
 export type VFCustomUIStyle = {
   visibility?: VFCustomUIVisibility;
+  text?: string;
   backgroundColor?: VFCustomUIColor;
   textColor?: VFCustomUIColor;
   tintColor?: VFCustomUIColor;
@@ -145,6 +146,8 @@ export const IOSCustomUIViewType = {
   commentCellTrustedView: 'commentCellTrustedView',
   commentCellModeratorView: 'commentCellModeratorView',
   commentCellAuthorView: 'commentCellAuthorView',
+  commentCellAuthorLabel: 'commentCellAuthorLabel',
+  commentCellAuthorImage: 'commentCellAuthorImage',
   commentCellFollowView: 'commentCellFollowView',
   commentCellDislikeLabel: 'commentCellDislikeLabel',
   commentCellReplyLabel: 'commentCellReplyLabel',
@@ -154,6 +157,7 @@ export const IOSCustomUIViewType = {
   commentCellUserIndicator: 'commentCellUserIndicator',
   commentCellAwaitingModerationView: 'commentCellAwaitingModerationView',
   commentCellCustomBadge: 'commentCellCustomBadge',
+  commentCellCustomBadgeLabel: 'commentCellCustomBadgeLabel',
   commentCellPinnedView: 'commentCellPinnedView',
   commentCellEditorPickView: 'commentCellEditorPickView',
   commentCellSeparator: 'commentCellSeparator',
@@ -331,10 +335,13 @@ export const AndroidCustomUIViewType = {
   commentCellCommentText: 'commentCellCommentText',
   commentCellReplyText: 'commentCellReplyText',
   commentCellCustomBadgeView: 'commentCellCustomBadgeView',
+  commentCellCustomBadgeText: 'commentCellCustomBadgeText',
   commentCellPinnedView: 'commentCellPinnedView',
   commentCellEditorPickView: 'commentCellEditorPickView',
   commentCellTrustedView: 'commentCellTrustedView',
   commentCellAuthorView: 'commentCellAuthorView',
+  commentCellAuthorText: 'commentCellAuthorText',
+  commentCellAuthorImage: 'commentCellAuthorImage',
   commentCellModeratorView: 'commentCellModeratorView',
   commentCellUserIndicatorHolder: 'commentCellUserIndicatorHolder',
   commentCellUserIndicatorImage: 'commentCellUserIndicatorImage',

@@ -818,6 +818,7 @@ ViafouraCustomUI.clearCustomUIStyle(viewType, theme?);
 | Property | Type | Applies to | Notes |
 | --- | --- | --- | --- |
 | `visibility` | `'visible' \| 'hidden'` | any view | `GONE` on Android, so the view leaves the layout. `isHidden` on iOS, which keeps the view's frame unless it sits in a stack view, so a hidden view can leave blank space. |
+| `text` | `string` | labels, buttons | Replaces the SDK's copy, including its translation. Not applied to text inputs. |
 | `backgroundColor` | `#RRGGBB` / `#AARRGGBB` | any view | |
 | `textColor` | colour | labels, text inputs, buttons | |
 | `tintColor` | colour | image views | Icons are recoloured. On iOS it also sets `tintColor` on any view. |
@@ -874,6 +875,53 @@ rendered in that theme; a style set without one is the fallback for both:
 ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellNameLabel, { textColor: '#1D5EFF' }, CustomUITheme.Light);
 ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellNameLabel, { textColor: '#8AB4FF' }, CustomUITheme.Dark);
 ```
+
+#### Author badge
+
+The badge on comments posted by the article's authors (see `authorIds` on
+`PreviewCommentsView`) has three parts: the container, the label and the person
+icon. Style each one; iOS and Android name the label differently, so set both:
+
+```ts
+const authorLabel = {
+  text: 'Reporter',
+  textColor: '#FFFFFF',
+  fontFamily: 'Georgia-Bold',
+  fontSize: 12,
+} as const;
+
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellAuthorLabel, authorLabel);
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellAuthorText, authorLabel);
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellAuthorImage, { tintColor: '#FFFFFF' });
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellAuthorView, {
+  backgroundColor: '#1D5EFF',
+  cornerRadius: 4,
+});
+```
+
+The small dot on the author's avatar uses the badge colour too. Recolour it with
+`tintColor` on `commentCellUserIndicator` (iOS) and
+`commentCellUserIndicatorImage` (Android). Without any of these styles the badge
+keeps the SDK's default look and the translated "Author" label.
+
+#### Custom badges
+
+Custom badges are the labels a publisher assigns to users in Viafoura's admin,
+such as "Subscriber". The container takes background and border styles; the
+label inside it takes the font and text colour:
+
+```ts
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellCustomBadge, { backgroundColor: '#FFF4D6' });
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellCustomBadgeView, { backgroundColor: '#FFF4D6' });
+
+const customBadgeLabel = { textColor: '#8A5A00', fontFamily: 'Georgia-Bold', fontSize: 12 } as const;
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellCustomBadgeLabel, customBadgeLabel);
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.commentCellCustomBadgeText, customBadgeLabel);
+```
+
+Don't set `text` on the custom badge label. Each badge's wording comes from
+the admin and a commenter can show two, so `text` would give every custom
+badge the same label. Rename badges in the admin instead.
 
 ### How styles are applied
 
