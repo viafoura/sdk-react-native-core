@@ -40,6 +40,119 @@ export type ViafouraTrendingArticle = {
   datePublished: number;
 };
 
+export type ViafouraNotificationStatus = 'new' | 'seen' | 'read';
+
+export type ViafouraNotificationType =
+  | 'reply'
+  | 'follow'
+  | 'like'
+  | 'answer'
+  | 'subscribed_page_content'
+  | 'subscribed_user_content'
+  | 'subscribed_page_announcement'
+  | 'subscribed_page_answer'
+  | 'host_question'
+  | 'host_answer_reply'
+  | 'broadcast_topic'
+  | 'broadcast_site';
+
+/** One actor's part in a grouped notification, e.g. one of several likes on the same comment. */
+export type ViafouraNotificationEvent = {
+  notificationUUID: string;
+  actorUUID: string;
+  actorType: string;
+  /** The comment, reply or answer the event is about. */
+  contentUUID: string;
+  status: ViafouraNotificationStatus;
+  /** Unix milliseconds. */
+  time: number;
+};
+
+export type ViafouraNotification = {
+  groupingKey: number;
+  type: ViafouraNotificationType;
+  serviceType: string;
+  targetUUID: string;
+  threadUUID: string;
+  /** The article's container. The API does not send its title or URL. */
+  contentContainerUUID: string;
+  sectionUUID: string;
+  /** Newest first, as the API sends them. Mark or remove by their `notificationUUID`s. */
+  events: ViafouraNotificationEvent[];
+};
+
+export type ViafouraBroadcast = {
+  notificationUUID: string;
+  sectionUUID: string;
+  actorUUID: string;
+  type: ViafouraNotificationType;
+  status: ViafouraNotificationStatus;
+  /** Unix milliseconds. */
+  time: number;
+  title: string;
+  description: string;
+  url: string;
+  imageUrl?: string;
+  topicId: string;
+};
+
+export type ViafouraNotifications = {
+  notifications: ViafouraNotification[];
+  broadcasts: ViafouraBroadcast[];
+};
+
+export type ViafouraFollow = {
+  userUUID: string;
+  subscriptionUUID: string;
+  /** Unix milliseconds. */
+  dateCreated: number;
+};
+
+export type ViafouraFollowPage = {
+  total: number;
+  hasMore: boolean;
+  users: ViafouraFollow[];
+};
+
+export type ViafouraUser = {
+  userUUID: string;
+  name: string;
+  avatarUrl?: string;
+  avatarSmallUrl?: string;
+};
+
+export type ViafouraUserCommentsOptions = {
+  limit?: number;
+  /** `nextCursor` from the previous page. */
+  startingFrom?: string;
+};
+
+export type ViafouraUserComment = {
+  contentUUID: string;
+  contentContainerUUID: string;
+  threadUUID: string;
+  content: string;
+  /** Unix milliseconds. */
+  dateCreated: number;
+  totalLikes: number;
+  totalReplies: number;
+};
+
+export type ViafouraUserCommentsPage = {
+  comments: ViafouraUserComment[];
+  moreAvailable: boolean;
+  /** Pass as `startingFrom` to fetch the next page. Absent when the page is empty. */
+  nextCursor?: string;
+};
+
+export type ViafouraUserStats = {
+  contentCreated: number;
+  likesReceived: number;
+  likesCreated: number;
+  dislikesReceived: number;
+  dislikesCreated: number;
+};
+
 export type ViafouraModuleEvents = {
   onChange: (params: ChangeEventPayload) => void;
 };
