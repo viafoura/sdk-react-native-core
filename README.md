@@ -19,6 +19,9 @@ app.
 - [Data tracking and consent](#data-tracking-and-consent)
 - [Comment count](#comment-count)
 - [Trending articles](#trending-articles)
+- [Notifications](#notifications)
+- [Follows](#follows)
+- [Reader profiles](#reader-profiles)
 - [Views](#views)
   - [Shared props](#shared-props)
   - [PreviewCommentsView](#previewcommentsview)
@@ -135,6 +138,7 @@ export function Article() {
 | Export | iOS | Android |
 | --- | --- | --- |
 | `Viafoura` (initialize, auth) | yes | yes |
+| `Viafoura` (notifications, follows, reader profiles) | yes | yes |
 | `PreviewCommentsView` | yes | yes |
 | `ConversationStarterView` | yes | yes |
 | `LiveQuestionsView` | yes | yes |
@@ -318,6 +322,98 @@ trending component. `trendWindow` is the number of hours of comment activity
 to rank on, between 1 and 48. `daysPublished` only considers articles published
 within that many days; pass `0` to rank articles of any age. The promise rejects
 when the SDK is not initialized or the request fails.
+
+## Notifications
+
+These read the signed-in reader's notifications for your own inbox, badge or
+digest UI. `NotificationBellView` already shows a count and opens the SDK's
+list; use these when you want to draw it yourself. Call them after
+`initialize`, once the reader is signed in.
+
+```ts
+const unread = await Viafoura.getNewNotificationCount();
+
+const { notifications, broadcasts } = await Viafoura.getNotifications();
+const ids = notifications.flatMap((n) => n.events.map((e) => e.notificationUUID));
+await Viafoura.markNotificationsSeen(ids);
+await Viafoura.markNotificationsRead([ids[0]]);
+await Viafoura.removeNotifications([ids[0]]);
+```
+
+| Method | Resolves to |
+| --- | --- |
+| `getNewNotificationCount()` | `number`, the unread count `NotificationBellView` shows |
+| `getNotifications()` | `{ notifications, broadcasts }` |
+| `markNotificationsSeen(notificationUUIDs)` | `void` |
+| `markNotificationsRead(notificationUUIDs)` | `void` |
+| `removeNotifications(notificationUUIDs)` | `void` |
+
+A `ViafouraNotification` is a group: several likes on one comment arrive as one
+entry of `type: 'like'` with one item in `events` per actor. Each event has the
+`notificationUUID` to mark or remove, the `actorUUID` (pass it to `getUserInfo`
+for a name and avatar), the `contentUUID` of the comment it is about, its
+`status` (`new`, `seen` or `read`) and `time`. The group carries the article's
+`contentContainerUUID`; the API does not send the article's title or URL, so
+map it to your own article data. A `ViafouraBroadcast` is a site or topic
+announcement and does carry its `title`, `description`, `url` and `imageUrl`.
+
+The list matches what the SDK's own notification list shows: removal records
+(`reply_removed`, `answer_removed`, `reply_deleted`) and types this SDK
+version does not recognise are dropped, and a reply or answer whose content was
+later removed loses that event. All times are Unix milliseconds.
+
+## Follows
+
+```ts
+const followers = await Viafoura.getFollowers();      // page 1
+const following = await Viafoura.getFollowing(2);     // page 2
+const count = await Viafoura.getFollowerCount(userUUID);
+if (!(await Viafoura.isFollowingUser(userUUID))) {
+  await Viafoura.followUser(userUUID);
+}
+await Viafoura.unfollowUser(userUUID);
+```
+
+`getFollowers` and `getFollowing` list the signed-in reader's followers and the
+people they follow, a page at a time. Each page is `{ total, hasMore, users }`
+and each user is `{ userUUID, subscriptionUUID, dateCreated }`; resolve names
+and avatars with `getUserInfo`. `getFollowerCount` works for any member.
+`followUser` and `unfollowUser` need a signed-in reader.
+
+## Reader profiles
+
+```ts
+const user = await Viafoura.getUserInfo(userUUID);
+const stats = await Viafoura.getUserStats(userUUID);
+
+let page = await Viafoura.getUserComments(userUUID, { limit: 10 });
+if (page.moreAvailable && page.nextCursor) {
+  page = await Viafoura.getUserComments(userUUID, { limit: 10, startingFrom: page.nextCursor });
+}
+```
+
+| Method | Resolves to |
+| --- | --- |
+| `getUserInfo(userUUID)` | `{ userUUID, name, avatarUrl?, avatarSmallUrl? }` |
+| `getUserStats(userUUID)` | `{ contentCreated, likesReceived, likesCreated, dislikesReceived, dislikesCreated }` |
+| `getUserComments(userUUID, { limit?, startingFrom? })` | `{ comments, moreAvailable, nextCursor? }` |
+
+Pass the signed-in reader's `userUUID` from `getUserLoginStatus` for their own
+profile, or any member's from a notification or follow list. Each comment has
+`contentUUID`, `contentContainerUUID`, `threadUUID`, `content`, `dateCreated`,
+`totalLikes` and `totalReplies`. `limit` defaults to 10. `getUserStats` and
+`getUserComments` reject when the SDK is not initialized.
+
+UUIDs are accepted in either case, but the case they come back in differs
+between platforms (iOS returns them upper case), so compare them
+case-insensitively. Every method in these three
+sections rejects on an invalid UUID or a failed request.
+
+On iOS, ViafouraSDK 1.3.20 keeps the fields of the notification, follower,
+profile-stats and comment responses internal. The bridge reads them by
+reflection, keyed by the API's field names. If a future SDK renames one of
+those fields, the value comes back empty (`""` or `0`) rather than failing, so
+check these methods after bumping `iosSdkVersion`.
 
 ## Views
 
