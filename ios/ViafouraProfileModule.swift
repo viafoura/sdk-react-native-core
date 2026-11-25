@@ -54,6 +54,12 @@ class ViafouraProfileModule: RCTEventEmitter {
         reject("no_presenter", "No view controller to present the profile from", nil)
         return
       }
+      // UIKit drops a presentation started mid-transition without calling its completion,
+      // which would leave the promise pending forever.
+      if presenter.presentedViewController != nil || presenter.isBeingPresented || presenter.isBeingDismissed {
+        reject("presentation_in_progress", "Another view controller is being presented or dismissed", nil)
+        return
+      }
       let session = ProfileSheetSession(
         options: options,
         emit: { [weak self] event, payload in
@@ -64,8 +70,9 @@ class ViafouraProfileModule: RCTEventEmitter {
         }
       )
       self.sessions[presentationId] = session
-      session.present(userUUID: userUUID, presentationType: presentationType, from: presenter)
-      resolve(nil)
+      session.present(userUUID: userUUID, presentationType: presentationType, from: presenter) {
+        resolve(nil)
+      }
     }
     #else
     reject("not_linked", "ViafouraSDK is not available", nil)
@@ -101,7 +108,12 @@ final class ProfileSheetSession: NSObject, VFLoginDelegate, VFCustomUIDelegate {
     self.onFinish = onFinish
   }
 
-  func present(userUUID: UUID, presentationType: VFProfilePresentationType, from presenter: UIViewController) {
+  func present(
+    userUUID: UUID,
+    presentationType: VFProfilePresentationType,
+    from presenter: UIViewController,
+    completion: (() -> Void)? = nil
+  ) {
     let isRoot = root == nil
     if isRoot {
       root = presenter
@@ -136,7 +148,7 @@ final class ProfileSheetSession: NSObject, VFLoginDelegate, VFCustomUIDelegate {
       observer.didMove(toParent: profileVC)
     }
 
-    presenter.present(profileVC, animated: true)
+    presenter.present(profileVC, animated: true, completion: completion)
   }
 
   private func rootSheetDismissed() {

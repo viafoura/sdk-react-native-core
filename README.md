@@ -701,7 +701,7 @@ height you give it; it does not report its own. `onAction` is where
 `Viafoura.presentProfile` presents the profile as a native sheet over the
 current screen, the same sheet the views open when a reader taps an avatar or
 the bell. It takes the same options as `ProfileView`, with the events as plain
-callbacks, and resolves once the sheet is on screen.
+callbacks.
 
 ```tsx
 import { Platform } from 'react-native';
@@ -741,8 +741,11 @@ The sheet manages itself, as the one the views open does:
 - A sign-in prompt dismisses the stack too, then fires `onAuthNeeded`, so your
   login screen is not hidden underneath it. `onClose` follows.
 
-The returned promise rejects on Android (render `ProfileView` there), on an
-invalid `userUUID`, or when no view controller is on screen to present from.
+The returned promise resolves once the sheet's presentation animation has
+finished, so you can present something else straight after awaiting it. It
+rejects on Android (render `ProfileView` there), on an invalid `userUUID`, when
+no view controller is on screen to present from, or while another screen is
+still animating in or out.
 Callbacks are not called after `onClose`.
 
 ### NewCommentView (Android only)

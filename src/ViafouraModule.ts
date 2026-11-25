@@ -59,7 +59,7 @@ export interface ViafouraNativeModule {
   getUserStats(userUUID: string): Promise<ViafouraUserStats>;
   /**
    * iOS only. Presents a reader profile as a native sheet over the current screen and
-   * resolves once it is on screen. On Android, render `ProfileView` in a screen instead;
+   * resolves once its presentation animation has finished. On Android, render `ProfileView` in a screen instead;
    * this rejects there.
    */
   presentProfile(options: ViafouraPresentProfileOptions): Promise<void>;
