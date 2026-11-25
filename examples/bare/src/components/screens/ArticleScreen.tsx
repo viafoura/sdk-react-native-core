@@ -96,8 +96,10 @@ const ArticleScreen = () => {
       />
 
       <PreviewCommentsView
+        key={article.focusedContentUUID}
         {...articleProps}
         authorId={article.authorId}
+        focusedContentUUID={article.focusedContentUUID}
         style={{ height: commentsHeight }}
         adInterval={4}
         firstAdPosition={2}

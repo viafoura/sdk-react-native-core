@@ -68,6 +68,7 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
   @objc var articleUrl: String = ""
   @objc var articleTitle: String = ""
   @objc var syndicationKey: String = ""
+  @objc var focusedContentUUID: String = ""
   @objc var articleSubtitle: String = ""
   @objc var articleThumbnailUrl: String = ""
   @objc var darkMode: Bool = false {
@@ -135,7 +136,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
       loginDelegate: self,
       settings: settings,
       defaultSort: .newest,
-      syndicationKey: syndicationKey.isEmpty ? nil : syndicationKey
+      syndicationKey: syndicationKey.isEmpty ? nil : syndicationKey,
+      focusedContentUUID: focusedContentUUID.isEmpty ? nil : UUID(uuidString: focusedContentUUID)
     )
 
     vc.setTheme(theme: resolveTheme())
