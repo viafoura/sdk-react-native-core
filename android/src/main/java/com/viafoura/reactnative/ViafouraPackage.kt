@@ -9,7 +9,8 @@ class ViafouraPackage : ReactPackage {
   override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> =
     listOf(
       ViafouraModule(reactContext),
-      ViafouraCustomUIModule(reactContext)
+      ViafouraCustomUIModule(reactContext),
+      ViafouraProfileModule(reactContext)
     )
 
   override fun createViewManagers(

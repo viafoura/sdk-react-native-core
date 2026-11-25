@@ -71,7 +71,7 @@ func profileCallbacks(
   }
 }
 
-private func dismissPresentedStack(from presenter: UIViewController?, completion: @escaping () -> Void) {
+func dismissPresentedStack(from presenter: UIViewController?, completion: @escaping () -> Void) {
   guard let presenter, presenter.presentedViewController != nil else {
     completion()
     return
