@@ -14,8 +14,7 @@ class ViafouraProfileModule: RCTEventEmitter {
   private var sessions: [String: ProfileSheetSession] = [:]
   #endif
 
-  @objc
-  static func requiresMainQueueSetup() -> Bool {
+  override static func requiresMainQueueSetup() -> Bool {
     return false
   }
 
