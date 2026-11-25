@@ -2,6 +2,7 @@ import UIKit
 
 struct CustomUIStyle {
   var visibility: String?
+  var text: String?
   var backgroundColor: String?
   var textColor: String?
   var tintColor: String?
@@ -14,6 +15,7 @@ struct CustomUIStyle {
 
   init(dictionary: NSDictionary) {
     visibility = dictionary["visibility"] as? String
+    text = dictionary["text"] as? String
     backgroundColor = dictionary["backgroundColor"] as? String
     textColor = dictionary["textColor"] as? String
     tintColor = dictionary["tintColor"] as? String
@@ -34,6 +36,7 @@ struct CustomUIStyle {
     guard let existing else { return self }
     var result = self
     result.visibility = visibility ?? existing.visibility
+    result.text = text ?? existing.text
     result.backgroundColor = backgroundColor ?? existing.backgroundColor
     result.textColor = textColor ?? existing.textColor
     result.tintColor = tintColor ?? existing.tintColor
@@ -96,6 +99,9 @@ final class CustomUIViewRegistry {
     if let backgroundColor = style.backgroundColor, let color = colorFromHex(backgroundColor) {
       view.backgroundColor = color
     }
+    if let text = style.text {
+      applyText(text, to: view)
+    }
     if let textColor = style.textColor, let color = colorFromHex(textColor) {
       applyTextColor(color, to: view)
     }
@@ -123,6 +129,17 @@ final class CustomUIViewRegistry {
     }
     if let opacity = style.opacity {
       view.alpha = min(max(opacity, 0), 1)
+    }
+  }
+
+  private func applyText(_ text: String, to view: UIView) {
+    switch view {
+    case let label as UILabel:
+      label.text = text
+    case let button as UIButton:
+      button.setTitle(text, for: .normal)
+    default:
+      break
     }
   }
 
