@@ -30,6 +30,7 @@ app.
   - [PollView](#pollview)
   - [NotificationBellView](#notificationbellview)
   - [ProfileView](#profileview-android-only)
+  - [Presenting a profile on iOS](#presenting-a-profile-on-ios)
   - [NewCommentView](#newcommentview-android-only)
 - [Action events](#action-events)
 - [Theming](#theming)
@@ -147,6 +148,7 @@ export function Article() {
 | `ViafouraAdSlot` | yes | yes |
 | `ViafouraCustomUI` | yes | yes |
 | `ProfileView` | renders empty | yes |
+| `Viafoura.presentProfile` | yes | rejects |
 | `NewCommentView` | renders empty | yes |
 
 ### Profiles and the comment composer differ per platform
@@ -163,7 +165,12 @@ differently, and your navigation code has to account for it:
 
 `NotificationBellView` follows the same split: iOS opens the user's notifications
 itself, Android emits `onBellPressed` for you to navigate to a `ProfileView` with
-`presentationType="feed"`. Tapping a notification is an `onAction` event on both
+`presentationType="feed"`.
+
+To open a profile from your own UI (a "My profile" button, a follower list, your
+own bell), call [`Viafoura.presentProfile`](#presenting-a-profile-on-ios) on iOS,
+which shows the same native sheet, and navigate to a `ProfileView` screen on
+Android. Tapping a notification is an `onAction` event on both
 platforms; see [Opening a notification](#opening-a-notification).
 
 ```tsx
@@ -663,6 +670,8 @@ and the count is current when the screen opens. Both samples do the latter:
 The user profile and activity feed. On iOS this component renders nothing,
 because the iOS SDK presents the profile itself (see
 [Profiles and the comment composer](#profiles-and-the-comment-composer-differ-per-platform)).
+To open a profile yourself on iOS, use
+[`Viafoura.presentProfile`](#presenting-a-profile-on-ios).
 
 ```tsx
 import { ProfileView } from '@viafoura/sdk-react-native';
@@ -686,6 +695,58 @@ Events: `onCloseProfile`, `onAuthNeeded`, `onAction`. The view fills whatever
 height you give it; it does not report its own. `onAction` is where
 `notificationPressed` and `trendingArticlePressed` arrive on Android; see
 [Opening a notification](#opening-a-notification).
+
+### Presenting a profile on iOS
+
+`Viafoura.presentProfile` presents the profile as a native sheet over the
+current screen, the same sheet the views open when a reader taps an avatar or
+the bell. It takes the same options as `ProfileView`, with the events as plain
+callbacks.
+
+```tsx
+import { Platform } from 'react-native';
+import Viafoura from '@viafoura/sdk-react-native';
+
+const openProfile = (userUUID: string, presentationType: 'profile' | 'feed' = 'profile') => {
+  if (Platform.OS === 'android') {
+    navigation.navigate('Profile', { userUUID, presentationType });
+    return;
+  }
+  Viafoura.presentProfile({
+    userUUID,
+    presentationType,
+    onAuthNeeded: () => navigation.navigate('Login'),
+    onAction: openNotification,
+  });
+};
+```
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `userUUID` | — | Required. The user to show. |
+| `presentationType` | `profile` | `profile` or `feed` (opens on the notifications). |
+| `profileStyle` | `legacy` | `legacy` or `unity`. See [Profile style](#profile-style). |
+| `darkMode`, `theme`, `colors`, `fonts` | | As in [Shared props](#shared-props). |
+| `onAction` | | `(event: ActionCallbackPayload) => void`. See [Opening a notification](#opening-a-notification). |
+| `onAuthNeeded` | | `(event: { requireLogin?, promptType? }) => void`. |
+| `onClose` | | `() => void`. Fires once, after the sheet is gone. |
+
+The sheet manages itself, as the one the views open does:
+
+- Swiping it down, the close button and logout dismiss it. Member profiles
+  opened from inside it stack as further sheets on top.
+- Actions that leave the profile, `trendingArticlePressed` and every
+  `notificationPressed` except `profile`, dismiss the whole stack before
+  `onAction` fires, so the handler can navigate straight away.
+- A sign-in prompt dismisses the stack too, then fires `onAuthNeeded`, so your
+  login screen is not hidden underneath it. `onClose` follows.
+
+The returned promise resolves once the sheet's presentation animation has
+finished, so you can present something else straight after awaiting it. It
+rejects on Android (render `ProfileView` there), on an invalid `userUUID`, when
+no view controller is on screen to present from, or while another screen is
+still animating in or out.
+Callbacks are not called after `onClose`.
 
 ### NewCommentView (Android only)
 
@@ -786,7 +847,7 @@ navigates. `presentationType` says what to open:
 Where the event arrives follows the platform split: on iOS the SDK presents the
 profile, so listen on the `onAction` of the view that opened it
 (`NotificationBellView`, `PreviewCommentsView`, `ConversationStarterView`,
-`LiveQuestionsView`). The SDK dismisses the whole profile stack first and fires
+`LiveQuestionsView`), or pass `onAction` to `Viafoura.presentProfile`. The SDK dismisses the whole profile stack first and fires
 the event once that dismissal has finished, so you can present or navigate
 from the handler straight away. On Android the profile is your own `ProfileView`
 screen, so listen on its `onAction`. One handler covers both:

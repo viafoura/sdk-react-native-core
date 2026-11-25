@@ -1,10 +1,13 @@
-import { NativeModules, Platform } from 'react-native';
+import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
 
 import type {
+  ActionCallbackPayload,
+  ProfileAuthNeededPayload,
   ViafouraFollowPage,
   ViafouraLoginStatus,
   ViafouraNotification,
   ViafouraNotifications,
+  ViafouraPresentProfileOptions,
   ViafouraTrendingArticle,
   ViafouraTrendingOptions,
   ViafouraUser,
@@ -54,6 +57,12 @@ export interface ViafouraNativeModule {
     options?: ViafouraUserCommentsOptions
   ): Promise<ViafouraUserCommentsPage>;
   getUserStats(userUUID: string): Promise<ViafouraUserStats>;
+  /**
+   * iOS only. Presents a reader profile as a native sheet over the current screen and
+   * resolves once its presentation animation has finished. On Android, render `ProfileView` in a screen instead;
+   * this rejects there.
+   */
+  presentProfile(options: ViafouraPresentProfileOptions): Promise<void>;
 }
 
 const TRENDING_DEFAULTS = { limit: 5, trendWindow: 3, daysPublished: 7 };
@@ -70,6 +79,7 @@ interface NativeViafouraModule
     | 'getFollowers'
     | 'getFollowing'
     | 'getUserComments'
+    | 'presentProfile'
   > {
   socialLogin(token: string, provider: string | null): Promise<void>;
   loginRadiusLogin(token: string, provider: string | null): Promise<void>;
@@ -121,6 +131,55 @@ function visibleNotifications(raw: RawNotification[]): ViafouraNotification[] {
 }
 
 const USER_COMMENTS_DEFAULT_LIMIT = 10;
+
+const PROFILE_EVENT = 'ViafouraProfileEvent';
+
+type NativeProfileEvent =
+  | { presentationId: string; event: 'action'; payload: ActionCallbackPayload }
+  | { presentationId: string; event: 'authNeeded'; payload: ProfileAuthNeededPayload }
+  | { presentationId: string; event: 'close' };
+
+interface NativeProfileModule {
+  presentProfile(presentationId: string, options: Record<string, unknown>): Promise<void>;
+  addListener(eventName: string): void;
+  removeListeners(count: number): void;
+}
+
+let profileEmitter: NativeEventEmitter | undefined;
+let nextPresentationId = 0;
+
+function presentProfile(options: ViafouraPresentProfileOptions): Promise<void> {
+  if (Platform.OS !== 'ios') {
+    return Promise.reject(
+      new Error('presentProfile is only available on iOS; render ProfileView on Android.')
+    );
+  }
+  const profileModule: NativeProfileModule | undefined = NativeModules.ViafouraProfile;
+  if (!profileModule) return Promise.reject(new Error(LINKING_ERROR));
+
+  const { onAction, onAuthNeeded, onClose, ...nativeOptions } = options;
+  const presentationId = String(++nextPresentationId);
+  profileEmitter ??= new NativeEventEmitter(profileModule);
+  const subscription = profileEmitter.addListener(PROFILE_EVENT, (e: NativeProfileEvent) => {
+    if (e.presentationId !== presentationId) return;
+    switch (e.event) {
+      case 'action':
+        onAction?.(e.payload);
+        return;
+      case 'authNeeded':
+        onAuthNeeded?.(e.payload);
+        return;
+      case 'close':
+        subscription.remove();
+        onClose?.();
+        return;
+    }
+  });
+  return profileModule.presentProfile(presentationId, nativeOptions).catch((error: unknown) => {
+    subscription.remove();
+    throw error;
+  });
+}
 
 const nativeModule: NativeViafouraModule =
   NativeModules.Viafoura ??
@@ -181,6 +240,7 @@ const ViafouraModule: ViafouraNativeModule = {
       options?.startingFrom ?? null
     ),
   getUserStats: (userUUID) => nativeModule.getUserStats(userUUID),
+  presentProfile,
 };
 
 export default ViafouraModule;
