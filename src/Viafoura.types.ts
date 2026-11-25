@@ -812,6 +812,22 @@ export type ProfileViewProps = {
   style?: StyleProp<ViewStyle>;
 };
 
+export type ViafouraPresentProfileOptions = {
+  userUUID: string;
+  presentationType?: 'profile' | 'feed';
+  profileStyle?: ViafouraProfileStyle;
+  darkMode?: boolean;
+  theme?: VFCustomUITheme;
+  colors?: ViafouraColors;
+  fonts?: ViafouraFonts;
+  /** Fired for actions inside the sheet, after the sheet has dismissed when the action leaves it. */
+  onAction?: (event: ActionCallbackPayload) => void;
+  /** Fired once the sheet has dismissed, so the app can show its login UI. */
+  onAuthNeeded?: (event: ProfileAuthNeededPayload) => void;
+  /** Fired once the sheet, and any member profiles opened from it, have been dismissed. */
+  onClose?: () => void;
+};
+
 export type NewCommentHeightChangedPayload = PreviewCommentsHeightChangedPayload;
 export type NewCommentAuthNeededPayload = PreviewCommentsAuthNeededPayload;
 

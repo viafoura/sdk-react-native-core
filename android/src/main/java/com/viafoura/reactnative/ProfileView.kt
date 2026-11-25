@@ -17,6 +17,7 @@ import com.viafourasdk.src.interfaces.VFLayoutInterface
 import com.viafourasdk.src.model.local.VFActionData
 import com.viafourasdk.src.model.local.VFActionType
 import com.viafourasdk.src.model.local.VFSettings
+import com.viafourasdk.src.model.local.VFNotificationPresentationAction
 import com.viafourasdk.src.model.local.VFProfilePresentationType
 import com.viafourasdk.src.model.local.VFProfileStyle
 import com.viafourasdk.src.model.local.VFTheme
@@ -163,12 +164,40 @@ class ProfileView(context: Context) :
 
   // VFActionsInterface
   override fun onNewAction(actionType: VFActionType, action: VFActionData?) {
+    val actionPayload = mutableMapOf<String, Any>("type" to actionType.toString())
     when (actionType) {
-      VFActionType.closeProfilePressed -> onCloseProfile(emptyMap<String, Any>())
-      VFActionType.authPressed -> onAuthNeeded(authNeededPayload(action))
+      VFActionType.closeProfilePressed -> {
+        onCloseProfile(emptyMap<String, Any>())
+      }
+      VFActionType.authPressed -> {
+        val payload = authNeededPayload(action)
+        actionPayload.putAll(payload)
+        onAuthNeeded(payload)
+      }
+      VFActionType.notificationPressed -> {
+        action?.notificationPresentationAction?.let { actionPayload.putAll(notificationPayload(it)) }
+      }
+      VFActionType.trendingArticlePressed -> {
+        action?.trendingPressedAction?.let {
+          actionPayload["containerId"] = it.containerId
+          it.articleMetadata?.url?.toString()?.let { url -> actionPayload["articleUrl"] = url }
+        }
+      }
       else -> {}
     }
-    onAction(profileActionPayload(actionType, action))
+    onAction(actionPayload)
+  }
+
+  private fun notificationPayload(action: VFNotificationPresentationAction): Map<String, Any> {
+    val payload = mutableMapOf<String, Any>("presentationType" to action.notificationPresentationType.toString())
+    action.userUUID?.toString()?.let { payload["userUUID"] = it }
+    action.contentContainerUUID?.toString()?.let { payload["containerUUID"] = it }
+    action.contentUUID?.toString()?.let { payload["contentUUID"] = it }
+    action.containerId?.let { payload["containerId"] = it }
+    action.articleMetadata?.url?.toString()?.let { payload["articleUrl"] = it }
+    action.articleMetadata?.title?.let { payload["articleTitle"] = it }
+    action.url?.let { payload["url"] = it }
+    return payload
   }
 
   // VFCustomUIInterface
