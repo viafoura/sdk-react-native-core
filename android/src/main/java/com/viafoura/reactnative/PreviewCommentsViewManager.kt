@@ -58,6 +58,11 @@ class PreviewCommentsViewManager : ViewGroupManager<PreviewCommentsView>() {
     view.syndicationKey = value
   }
 
+  @ReactProp(name = "focusedContentUUID")
+  fun setFocusedContentUUID(view: PreviewCommentsView, value: String?) {
+    view.focusedContentUUID = value
+  }
+
   @ReactProp(name = "darkMode")
   fun setDarkMode(view: PreviewCommentsView, value: Boolean) {
     view.darkMode = value

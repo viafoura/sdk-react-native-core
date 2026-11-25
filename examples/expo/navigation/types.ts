@@ -1,5 +1,5 @@
 export type RootStackParamList = {
-  Comments: undefined;
+  Comments: { focusedContentUUID?: string } | undefined;
   LiveQuestions: { focusedContentUUID?: string } | undefined;
   Poll: undefined;
   NewComment: { actionType: 'create' | 'edit' | 'reply'; content?: string };
