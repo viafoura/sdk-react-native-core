@@ -58,6 +58,22 @@ class PreviewCommentsViewManager : ViewGroupManager<PreviewCommentsView>() {
     view.syndicationKey = value
   }
 
+  @ReactProp(name = "focusedContentUUID")
+  fun setFocusedContentUUID(view: PreviewCommentsView, value: String?) {
+    view.focusedContentUUID = value
+  }
+
+  @ReactProp(name = "limit")
+  fun setLimit(view: PreviewCommentsView, value: Int) {
+    view.limit = if (value > 0) value else null
+  }
+
+  // -1 rather than 0 marks the prop as unset, because 0 is a valid replyLimit.
+  @ReactProp(name = "replyLimit", defaultInt = -1)
+  fun setReplyLimit(view: PreviewCommentsView, value: Int) {
+    view.replyLimit = if (value >= 0) value else null
+  }
+
   @ReactProp(name = "darkMode")
   fun setDarkMode(view: PreviewCommentsView, value: Boolean) {
     view.darkMode = value

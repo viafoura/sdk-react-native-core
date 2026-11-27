@@ -2,6 +2,7 @@ import UIKit
 
 struct CustomUIStyle {
   var visibility: String?
+  var interactive: Bool?
   var text: String?
   var backgroundColor: String?
   var textColor: String?
@@ -15,6 +16,7 @@ struct CustomUIStyle {
 
   init(dictionary: NSDictionary) {
     visibility = dictionary["visibility"] as? String
+    interactive = (dictionary["interactive"] as? NSNumber)?.boolValue
     text = dictionary["text"] as? String
     backgroundColor = dictionary["backgroundColor"] as? String
     textColor = dictionary["textColor"] as? String
@@ -36,6 +38,7 @@ struct CustomUIStyle {
     guard let existing else { return self }
     var result = self
     result.visibility = visibility ?? existing.visibility
+    result.interactive = interactive ?? existing.interactive
     result.text = text ?? existing.text
     result.backgroundColor = backgroundColor ?? existing.backgroundColor
     result.textColor = textColor ?? existing.textColor
@@ -95,6 +98,9 @@ final class CustomUIViewRegistry {
   private func apply(_ style: CustomUIStyle, to view: UIView) {
     if let visibility = style.visibility {
       view.isHidden = (visibility == "hidden")
+    }
+    if let interactive = style.interactive {
+      view.isUserInteractionEnabled = interactive
     }
     if let backgroundColor = style.backgroundColor, let color = colorFromHex(backgroundColor) {
       view.backgroundColor = color

@@ -200,6 +200,7 @@ export type VFCustomUIColor = `#${string}`;
 
 export type VFCustomUIStyle = {
   visibility?: VFCustomUIVisibility;
+  interactive?: boolean;
   text?: string;
   backgroundColor?: VFCustomUIColor;
   textColor?: VFCustomUIColor;
@@ -777,6 +778,11 @@ export type PreviewCommentsViewProps = {
   articleSubtitle?: string;
   articleThumbnailUrl: string;
   syndicationKey?: string;
+  focusedContentUUID?: string;
+  /** Comments fetched per page, and replies per "load more replies". Defaults to 10. Read once at creation. */
+  limit?: number;
+  /** Replies loaded under each comment with the page. `0` loads none. Defaults to 2. Read once at creation. */
+  replyLimit?: number;
   darkMode?: boolean;
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;

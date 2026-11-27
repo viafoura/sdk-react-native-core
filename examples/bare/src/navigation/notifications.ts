@@ -20,7 +20,12 @@ export const handleProfileAction = (
   switch (event.presentationType) {
     case 'content': {
       const article = articles.find((a) => a.containerId === event.containerId);
-      if (article) navigation.navigate(Screens.Article, article);
+      if (article) {
+        navigation.navigate(Screens.Article, {
+          ...article,
+          focusedContentUUID: event.contentUUID,
+        });
+      }
       return;
     }
     case 'liveQuestions':

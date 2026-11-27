@@ -36,6 +36,9 @@ class PreviewCommentsView(context: Context) :
   var articleSubtitle: String? = null
   var articleThumbnailUrl: String? = null
   var syndicationKey: String? = null
+  var focusedContentUUID: String? = null
+  var limit: Int? = null
+  var replyLimit: Int? = null
   var darkMode: Boolean = false
     set(value) {
       field = value
@@ -140,6 +143,9 @@ class PreviewCommentsView(context: Context) :
 
       val builder = VFPreviewCommentsFragmentBuilder(requireNotNull(containerId), meta, settings)
       syndicationKey?.let { builder.syndicationKey(it) }
+      focusedContentUUID?.let { if (it.isNotEmpty()) builder.focusedContentUUID(it) }
+      limit?.let { builder.paginationSize(it) }
+      replyLimit?.let { builder.replySize(it) }
       val frag = builder.build()
       frag.setActionCallback(this)
       frag.setLayoutCallback(this)

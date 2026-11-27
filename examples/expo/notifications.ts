@@ -15,7 +15,9 @@ export function handleProfileAction(navigation: Navigation, event: ActionCallbac
   if (event.type !== 'notificationPressed') return;
   switch (event.presentationType) {
     case 'content':
-      if (event.containerId === viafouraConfig.containerId) navigation.navigate('Comments');
+      if (event.containerId === viafouraConfig.containerId) {
+        navigation.navigate('Comments', { focusedContentUUID: event.contentUUID });
+      }
       return;
     case 'liveQuestions':
       if (event.containerId === viafouraConfig.liveQuestionsContainerId) {

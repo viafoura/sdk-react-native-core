@@ -486,6 +486,9 @@ import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 | --- | --- | --- |
 | `authorId` | — | Marks comments by this user with the author badge. Shorthand for a one-element `authorIds`. |
 | `authorIds` | `[]` | Marks comments by any of these users with the author badge. Merged with `authorId`. Values are Viafoura user ids; Android also accepts a social login id or email. |
+| `focusedContentUUID` | — | Opens scrolled to this comment or reply, loading its thread if it is not on the first page. Must be a UUID; anything else is ignored and the list opens normally. Read once at creation, so give the view a `key` (for example the UUID itself) to focus a different comment on a screen that is already mounted. |
+| `limit` | `10` | Comments fetched per page, and replies fetched each time "load more replies" is tapped. Values below 1 use the default. Read once at creation. |
+| `replyLimit` | `2` | Replies loaded under each comment along with the page; `0` loads none. Read once at creation. |
 | `adInterval`, `firstAdPosition`, `adHeight`, `renderAd`, `onAdSlotRequested` | ads off | See [Ads](#ads). |
 | `profileStyle` | `legacy` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
@@ -778,7 +781,7 @@ navigates. `presentationType` says what to open:
 
 | `presentationType` | Fields | Open |
 | --- | --- | --- |
-| `content` | `containerId`, `articleUrl`, `articleTitle`, `containerUUID`, `contentUUID` | The article's conversation. `contentUUID` is the comment the notification is about. |
+| `content` | `containerId`, `articleUrl`, `articleTitle`, `containerUUID`, `contentUUID` | The article's conversation. `contentUUID` is the comment the notification is about; pass it to `PreviewCommentsView` as `focusedContentUUID` to open on that comment. |
 | `liveQuestions` | `containerId`, `articleUrl`, `articleTitle`, `containerUUID`, `contentUUID` | The Live Q&A for that container. Pass `contentUUID` as `focusedContentUUID` to open on the answer. |
 | `profile` | `userUUID` | That member's profile. iOS stacks it on the open profile itself; Android pushes a new `ProfileView` screen, since the one emitting the event reads `userUUID` only when created. |
 | `url` | `url` | A broadcast link. Open it in the browser or your own deep-link handler. |
@@ -914,6 +917,7 @@ ViafouraCustomUI.clearCustomUIStyle(viewType, theme?);
 | Property | Type | Applies to | Notes |
 | --- | --- | --- | --- |
 | `visibility` | `'visible' \| 'hidden'` | any view | `GONE` on Android, so the view leaves the layout. `isHidden` on iOS, which keeps the view's frame unless it sits in a stack view, so a hidden view can leave blank space. |
+| `interactive` | `boolean` | any view | `false` stops the view responding to taps while leaving it on screen; `true` re-enables it. `isEnabled` / `isClickable` on Android, `isUserInteractionEnabled` on iOS. The SDK's own tap handler is kept, so `true` restores it. |
 | `text` | `string` | labels, buttons | Replaces the SDK's copy, including its translation. Not applied to text inputs. |
 | `backgroundColor` | `#RRGGBB` / `#AARRGGBB` | any view | |
 | `textColor` | colour | labels, text inputs, buttons | |
@@ -939,6 +943,14 @@ platform, so set both; `CustomUIViewType` contains the union:
 ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.previewPoweredByView, { visibility: 'hidden' });
 ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.previewPoweredBy, { visibility: 'hidden' });
 ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.liveQuestionPoweredByView, { visibility: 'hidden' });
+```
+
+Keep the "powered by" footers but stop them opening viafoura.com when tapped:
+
+```ts
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.previewPoweredByView, { interactive: false });
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.previewPoweredBy, { interactive: false });
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.liveQuestionPoweredByView, { interactive: false });
 ```
 
 Round the conversation starter's button and give it an outline:

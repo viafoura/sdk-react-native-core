@@ -27,7 +27,7 @@ type CommentsScreenProps =
     initError: string | null;
   };
 
-export default function CommentsScreen({ initError, navigation }: CommentsScreenProps) {
+export default function CommentsScreen({ initError, navigation, route }: CommentsScreenProps) {
   const [darkMode, setDarkMode] = useState(false);
   const [starterHeight, setStarterHeight] = useState<number>(0);
   const [commentsHeight, setCommentsHeight] = useState<number>(260);
@@ -125,7 +125,9 @@ export default function CommentsScreen({ initError, navigation }: CommentsScreen
 
         <View style={[styles.previewContainer, styles.previewContainerFlat, { height: commentsHeight }]}>
           <PreviewCommentsView
+            key={route.params?.focusedContentUUID}
             {...articleProps}
+            focusedContentUUID={route.params?.focusedContentUUID}
             adInterval={4}
             firstAdPosition={2}
             adHeight={HOUSE_AD_HEIGHT}
