@@ -17,6 +17,7 @@ import kotlin.math.roundToInt
 
 data class CustomUIStyle(
   val visibility: String? = null,
+  val interactive: Boolean? = null,
   val text: String? = null,
   val backgroundColor: String? = null,
   val textColor: String? = null,
@@ -32,6 +33,7 @@ data class CustomUIStyle(
     if (existing == null) return this
     return CustomUIStyle(
       visibility = visibility ?: existing.visibility,
+      interactive = interactive ?: existing.interactive,
       text = text ?: existing.text,
       backgroundColor = backgroundColor ?: existing.backgroundColor,
       textColor = textColor ?: existing.textColor,
@@ -53,8 +55,12 @@ data class CustomUIStyle(
       fun number(key: String): Float? =
         if (map.hasKey(key) && map.getType(key) == ReadableType.Number) map.getDouble(key).toFloat() else null
 
+      fun boolean(key: String): Boolean? =
+        if (map.hasKey(key) && map.getType(key) == ReadableType.Boolean) map.getBoolean(key) else null
+
       return CustomUIStyle(
         visibility = string("visibility"),
+        interactive = boolean("interactive"),
         text = string("text"),
         backgroundColor = string("backgroundColor"),
         textColor = string("textColor"),
@@ -111,6 +117,11 @@ object CustomUIViewRegistry {
   private fun apply(view: View, style: CustomUIStyle) {
     style.visibility?.let { value ->
       view.visibility = if (value == "hidden") View.GONE else View.VISIBLE
+    }
+    style.interactive?.let { value ->
+      // The SDK's click listener is left in place so that `interactive: true` restores it.
+      view.isEnabled = value
+      view.isClickable = value && view.hasOnClickListeners()
     }
     applyBackground(view, style)
     style.text?.let { value ->
