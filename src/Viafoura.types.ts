@@ -200,6 +200,7 @@ export type VFCustomUIColor = `#${string}`;
 
 export type VFCustomUIStyle = {
   visibility?: VFCustomUIVisibility;
+  interactive?: boolean;
   text?: string;
   backgroundColor?: VFCustomUIColor;
   textColor?: VFCustomUIColor;

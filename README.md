@@ -914,6 +914,7 @@ ViafouraCustomUI.clearCustomUIStyle(viewType, theme?);
 | Property | Type | Applies to | Notes |
 | --- | --- | --- | --- |
 | `visibility` | `'visible' \| 'hidden'` | any view | `GONE` on Android, so the view leaves the layout. `isHidden` on iOS, which keeps the view's frame unless it sits in a stack view, so a hidden view can leave blank space. |
+| `interactive` | `boolean` | any view | `false` stops the view responding to taps while leaving it on screen; `true` re-enables it. `isEnabled` / `isClickable` on Android, `isUserInteractionEnabled` on iOS. The SDK's own tap handler is kept, so `true` restores it. |
 | `text` | `string` | labels, buttons | Replaces the SDK's copy, including its translation. Not applied to text inputs. |
 | `backgroundColor` | `#RRGGBB` / `#AARRGGBB` | any view | |
 | `textColor` | colour | labels, text inputs, buttons | |
@@ -939,6 +940,14 @@ platform, so set both; `CustomUIViewType` contains the union:
 ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.previewPoweredByView, { visibility: 'hidden' });
 ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.previewPoweredBy, { visibility: 'hidden' });
 ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.liveQuestionPoweredByView, { visibility: 'hidden' });
+```
+
+Keep the "powered by" footers but stop them opening viafoura.com when tapped:
+
+```ts
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.previewPoweredByView, { interactive: false });
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.previewPoweredBy, { interactive: false });
+ViafouraCustomUI.setCustomUIStyle(CustomUIViewType.liveQuestionPoweredByView, { interactive: false });
 ```
 
 Round the conversation starter's button and give it an outline:
