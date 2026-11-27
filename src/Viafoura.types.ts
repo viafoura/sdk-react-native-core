@@ -778,6 +778,7 @@ export type PreviewCommentsViewProps = {
   articleSubtitle?: string;
   articleThumbnailUrl: string;
   syndicationKey?: string;
+  focusedContentUUID?: string;
   darkMode?: boolean;
   theme?: VFCustomUITheme;
   colors?: ViafouraColors;

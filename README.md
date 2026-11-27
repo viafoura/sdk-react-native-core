@@ -486,6 +486,7 @@ import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 | --- | --- | --- |
 | `authorId` | — | Marks comments by this user with the author badge. Shorthand for a one-element `authorIds`. |
 | `authorIds` | `[]` | Marks comments by any of these users with the author badge. Merged with `authorId`. Values are Viafoura user ids; Android also accepts a social login id or email. |
+| `focusedContentUUID` | — | Opens scrolled to this comment or reply, loading its thread if it is not on the first page. Must be a UUID; anything else is ignored and the list opens normally. Read once at creation, so give the view a `key` (for example the UUID itself) to focus a different comment on a screen that is already mounted. |
 | `adInterval`, `firstAdPosition`, `adHeight`, `renderAd`, `onAdSlotRequested` | ads off | See [Ads](#ads). |
 | `profileStyle` | `legacy` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 
@@ -778,7 +779,7 @@ navigates. `presentationType` says what to open:
 
 | `presentationType` | Fields | Open |
 | --- | --- | --- |
-| `content` | `containerId`, `articleUrl`, `articleTitle`, `containerUUID`, `contentUUID` | The article's conversation. `contentUUID` is the comment the notification is about. |
+| `content` | `containerId`, `articleUrl`, `articleTitle`, `containerUUID`, `contentUUID` | The article's conversation. `contentUUID` is the comment the notification is about; pass it to `PreviewCommentsView` as `focusedContentUUID` to open on that comment. |
 | `liveQuestions` | `containerId`, `articleUrl`, `articleTitle`, `containerUUID`, `contentUUID` | The Live Q&A for that container. Pass `contentUUID` as `focusedContentUUID` to open on the answer. |
 | `profile` | `userUUID` | That member's profile. iOS stacks it on the open profile itself; Android pushes a new `ProfileView` screen, since the one emitting the event reads `userUUID` only when created. |
 | `url` | `url` | A broadcast link. Open it in the browser or your own deep-link handler. |
