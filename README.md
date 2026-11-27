@@ -487,6 +487,8 @@ import { PreviewCommentsView } from '@viafoura/sdk-react-native';
 | `authorId` | — | Marks comments by this user with the author badge. Shorthand for a one-element `authorIds`. |
 | `authorIds` | `[]` | Marks comments by any of these users with the author badge. Merged with `authorId`. Values are Viafoura user ids; Android also accepts a social login id or email. |
 | `focusedContentUUID` | — | Opens scrolled to this comment or reply, loading its thread if it is not on the first page. Must be a UUID; anything else is ignored and the list opens normally. Read once at creation, so give the view a `key` (for example the UUID itself) to focus a different comment on a screen that is already mounted. |
+| `limit` | `10` | Comments fetched per page, and replies fetched each time "load more replies" is tapped. Values below 1 use the default. Read once at creation. |
+| `replyLimit` | `2` | Replies loaded under each comment along with the page; `0` loads none. Read once at creation. |
 | `adInterval`, `firstAdPosition`, `adHeight`, `renderAd`, `onAdSlotRequested` | ads off | See [Ads](#ads). |
 | `profileStyle` | `legacy` | iOS only. Layout of the profile the SDK presents on `onOpenProfile`. See [Profile style](#profile-style). |
 

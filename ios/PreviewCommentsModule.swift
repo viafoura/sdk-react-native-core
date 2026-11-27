@@ -69,6 +69,8 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
   @objc var articleTitle: String = ""
   @objc var syndicationKey: String = ""
   @objc var focusedContentUUID: String = ""
+  @objc var limit: NSNumber?
+  @objc var replyLimit: NSNumber?
   @objc var articleSubtitle: String = ""
   @objc var articleThumbnailUrl: String = ""
   @objc var darkMode: Bool = false {
@@ -135,7 +137,9 @@ class RNPreviewComments: UIView, VFLoginDelegate, VFLayoutDelegate, VFAdDelegate
       articleMetadata: articleMetadata,
       loginDelegate: self,
       settings: settings,
+      paginationSize: limit.map(\.intValue).flatMap { $0 > 0 ? $0 : nil } ?? 10,
       defaultSort: .newest,
+      replySize: replyLimit.map(\.intValue).flatMap { $0 >= 0 ? $0 : nil } ?? 2,
       syndicationKey: syndicationKey.isEmpty ? nil : syndicationKey,
       focusedContentUUID: focusedContentUUID.isEmpty ? nil : UUID(uuidString: focusedContentUUID)
     )
